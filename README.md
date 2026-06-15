@@ -30,7 +30,26 @@ Open `index.html` in any browser — that's it.
 open index.html
 ```
 
+## Live data (optional)
+A scheduled GitHub Action (`.github/workflows/update-data.yml`) can refresh team
+badges and match results and commit them back, so Pages auto-redeploys. To turn
+it on:
+
+1. **Get free API key(s):** [football-data.org](https://www.football-data.org/client/register)
+   for results; [TheSportsDB](https://www.thesportsdb.com/) for badges (optional —
+   a free test key is used otherwise).
+2. **Add them as repo secrets:** Settings → Secrets and variables → Actions →
+   *New repository secret* — `FOOTBALL_DATA_TOKEN` and (optionally)
+   `THESPORTSDB_KEY`.
+3. **Allow Actions to commit:** Settings → Actions → General → Workflow
+   permissions → **Read and write permissions**.
+
+The fetcher is `scripts/fetch-live-data.js`; it writes `data/live-data.json` and
+`live-data.js` (`window.WC_LIVE`). Wiring `WC_LIVE` into the UI (badges, real
+results) is the next step once the first run confirms the data shape.
+
 ## Notes
 - Default lineups follow the published draw; playoff slots resolve once those
   qualifiers are known. Every team name is editable.
-- Fan-made; not affiliated with FIFA.
+- Fan-made; not affiliated with FIFA. "World Cup Stars of Soccer" montage by
+  The Athletic.

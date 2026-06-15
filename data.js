@@ -39,3 +39,7 @@ const WC = {
   // (e.g. results: { A: [[2,1], null, ...], ... }) and surfaced in the UI.
   // results: {},
 };
+
+/* Allow Node (the GitHub Action fetch script) to require this file.
+   Harmless in the browser, where `module` is undefined. */
+if (typeof module !== "undefined") module.exports = WC;

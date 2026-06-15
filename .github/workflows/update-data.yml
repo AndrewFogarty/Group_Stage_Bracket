@@ -1,0 +1,40 @@
+name: Update live data
+
+# Refreshes team badges (and match results once a token is set) and
+# commits the generated data back so GitHub Pages redeploys.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # every 6 hours (bump to e.g. "*/15 * * * *" during matchdays)
+  workflow_dispatch: {} # lets you run it on demand from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Fetch live data
+        env:
+          THESPORTSDB_KEY: ${{ secrets.THESPORTSDB_KEY }}
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+        run: node scripts/fetch-live-data.js
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/live-data.json live-data.js
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: refresh live data [skip ci]"
+            git push
+          fi
