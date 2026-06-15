@@ -44,31 +44,19 @@ body {
   position: relative;
   overflow: hidden;
   color: #fff;
-  background:
-    /* left tint keeps the title readable */
-    linear-gradient(105deg, rgba(110, 6, 26, 0.62) 0%, rgba(110, 6, 26, 0.14) 44%, rgba(255, 255, 255, 0) 64%),
-    /* big white swoosh */
-    radial-gradient(circle at 6% 152%, rgba(255, 255, 255, 0) 41.2%, rgba(255, 255, 255, 0.92) 42%, rgba(255, 255, 255, 0.92) 47%, rgba(255, 255, 255, 0) 47.8%),
-    /* thinner trailing arc */
-    radial-gradient(circle at 24% 172%, rgba(255, 255, 255, 0) 50.3%, rgba(255, 255, 255, 0.4) 51%, rgba(255, 255, 255, 0.4) 54%, rgba(255, 255, 255, 0) 54.7%),
-    /* red field */
-    radial-gradient(135% 165% at 78% -30%, #e7203f 0%, #bb1130 50%, #8c0a22 100%);
-  box-shadow: 0 8px 28px rgba(110, 6, 26, 0.3);
+  background-color: #0c1220; /* fallback if the photo fails */
+  background-image:
+    /* dark, left-weighted tint keeps the title legible over the photo */
+    linear-gradient(100deg, rgba(8, 12, 24, 0.9) 0%, rgba(8, 12, 24, 0.55) 48%, rgba(8, 12, 24, 0.18) 100%),
+    url("images/trophy.jpg");
+  background-size: cover;
+  background-position: center 32%;
+  box-shadow: 0 8px 28px rgba(12, 18, 32, 0.35);
 }
 
-/* CSS gold trophy, sitting on the right of the hero */
+/* real trophy photo is the hero background now — emoji no longer needed */
 .site-header::after {
-  content: "🏆";
-  position: absolute;
-  right: 6%;
-  top: 50%;
-  transform: translateY(-48%);
-  font-size: clamp(5.5rem, 14vw, 10.5rem);
-  line-height: 1;
-  opacity: 0.95;
-  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.38));
-  pointer-events: none;
-  z-index: 0;
+  content: none;
 }
 
 .header-inner {
@@ -787,4 +775,17 @@ tbody tr.eliminated {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; }
   .group-card:hover { transform: none; }
+}
+
+/* ================= Stars banner ================= */
+.stars-banner {
+  margin: 0 0 1.5rem;
+}
+
+.stars-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(22, 34, 59, 0.14);
 }
