@@ -274,6 +274,7 @@ body {
 }
 
 .match {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -281,6 +282,26 @@ body {
   padding: 0.28rem 0.4rem;
   border-radius: 9px;
   background: #f7f9fc;
+}
+
+/* officially-confirmed matches get a lock badge */
+.match-lock {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  font-size: 0.66rem;
+  line-height: 1;
+  opacity: 0.6;
+  display: none;
+  pointer-events: none;
+}
+
+.match.confirmed {
+  background: #eef2f9;
+}
+
+.match.confirmed .match-lock {
+  display: block;
 }
 
 .match:hover {
@@ -1029,4 +1050,10 @@ tbody tr.eliminated {
   background: #eef1f7;
   color: #98a3b8;
   border: 1px solid var(--line);
+}
+
+.sc-chip.locked {
+  background: #e7ebf3;
+  color: #7a869c;
+  border: 1px dashed var(--line-strong);
 }

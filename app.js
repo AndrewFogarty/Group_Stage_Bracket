@@ -308,7 +308,8 @@ function buildGroups() {
         <span class="team away">
           <span class="tname" data-group="${g}" data-idx="${ai}" contenteditable="true" spellcheck="false"></span>
           <span class="flag">${flagHtml(codeFor(g, ai))}</span>
-        </span>`;
+        </span>
+        <span class="match-lock" title="Officially confirmed result — predictions for this match don't score on the leaderboard" aria-hidden="true">🔒</span>`;
       matches.appendChild(row);
     });
     card.appendChild(matches);
@@ -559,21 +560,43 @@ function liveResults() {
   return (window.WC_LIVE && window.WC_LIVE.results) || {};
 }
 
+function isConfirmed(g, i) {
+  const live = liveResults();
+  return !!(live[g] && live[g][i] && live[g][i][0] !== null && live[g][i][1] !== null);
+}
+
+/* Matches already officially confirmed when a submission was made — these
+   don't count toward the leaderboard (you can't "guess" a known result). */
+function confirmedKeysNow() {
+  const keys = [];
+  for (const g of GROUP_LETTERS) for (let i = 0; i < 6; i++) if (isConfirmed(g, i)) keys.push(g + i);
+  return keys;
+}
+
+/* Add a 🔒 to group matches whose result is already official. */
+function markConfirmedMatches() {
+  document.querySelectorAll(".match").forEach((row) => {
+    row.classList.toggle("confirmed", isConfirmed(row.dataset.group, +row.dataset.match));
+  });
+}
+
 function scoreSubmission(sub) {
   const live = liveResults();
   const allowExact = sub.mode !== "result";
-  let total = 0, exact = 0, outc = 0, miss = 0, scored = 0;
+  const lockedSet = new Set(sub.locked || []);
+  let total = 0, exact = 0, outc = 0, miss = 0, scored = 0, locked = 0;
   for (const g of GROUP_LETTERS) {
     const preds = (sub.scores && sub.scores[g]) || [];
     const acts = live[g] || [];
     for (let i = 0; i < 6; i++) {
+      if (lockedSet.has(g + i)) { locked++; continue; } // pre-confirmed — excluded
       const r = scoreMatch(preds[i], acts[i], allowExact);
       if (r.kind === "exact") { total += 30; exact++; scored++; }
       else if (r.kind === "outcome") { total += 10; outc++; scored++; }
       else if (r.kind === "miss") { miss++; scored++; }
     }
   }
-  return { total, exact, outcome: outc, miss, scored };
+  return { total, exact, outcome: outc, miss, scored, locked };
 }
 
 function submitPredictions() {
@@ -587,6 +610,7 @@ function submitPredictions() {
     mode: state.mode,
     scores: JSON.parse(JSON.stringify(state.scores)),
     bracket: JSON.parse(JSON.stringify(state.bracket)),
+    locked: confirmedKeysNow(), // matches already official at submit time → excluded
   });
   saveBoard();
   input.value = "";
@@ -628,6 +652,7 @@ function renderScorecard(id) {
   const live = liveResults();
   const allowExact = sub.mode !== "result";
   const sc = scoreSubmission(sub);
+  const lockedSet = new Set(sub.locked || []);
 
   const sym = (s) => {
     const o = outcome(s);
@@ -638,7 +663,7 @@ function renderScorecard(id) {
   let html = `<div class="sc-head">
       <span class="sc-name">${escapeHtml(sub.username)}</span>
       <span class="sc-total">${sc.total} pts</span>
-      <span class="sc-sub">${sc.exact} exact · ${sc.outcome} result · ${sc.miss} miss</span>
+      <span class="sc-sub">${sc.exact} exact · ${sc.outcome} result · ${sc.miss} miss · ${sc.locked} 🔒</span>
       <button class="sc-close" type="button" aria-label="Close">✕</button>
     </div>
     <div class="sc-legend">
@@ -646,6 +671,7 @@ function renderScorecard(id) {
       <span class="sc-chip outcome">10</span> result
       <span class="sc-chip miss">0</span> miss
       <span class="sc-chip pending">·</span> not played
+      <span class="sc-chip locked">🔒</span> already confirmed (no points)
     </div>
     <div class="sc-groups">`;
 
@@ -655,9 +681,14 @@ function renderScorecard(id) {
       const [hi, ai] = fx;
       const pred = (sub.scores[g] || [])[i];
       const act = (live[g] || [])[i];
+      const nm = state.names[g];
+      if (lockedSet.has(g + i)) {
+        const t = `${nm[hi]} v ${nm[ai]} — already confirmed at submit time (no points)`;
+        html += `<span class="sc-chip locked" title="${escapeHtml(t)}">🔒</span>`;
+        return;
+      }
       const r = scoreMatch(pred, act, allowExact);
       const shown = sub.mode === "result" ? sym(pred) : fmt(pred);
-      const nm = state.names[g];
       const title = `${nm[hi]} v ${nm[ai]} — you ${sub.mode === "result" ? sym(pred) : fmt(pred)}, actual ${fmt(act)}${r.pts ? " (+" + r.pts + ")" : ""}`;
       html += `<span class="sc-chip ${r.kind}" title="${escapeHtml(title)}">${shown === "—" ? "·" : shown}</span>`;
     });
@@ -818,3 +849,4 @@ wireEvents();
 setMode(state.mode);
 renderAll();
 renderLeaderboard();
+markConfirmedMatches();
