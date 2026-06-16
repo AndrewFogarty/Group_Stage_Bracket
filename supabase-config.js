@@ -11,6 +11,7 @@
    controlled by the table's Row Level Security policies.
    ===================================================================== */
 window.SUPABASE_CONFIG = {
-  url: "",
-  anonKey: "",
+  url: "https://aqzaiyoiqcbcpfdfcygq.supabase.co",
+  anonKey:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxemFpeW9pcWNiY3BmZGZjeWdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MjEyMTQsImV4cCI6MjA5NzE5NzIxNH0.0FZRWpYkEzkV7BThI82WzFjdUBfkxVME6bFW7JjyTS0",
 };
