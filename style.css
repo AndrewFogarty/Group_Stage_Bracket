@@ -1322,3 +1322,14 @@ body {
   background-attachment: scroll;
   background-color: #0c1030;
 }
+
+/* Make the stars banner genuinely see-through (translucent image) + dark glass tint */
+.stars-banner {
+  background: rgba(12, 18, 40, 0.5);
+}
+.stars-banner::after {
+  display: none; /* drop the opaque-image overlay approach */
+}
+.stars-banner img {
+  opacity: 0.5; /* see-through: backdrop shows through the glass */
+}
