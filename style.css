@@ -1274,3 +1274,17 @@ body {
   padding: 0.22rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
+
+/* Group stage panel: trophy-on-flags photo (the previous knockout background) */
+#groups {
+  padding: 1.1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-image:
+    linear-gradient(rgba(8, 10, 26, 0.55), rgba(14, 8, 26, 0.62)),
+    url("images/wc-flags-trophy.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
