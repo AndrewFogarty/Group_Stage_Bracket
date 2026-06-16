@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-16T15:51:38.138121Z",
+  "updated": "2026-06-16T16:30:35.529253Z",
   "results": {
     "A": [
       [
@@ -146,5 +146,12 @@
       null,
       null
     ]
+  },
+  "advanced": {
+    "R16": [],
+    "QF": [],
+    "SF": [],
+    "FINAL": [],
+    "champion": null
   }
 }

@@ -551,9 +551,24 @@ function outcome(s) {
 function scoreMatch(pred, actual, allowExact) {
   if (!actual || actual[0] === null || actual[1] === null) return { kind: "pending", pts: 0 };
   if (!pred || pred[0] === null || pred[1] === null) return { kind: "none", pts: 0 };
-  if (allowExact && pred[0] === actual[0] && pred[1] === actual[1]) return { kind: "exact", pts: 30 };
+  if (allowExact && pred[0] === actual[0] && pred[1] === actual[1]) return { kind: "exact", pts: 50 };
   if (outcome(pred) === outcome(actual)) return { kind: "outcome", pts: 10 };
   return { kind: "miss", pts: 0 };
+}
+
+/* Teams a submission predicted to reach each knockout round (snapshotted
+   at submit time from the bracket picks). */
+function predictedAdvancement() {
+  const names = (ids) =>
+    ids.map((id) => { const w = winnerOf(id); return w && w.known ? w.name : null; }).filter(Boolean);
+  const champ = winnerOf(104);
+  return {
+    R16: names(ROUND_ORDER.R32),
+    QF: names(ROUND_ORDER.R16),
+    SF: names(ROUND_ORDER.QF),
+    FINAL: names(ROUND_ORDER.SF),
+    champion: champ && champ.known ? champ.name : null,
+  };
 }
 
 function liveResults() {
@@ -591,12 +606,24 @@ function scoreSubmission(sub) {
     for (let i = 0; i < 6; i++) {
       if (lockedSet.has(g + i)) { locked++; continue; } // pre-confirmed — excluded
       const r = scoreMatch(preds[i], acts[i], allowExact);
-      if (r.kind === "exact") { total += 30; exact++; scored++; }
+      if (r.kind === "exact") { total += 50; exact++; scored++; }
       else if (r.kind === "outcome") { total += 10; outc++; scored++; }
       else if (r.kind === "miss") { miss++; scored++; }
     }
   }
-  return { total, exact, outcome: outc, miss, scored, locked };
+
+  // Knockout: +20 per team correctly predicted to reach a round, +100 champion.
+  const adv = (window.WC_LIVE && window.WC_LIVE.advanced) || {};
+  const pred = sub.predicted || {};
+  let koHits = 0, champ = 0;
+  for (const r of ["R16", "QF", "SF", "FINAL"]) {
+    const actual = new Set(adv[r] || []);
+    for (const t of pred[r] || []) if (actual.has(t)) koHits++;
+  }
+  if (pred.champion && adv.champion && pred.champion === adv.champion) champ = 100;
+  total += koHits * 20 + champ;
+
+  return { total, exact, outcome: outc, miss, scored, locked, koHits, champ };
 }
 
 function submitPredictions() {
@@ -611,6 +638,7 @@ function submitPredictions() {
     scores: JSON.parse(JSON.stringify(state.scores)),
     bracket: JSON.parse(JSON.stringify(state.bracket)),
     locked: confirmedKeysNow(), // matches already official at submit time → excluded
+    predicted: predictedAdvancement(), // teams sent to each knockout round
   });
   saveBoard();
   input.value = "";
@@ -634,7 +662,7 @@ function renderLeaderboard() {
         <td class="col-pos">${i + 1}</td>
         <td class="col-team">${escapeHtml(e.sub.username)}</td>
         <td class="pts">${e.sc.total}</td>
-        <td class="col-breakdown">${e.sc.exact}×30 · ${e.sc.outcome}×10 <span class="muted">(${e.sc.scored} scored)</span></td>
+        <td class="col-breakdown">${e.sc.exact}×50 · ${e.sc.outcome}×10${e.sc.koHits ? " · KO " + e.sc.koHits + "×20" : ""}${e.sc.champ ? " · 🏆100" : ""}</td>
         <td>${e.sub.mode === "result" ? "W/D/L" : "Score"}</td>
         <td class="lb-actions">
           <button class="lb-view" data-id="${e.sub.id}" type="button">View</button>
@@ -663,11 +691,11 @@ function renderScorecard(id) {
   let html = `<div class="sc-head">
       <span class="sc-name">${escapeHtml(sub.username)}</span>
       <span class="sc-total">${sc.total} pts</span>
-      <span class="sc-sub">${sc.exact} exact · ${sc.outcome} result · ${sc.miss} miss · ${sc.locked} 🔒</span>
+      <span class="sc-sub">${sc.exact} exact · ${sc.outcome} result · ${sc.miss} miss · ${sc.locked} 🔒${sc.koHits ? " · KO " + sc.koHits + "×20" : ""}${sc.champ ? " · 🏆+100" : ""}</span>
       <button class="sc-close" type="button" aria-label="Close">✕</button>
     </div>
     <div class="sc-legend">
-      <span class="sc-chip exact">30</span> exact
+      <span class="sc-chip exact">50</span> exact
       <span class="sc-chip outcome">10</span> result
       <span class="sc-chip miss">0</span> miss
       <span class="sc-chip pending">·</span> not played

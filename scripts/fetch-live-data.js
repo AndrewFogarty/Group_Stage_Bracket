@@ -69,11 +69,41 @@ function build(src) {
   return { results, filled };
 }
 
+/* Actual knockout advancement: which teams won each knockout round.
+   "Round of 32" winners reach R16, etc. Team names mapped to ours. */
+function advancement(src) {
+  const NEXT = {
+    "Round of 32": "R16",
+    "Round of 16": "QF",
+    "Quarter-final": "SF",
+    "Semi-final": "FINAL",
+  };
+  const adv = { R16: [], QF: [], SF: [], FINAL: [], champion: null };
+  for (const m of src.matches || []) {
+    const ft = m.score && m.score.ft;
+    if (!ft) continue;
+    const t1 = NAME_MAP[m.team1] || m.team1;
+    const t2 = NAME_MAP[m.team2] || m.team2;
+    let w = null;
+    if (ft[0] > ft[1]) w = t1;
+    else if (ft[1] > ft[0]) w = t2;
+    else {
+      const p = m.score.p; // penalties
+      if (p) w = p[0] > p[1] ? t1 : p[1] > p[0] ? t2 : null;
+    }
+    if (!w) continue;
+    if (m.round === "Final") adv.champion = w;
+    else if (NEXT[m.round]) adv[NEXT[m.round]].push(w);
+  }
+  return adv;
+}
+
 async function main() {
   const res = await fetch(SRC_URL);
   if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
   const src = await res.json();
   const { results, filled } = build(src);
+  const advanced = advancement(src);
 
   const root = path.join(__dirname, "..");
   const jsonPath = path.join(root, "data", "live-data.json");
@@ -86,7 +116,11 @@ async function main() {
   } catch (e) {
     /* no previous snapshot */
   }
-  if (prev && JSON.stringify(prev.results) === JSON.stringify(results)) {
+  if (
+    prev &&
+    JSON.stringify(prev.results) === JSON.stringify(results) &&
+    JSON.stringify(prev.advanced || {}) === JSON.stringify(advanced)
+  ) {
     console.log(`No change (${filled} group results) — nothing to write.`);
     return;
   }
@@ -95,6 +129,7 @@ async function main() {
     source: "openfootball/worldcup.json (2026)",
     updated: new Date().toISOString(),
     results,
+    advanced,
   };
   fs.mkdirSync(path.join(root, "data"), { recursive: true });
   fs.writeFileSync(jsonPath, JSON.stringify(out, null, 2));
