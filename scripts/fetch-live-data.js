@@ -58,11 +58,12 @@ const STADIUMS = {
   "New York/New Jersey (East Rutherford)": ["MetLife Stadium", "USA"],
 };
 
+const COUNTRY = { USA: "USA", Canada: "CAN", Mexico: "MEX" };
 function venue(ground) {
   if (!ground) return null;
   const city = ground.replace(/\s*\(.*\)$/, "");
   const s = STADIUMS[ground];
-  return s ? `${s[0]} · ${city}, ${s[1]}` : city;
+  return s ? `${s[0]} (${city}, ${COUNTRY[s[1]] || s[1]})` : city;
 }
 
 function build(src) {
