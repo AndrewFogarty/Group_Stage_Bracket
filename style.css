@@ -1558,3 +1558,26 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ================= Mobile (PWA) pass ================= */
+@media (max-width: 560px) {
+  .header-inner { padding: 2rem 1rem 1.4rem; }
+  .site-header { background-size: cover, 110px auto; }
+  .subnav { overflow-x: auto; gap: 1rem; -webkit-overflow-scrolling: touch; padding-bottom: 0.7rem; }
+  .subnav a { white-space: nowrap; }
+  .container { padding: 1rem 0.85rem 2.5rem; }
+  #groups, .thirds, .bracket-section, .leaderboard {
+    padding: 0.9rem;
+    border-radius: 12px;
+  }
+  .section-head h2 { font-size: 1.5rem; }
+  .controls { width: 100%; }
+  .mode-toggle { flex: 1 1 100%; }
+  .mode-opt { flex: 1; text-align: center; }
+  .btn { flex: 1 1 auto; }
+  .submit-bar { flex-wrap: wrap; }
+  #username { flex: 1 1 100%; max-width: none; }
+  .board-scope { margin-left: 0; }
+  .sch-card { min-width: 10.5rem; }
+  .legend { font-size: 0.8rem; }
+}
