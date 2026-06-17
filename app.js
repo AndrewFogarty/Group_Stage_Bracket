@@ -515,6 +515,80 @@ function setMine(v) {
   try { localStorage.setItem(MY_KEY, JSON.stringify(v)); } catch (e) { /* ignore */ }
 }
 
+/* ---- Google sign-in: one entry per person ---- */
+let authUser = null;
+
+async function initAuth() {
+  if (!SHARED) { applyAuthUI(); return; }
+  try {
+    const { data } = await SB.auth.getSession();
+    authUser = (data && data.session && data.session.user) || null;
+  } catch (e) { /* ignore */ }
+  SB.auth.onAuthStateChange((_event, sess) => {
+    authUser = (sess && sess.user) || null;
+    applyAuthUI();
+    refreshBoard();
+  });
+  applyAuthUI();
+}
+
+function googleName() {
+  const m = (authUser && authUser.user_metadata) || {};
+  return m.full_name || m.name || (authUser && authUser.email) || "";
+}
+
+/* The board row that belongs to the current person. */
+function myId() {
+  if (SHARED && authUser) {
+    const r = board.find((s) => s.user_id === authUser.id);
+    return r ? r.id : null;
+  }
+  const m = getMine();
+  return m ? m.id : null;
+}
+
+function applyAuthUI() {
+  const signin = document.getElementById("signin");
+  const signout = document.getElementById("signout");
+  const who = document.getElementById("whoami");
+  const submit = document.getElementById("submit-bracket");
+  const username = document.getElementById("username");
+  if (!signin || !signout || !who) return;
+  if (!SHARED) { signin.style.display = "none"; signout.style.display = "none"; who.style.display = "none"; return; }
+  if (authUser) {
+    signin.style.display = "none";
+    signout.style.display = "";
+    who.style.display = "";
+    who.textContent = "✓ " + googleName();
+    if (submit) submit.style.display = "";
+    if (username) { username.style.display = ""; if (!username.value) username.value = googleName(); }
+  } else {
+    signin.style.display = "";
+    signout.style.display = "none";
+    who.style.display = "none";
+    if (submit) submit.style.display = "none";
+    if (username) username.style.display = "none";
+  }
+  updateSubmitLabel();
+}
+
+async function signInWithGoogle() {
+  if (!SHARED) return;
+  try {
+    await SB.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: location.origin + location.pathname },
+    });
+  } catch (e) { alert("Sign-in failed: " + (e.message || e)); }
+}
+
+async function signOut() {
+  try { await SB.auth.signOut(); } catch (e) { /* ignore */ }
+  authUser = null;
+  applyAuthUI();
+  refreshBoard();
+}
+
 function loadBoard() {
   try {
     const s = JSON.parse(localStorage.getItem(BOARD_KEY));
@@ -539,6 +613,7 @@ async function loadBoardRemote() {
     if (error) throw error;
     board = (data || []).map((r) => ({
       id: r.id,
+      user_id: r.user_id,
       username: r.username,
       createdAt: r.created_at,
       mode: r.mode,
@@ -559,9 +634,9 @@ function refreshBoard() {
 /* Fill any empty boxes from your own submitted entry, so your guesses (incl.
    already-played matches) show and get colour-graded without re-clicking Edit. */
 function hydrateMyGuesses() {
-  const mine = getMine();
-  if (!mine || !mine.id) return;
-  const sub = board.find((s) => s.id === mine.id);
+  const id = myId();
+  if (!id) return;
+  const sub = board.find((s) => s.id === id);
   if (!sub || !sub.scores) return;
   let changed = false;
   for (const g of GROUP_LETTERS) {
@@ -668,32 +743,24 @@ function scoreSubmission(sub) {
 
 async function submitPredictions() {
   const input = document.getElementById("username");
-  const name = (input.value || "").trim();
-  if (!name) { input.focus(); return; }
-  const mine = getMine();
-  const editKey = (mine && mine.editKey) || Math.random().toString(36).slice(2);
   const payload = {
     scores: JSON.parse(JSON.stringify(state.scores)),
     bracket: JSON.parse(JSON.stringify(state.bracket)),
     locked: confirmedKeysNow(), // matches already official at submit time → excluded
     predicted: predictedAdvancement(), // teams sent to each knockout round
-    editKey,
   };
   if (SHARED) {
+    if (!authUser) { signInWithGoogle(); return; } // one entry per person → must sign in
+    const name = (input.value || "").trim() || googleName();
     const btn = document.getElementById("submit-bracket");
     btn.disabled = true;
     try {
-      if (mine && mine.id) {
-        const { error } = await SB.from("submissions")
-          .update({ username: name, mode: state.mode, payload }).eq("id", mine.id);
-        if (error) throw error;
-        setMine({ id: mine.id, editKey, username: name });
-      } else {
-        const { data, error } = await SB.from("submissions")
-          .insert({ username: name, mode: state.mode, payload }).select().single();
-        if (error) throw error;
-        setMine({ id: data.id, editKey, username: name });
-      }
+      // one row per user_id → upsert (insert or update your own entry)
+      const { error } = await SB.from("submissions").upsert(
+        { user_id: authUser.id, username: name, mode: state.mode, payload },
+        { onConflict: "user_id" }
+      );
+      if (error) throw error;
       await loadBoardRemote();
     } catch (e) {
       alert("Save failed: " + (e.message || e));
@@ -702,6 +769,11 @@ async function submitPredictions() {
     }
     btn.disabled = false;
   } else {
+    const name = (input.value || "").trim();
+    if (!name) { input.focus(); return; }
+    const mine = getMine();
+    const editKey = (mine && mine.editKey) || Math.random().toString(36).slice(2);
+    payload.editKey = editKey;
     const i = mine && mine.id ? board.findIndex((s) => s.id === mine.id) : -1;
     if (i >= 0) {
       board[i] = { ...board[i], username: name, mode: state.mode, ...payload };
@@ -719,7 +791,7 @@ async function submitPredictions() {
 
 function updateSubmitLabel() {
   const btn = document.getElementById("submit-bracket");
-  if (btn) btn.textContent = getMine() ? "✏️ Update my entry" : "🔒 Submit & lock";
+  if (btn) btn.textContent = myId() ? "✏️ Update my entry" : "🔒 Submit & lock";
 }
 
 /* Load a submission's predictions back into the editor (group scores +
@@ -754,7 +826,7 @@ function renderLeaderboard() {
     tbody.innerHTML = `<tr><td colspan="6" class="empty-row">No entries yet — submit a bracket above to start the leaderboard.</td></tr>`;
     return;
   }
-  const mineId = (getMine() || {}).id;
+  const mineId = myId();
   tbody.innerHTML = rows
     .map((e, i) => `
       <tr class="${i === 0 ? "leader" : ""} ${e.sub.id === mineId ? "mine" : ""}">
@@ -1078,6 +1150,8 @@ function wireEvents() {
   // Leaderboard
   document.getElementById("submit-bracket").addEventListener("click", submitPredictions);
   document.getElementById("refresh-board").addEventListener("click", refreshBoard);
+  document.getElementById("signin").addEventListener("click", signInWithGoogle);
+  document.getElementById("signout").addEventListener("click", signOut);
   document.getElementById("username").addEventListener("keydown", (e) => {
     if (e.key === "Enter") { e.preventDefault(); submitPredictions(); }
   });
@@ -1125,10 +1199,11 @@ fillGroupVenues();
 setupBoardUI();
 refreshBoard();
 markConfirmedMatches();
+initAuth();
 
 (function restoreIdentity() {
   const mine = getMine();
   const input = document.getElementById("username");
-  if (mine && mine.username && input) input.value = mine.username;
+  if (!SHARED && mine && mine.username && input) input.value = mine.username;
   updateSubmitLabel();
 })();

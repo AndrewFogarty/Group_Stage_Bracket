@@ -141,9 +141,12 @@
           </p>
         </div>
         <div class="submit-bar">
-          <input id="username" type="text" maxlength="24" placeholder="Your username"
-                 aria-label="Username" autocomplete="off" />
+          <button id="signin" class="btn" type="button" style="display:none">Sign in with Google</button>
+          <span id="whoami" class="whoami" style="display:none"></span>
+          <input id="username" type="text" maxlength="24" placeholder="Display name"
+                 aria-label="Display name" autocomplete="off" />
           <button id="submit-bracket" class="btn" type="button">🔒 Submit &amp; lock</button>
+          <button id="signout" class="btn ghost" type="button" style="display:none">Sign out</button>
           <button id="refresh-board" class="btn ghost" type="button">↻ Refresh</button>
           <button id="clear-board" class="btn ghost" type="button">Clear all</button>
           <span id="board-scope" class="board-scope"></span>

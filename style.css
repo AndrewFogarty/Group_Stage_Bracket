@@ -1702,3 +1702,11 @@ body {
   border-color: rgba(255, 255, 255, 0.14);
   opacity: 1;
 }
+
+/* signed-in indicator */
+.whoami {
+  align-self: center;
+  font-size: 0.85rem;
+  color: #eaf0fb;
+  font-weight: 600;
+}
