@@ -1621,3 +1621,47 @@ body {
 .bm-name.ph {
   color: rgba(255, 255, 255, 0.55);
 }
+
+/* bracket description spans the full width (was bunched at 64ch) */
+.bracket-section .section-head p {
+  max-width: none;
+}
+
+/* "Act." row: official scoreline in black, under the prediction boxes */
+.match-actual {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  margin-top: 0.12rem;
+}
+.match-actual:empty {
+  display: none;
+}
+.act-label {
+  font-family: var(--cond);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-right: 0.15rem;
+}
+.act-box {
+  min-width: 1.4rem;
+  padding: 0.04rem 0.25rem;
+  display: inline-grid;
+  place-items: center;
+  background: #fff;
+  color: #000;
+  border-radius: 4px;
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+.act-dash {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 700;
+}

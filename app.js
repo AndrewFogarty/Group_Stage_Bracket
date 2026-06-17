@@ -175,7 +175,7 @@ function blankStat(name) {
 }
 
 function groupComplete(g) {
-  return state.scores[g].every((m) => m[0] !== null && m[1] !== null);
+  return effScores(g).every((m) => m[0] !== null && m[0] !== undefined && m[1] !== null && m[1] !== undefined);
 }
 
 function allGroupsComplete() {
@@ -191,8 +191,17 @@ function escapeHtml(str) {
 }
 
 /* ================= Standings (pure logic in lib/engine.js) ================= */
+/* Effective scores: actual result for played matches, else your prediction —
+   so standings + the bracket reflect real results plus your remaining picks. */
+function effScores(group) {
+  const live = liveResults();
+  return state.scores[group].map((pred, i) => {
+    const a = (live[group] || [])[i];
+    return a && a[0] != null && a[1] != null ? a : pred;
+  });
+}
 function rankGroup(group) {
-  return GSB.rankGroup(state.names[group], state.scores[group]);
+  return GSB.rankGroup(state.names[group], effScores(group));
 }
 
 /* Ranked list of all 12 third-placed teams (top 8 advance). */
@@ -266,6 +275,7 @@ function buildGroups() {
           <span class="flag">${flagHtml(codeFor(g, ai))}</span>
         </span>
         <span class="match-lock" title="Officially confirmed result — predictions for this match don't score on the leaderboard" aria-hidden="true">🔒</span>
+        <span class="match-actual"></span>
         <span class="match-venue"></span>`;
       matches.appendChild(row);
     });
@@ -873,6 +883,21 @@ function fillGroupVenues() {
   });
 }
 
+/* "Act." row under each match: the official scoreline in black. */
+function fillActuals() {
+  const live = liveResults();
+  document.querySelectorAll(".match").forEach((row) => {
+    const el = row.querySelector(".match-actual");
+    if (!el) return;
+    const a = (live[row.dataset.group] || [])[+row.dataset.match];
+    if (a && a[0] != null && a[1] != null) {
+      el.innerHTML = `<span class="act-label">Act.</span><span class="act-box">${a[0]}</span><span class="act-dash">–</span><span class="act-box">${a[1]}</span>`;
+    } else {
+      el.innerHTML = "";
+    }
+  });
+}
+
 /* ================= Prediction vs actual (#2) ================= */
 function markPredictionAccuracy() {
   const live = liveResults();
@@ -917,6 +942,7 @@ function renderAll() {
   GROUP_LETTERS.forEach(renderGroup);
   updateResultButtons();
   markPredictionAccuracy();
+  fillActuals();
   renderThirds();
   renderBracket();
 }
