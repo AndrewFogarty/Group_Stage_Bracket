@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-16T22:56:54.008Z",
+  "updated": "2026-06-17T12:59:52.097Z",
   "results": {
     "A": [
       [
@@ -119,15 +119,24 @@
         3,
         1
       ],
-      null,
+      [
+        1,
+        4
+      ],
       null,
       null,
       null,
       null
     ],
     "J": [
-      null,
-      null,
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
       null,
       null,
       null,
