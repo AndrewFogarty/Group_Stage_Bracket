@@ -33,6 +33,11 @@ const NAME_MAP = {
 /* Must match FIXTURES in app.js. */
 const FIX = [[0, 1], [2, 3], [0, 2], [1, 3], [0, 3], [1, 2]];
 
+const ROUND_CODE = {
+  "Round of 32": "R32", "Round of 16": "R16", "Quarter-final": "QF",
+  "Semi-final": "SF", "Match for third place": "TP", "Final": "F",
+};
+
 function build(src) {
   const groups = {};
   const idx = {};
@@ -66,7 +71,21 @@ function build(src) {
       FIX[fi][0] === i1 && FIX[fi][1] === i2 ? [ft[0], ft[1]] : [ft[1], ft[0]];
     filled++;
   }
-  return { results, filled };
+
+  const schedule = (src.matches || []).map((m) => {
+    const grp = String(m.group || "");
+    const ft = m.score && m.score.ft;
+    return {
+      n: m.num, d: m.date, t: m.time,
+      s: grp.startsWith("Group") ? grp.split(" ").pop() : (ROUND_CODE[m.round] || "KO"),
+      h: NAME_MAP[m.team1] || m.team1,
+      a: NAME_MAP[m.team2] || m.team2,
+      hg: ft ? ft[0] : null,
+      ag: ft ? ft[1] : null,
+    };
+  });
+
+  return { results, filled, schedule };
 }
 
 /* Actual knockout advancement: which teams won each knockout round.
@@ -102,7 +121,7 @@ async function main() {
   const res = await fetch(SRC_URL);
   if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
   const src = await res.json();
-  const { results, filled } = build(src);
+  const { results, filled, schedule } = build(src);
   const advanced = advancement(src);
 
   const root = path.join(__dirname, "..");
@@ -119,7 +138,8 @@ async function main() {
   if (
     prev &&
     JSON.stringify(prev.results) === JSON.stringify(results) &&
-    JSON.stringify(prev.advanced || {}) === JSON.stringify(advanced)
+    JSON.stringify(prev.advanced || {}) === JSON.stringify(advanced) &&
+    JSON.stringify(prev.schedule || []) === JSON.stringify(schedule)
   ) {
     console.log(`No change (${filled} group results) — nothing to write.`);
     return;
@@ -130,6 +150,7 @@ async function main() {
     updated: new Date().toISOString(),
     results,
     advanced,
+    schedule,
   };
   fs.mkdirSync(path.join(root, "data"), { recursive: true });
   fs.writeFileSync(jsonPath, JSON.stringify(out, null, 2));

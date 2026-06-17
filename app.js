@@ -12,6 +12,10 @@ const DEFAULT_GROUPS = WC.groups;
 
 const GROUP_LETTERS = Object.keys(DEFAULT_GROUPS);
 
+/* team name -> flag code (for the schedule strip) */
+const NAME_CODE = {};
+GROUP_LETTERS.forEach((g) => DEFAULT_GROUPS[g].forEach(([n, c]) => (NAME_CODE[n] = c)));
+
 /* Round-robin schedule for 4 teams (indices into the group's team list) */
 const FIXTURES = [
   [0, 1], [2, 3], [0, 2], [1, 3], [0, 3], [1, 2],
@@ -154,6 +158,11 @@ function codeFor(group, idx) {
   return DEFAULT_GROUPS[group][idx][1];
 }
 
+function flagFor(name) {
+  const c = NAME_CODE[name];
+  return c ? flagHtml(c) : "";
+}
+
 function blankStat(name) {
   return { name, pld: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
 }
@@ -289,6 +298,7 @@ function buildGroups() {
       row.dataset.group = g;
       row.dataset.match = m;
       row.innerHTML = `
+        <span class="match-grade" aria-hidden="true"></span>
         <span class="team home">
           <span class="flag">${flagHtml(codeFor(g, hi))}</span>
           <span class="tname" data-group="${g}" data-idx="${hi}" contenteditable="true" spellcheck="false"></span>
@@ -416,14 +426,16 @@ function winnerOf(matchId) {
   return w ? participant(matchId, w) : null;
 }
 
-function rowHtml(id, side, p, selected) {
+function rowHtml(id, side, p, selected, acc) {
   const known = p.known && p.name;
   const label = known
     ? `<span class="bm-name">${escapeHtml(p.name)}</span>`
     : `<span class="bm-name ph">${escapeHtml(p.label || "—")}</span>`;
   const flag = known ? flagHtml(p.code) : "•";
-  return `<button class="bm-row ${selected ? "sel" : ""}" data-id="${id}" data-side="${side}" type="button">
-      <span class="flag">${flag}</span>${label}
+  const mark = acc === "correct" ? '<span class="bm-mark ok">✓</span>'
+    : acc === "wrong" ? '<span class="bm-mark no">✗</span>' : "";
+  return `<button class="bm-row ${selected ? "sel" : ""} ${acc || ""}" data-id="${id}" data-side="${side}" type="button">
+      <span class="flag">${flag}</span>${label}${mark}
     </button>`;
 }
 
@@ -431,9 +443,10 @@ function matchCard(id, extraClass) {
   const h = participant(id, "home");
   const a = participant(id, "away");
   const w = state.bracket[id];
+  const acc = w ? bracketAccuracy(id, w) : "";
   return `<div class="bm ${extraClass || ""}" data-id="${id}">
-      ${rowHtml(id, "home", h, w === "home")}
-      ${rowHtml(id, "away", a, w === "away")}
+      ${rowHtml(id, "home", h, w === "home", w === "home" ? acc : "")}
+      ${rowHtml(id, "away", a, w === "away", w === "away" ? acc : "")}
     </div>`;
 }
 
@@ -533,6 +546,15 @@ const SB =
     ? window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey)
     : null;
 const SHARED = !!SB;
+
+/* Identity for editing your single entry (one per browser). */
+const MY_KEY = "wc2026-myentry-v1";
+function getMine() {
+  try { return JSON.parse(localStorage.getItem(MY_KEY)); } catch (e) { return null; }
+}
+function setMine(v) {
+  try { localStorage.setItem(MY_KEY, JSON.stringify(v)); } catch (e) { /* ignore */ }
+}
 
 function loadBoard() {
   try {
@@ -674,39 +696,56 @@ async function submitPredictions() {
   const input = document.getElementById("username");
   const name = (input.value || "").trim();
   if (!name) { input.focus(); return; }
+  const mine = getMine();
+  const editKey = (mine && mine.editKey) || Math.random().toString(36).slice(2);
   const payload = {
     scores: JSON.parse(JSON.stringify(state.scores)),
     bracket: JSON.parse(JSON.stringify(state.bracket)),
     locked: confirmedKeysNow(), // matches already official at submit time → excluded
     predicted: predictedAdvancement(), // teams sent to each knockout round
+    editKey,
   };
   if (SHARED) {
     const btn = document.getElementById("submit-bracket");
     btn.disabled = true;
     try {
-      const { error } = await SB.from("submissions").insert({ username: name, mode: state.mode, payload });
-      if (error) throw error;
-      input.value = "";
+      if (mine && mine.id) {
+        const { error } = await SB.from("submissions")
+          .update({ username: name, mode: state.mode, payload }).eq("id", mine.id);
+        if (error) throw error;
+        setMine({ id: mine.id, editKey, username: name });
+      } else {
+        const { data, error } = await SB.from("submissions")
+          .insert({ username: name, mode: state.mode, payload }).select().single();
+        if (error) throw error;
+        setMine({ id: data.id, editKey, username: name });
+      }
       await loadBoardRemote();
     } catch (e) {
-      alert("Submit failed: " + (e.message || e));
-      return;
-    } finally {
+      alert("Save failed: " + (e.message || e));
       btn.disabled = false;
+      return;
     }
+    btn.disabled = false;
   } else {
-    board.push({
-      id: Date.now() + "-" + Math.random().toString(36).slice(2, 7),
-      username: name,
-      createdAt: new Date().toISOString(),
-      mode: state.mode,
-      ...payload,
-    });
+    const i = mine && mine.id ? board.findIndex((s) => s.id === mine.id) : -1;
+    if (i >= 0) {
+      board[i] = { ...board[i], username: name, mode: state.mode, ...payload };
+    } else {
+      const id = Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+      board.push({ id, username: name, createdAt: new Date().toISOString(), mode: state.mode, ...payload });
+      setMine({ id, editKey, username: name });
+    }
     saveBoard();
-    input.value = "";
     renderLeaderboard();
   }
+  updateSubmitLabel();
   document.getElementById("leaderboard-section").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function updateSubmitLabel() {
+  const btn = document.getElementById("submit-bracket");
+  if (btn) btn.textContent = getMine() ? "✏️ Update my entry" : "🔒 Submit & lock";
 }
 
 function renderLeaderboard() {
@@ -720,11 +759,12 @@ function renderLeaderboard() {
     tbody.innerHTML = `<tr><td colspan="6" class="empty-row">No entries yet — submit a bracket above to start the leaderboard.</td></tr>`;
     return;
   }
+  const mineId = (getMine() || {}).id;
   tbody.innerHTML = rows
     .map((e, i) => `
-      <tr class="${i === 0 ? "leader" : ""}">
+      <tr class="${i === 0 ? "leader" : ""} ${e.sub.id === mineId ? "mine" : ""}">
         <td class="col-pos">${i + 1}</td>
-        <td class="col-team">${escapeHtml(e.sub.username)}</td>
+        <td class="col-team">${escapeHtml(e.sub.username)}${e.sub.id === mineId ? ' <span class="you">you</span>' : ""}</td>
         <td class="pts">${e.sc.total}</td>
         <td class="col-breakdown">${e.sc.exact}×50 · ${e.sc.outcome}×10${e.sc.koHits ? " · KO " + e.sc.koHits + "×20" : ""}${e.sc.champ ? " · 🏆100" : ""}</td>
         <td>${e.sub.mode === "result" ? "W/D/L" : "Score"}</td>
@@ -791,10 +831,86 @@ function renderScorecard(id) {
   host.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
+/* ================= Schedule strip (#3) ================= */
+function fmtDate(d) {
+  try {
+    return new Date(d + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  } catch (e) { return d; }
+}
+function shortTime(t) {
+  return (t || "").split(" ")[0];
+}
+
+function renderSchedule() {
+  const host = document.getElementById("schedule-strip");
+  if (!host) return;
+  const sched = (window.WC_LIVE && window.WC_LIVE.schedule) || [];
+  if (!sched.length) { host.innerHTML = ""; return; }
+  const today = new Date().toISOString().slice(0, 10);
+  const byTime = (a, b) => (a.d + a.t).localeCompare(b.d + b.t);
+  let list = sched.filter((m) => m.hg === null && m.d >= today).sort(byTime).slice(0, 12);
+  if (!list.length) list = sched.filter((m) => m.hg !== null).slice(-12); // tournament over -> recent
+  host.innerHTML = list
+    .map((m) => {
+      const played = m.hg !== null;
+      const mid = played ? `<span class="sch-score">${m.hg}–${m.ag}</span>` : `<span class="sch-v">v</span>`;
+      const stage = m.s.length === 1 ? "Group " + m.s : m.s;
+      return `<div class="sch-card${played ? " done" : ""}">
+        <div class="sch-meta">${fmtDate(m.d)} · ${shortTime(m.t)} · ${stage}</div>
+        <div class="sch-row">
+          <span class="sch-team">${flagFor(m.h)}<span class="sch-name">${escapeHtml(m.h)}</span></span>
+          ${mid}
+          <span class="sch-team away">${flagFor(m.a)}<span class="sch-name">${escapeHtml(m.a)}</span></span>
+        </div>
+      </div>`;
+    })
+    .join("");
+}
+
+/* ================= Prediction vs actual (#2) ================= */
+function markPredictionAccuracy() {
+  const live = liveResults();
+  document.querySelectorAll(".match").forEach((row) => {
+    const g = row.dataset.group;
+    const m = +row.dataset.match;
+    const badge = row.querySelector(".match-grade");
+    if (!badge) return;
+    const actual = (live[g] || [])[m];
+    const pred = state.scores[g][m];
+    if (!actual || actual[0] === null || !pred || pred[0] === null) {
+      badge.className = "match-grade";
+      badge.textContent = "";
+      return;
+    }
+    let kind, sym;
+    if (pred[0] === actual[0] && pred[1] === actual[1]) { kind = "exact"; sym = "★"; }
+    else if (outcome(pred) === outcome(actual)) { kind = "ok"; sym = "✓"; }
+    else { kind = "miss"; sym = "✗"; }
+    badge.className = "match-grade " + kind;
+    badge.textContent = sym;
+    badge.title = `Your pick ${pred[0]}–${pred[1]} · actual ${actual[0]}–${actual[1]}`;
+  });
+}
+
+/* Was the winner picked in a bracket match the team that actually advanced? */
+function bracketAccuracy(id, side) {
+  if (!side) return "";
+  const adv = (window.WC_LIVE && window.WC_LIVE.advanced) || {};
+  const round = BRACKET[id].round;
+  const set =
+    round === "R32" ? adv.R16 : round === "R16" ? adv.QF : round === "QF" ? adv.SF :
+    round === "SF" ? adv.FINAL : round === "F" ? (adv.champion ? [adv.champion] : []) : null;
+  if (!set || !set.length) return "";
+  const p = participant(id, side);
+  if (!p || !p.known || !p.name) return "";
+  return set.includes(p.name) ? "correct" : "wrong";
+}
+
 /* ================= Render all ================= */
 function renderAll() {
   GROUP_LETTERS.forEach(renderGroup);
   updateResultButtons();
+  markPredictionAccuracy();
   renderThirds();
   renderBracket();
 }
@@ -941,6 +1057,14 @@ syncInputs();
 wireEvents();
 setMode(state.mode);
 renderAll();
+renderSchedule();
 setupBoardUI();
 refreshBoard();
 markConfirmedMatches();
+
+(function restoreIdentity() {
+  const mine = getMine();
+  const input = document.getElementById("username");
+  if (mine && mine.username && input) input.value = mine.username;
+  updateSubmitLabel();
+})();
