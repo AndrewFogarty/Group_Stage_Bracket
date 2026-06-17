@@ -182,12 +182,7 @@ function allGroupsComplete() {
   return GROUP_LETTERS.every(groupComplete);
 }
 
-function cmpStats(a, b) {
-  if (b.pts !== a.pts) return b.pts - a.pts;
-  if (b.gd !== a.gd) return b.gd - a.gd;
-  if (b.gf !== a.gf) return b.gf - a.gf;
-  return a.name.localeCompare(b.name);
-}
+const cmpStats = GSB.cmpStats;
 
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (c) => ({
@@ -195,65 +190,9 @@ function escapeHtml(str) {
   }[c]));
 }
 
-/* ================= Standings engine ================= */
-function computeStats(group) {
-  const names = state.names[group];
-  const scores = state.scores[group];
-  const stats = names.map((n, i) => ({ idx: i, ...blankStat(n) }));
-  scores.forEach((score, m) => {
-    const [hi, ai] = FIXTURES[m];
-    const [hg, ag] = score;
-    if (hg === null || ag === null) return;
-    const home = stats[hi];
-    const away = stats[ai];
-    home.pld++; away.pld++;
-    home.gf += hg; home.ga += ag;
-    away.gf += ag; away.ga += hg;
-    if (hg > ag) { home.w++; home.pts += 3; away.l++; }
-    else if (hg < ag) { away.w++; away.pts += 3; home.l++; }
-    else { home.d++; away.d++; home.pts++; away.pts++; }
-  });
-  stats.forEach((s) => (s.gd = s.gf - s.ga));
-  return stats;
-}
-
-function headToHead(group, tiedIdx) {
-  const set = new Set(tiedIdx);
-  const mini = {};
-  tiedIdx.forEach((i) => (mini[i] = blankStat(state.names[group][i])));
-  state.scores[group].forEach((score, m) => {
-    const [hi, ai] = FIXTURES[m];
-    const [hg, ag] = score;
-    if (hg === null || ag === null) return;
-    if (!set.has(hi) || !set.has(ai)) return;
-    const h = mini[hi]; const a = mini[ai];
-    h.gf += hg; h.ga += ag; a.gf += ag; a.ga += hg;
-    if (hg > ag) h.pts += 3;
-    else if (hg < ag) a.pts += 3;
-    else { h.pts++; a.pts++; }
-  });
-  Object.values(mini).forEach((s) => (s.gd = s.gf - s.ga));
-  return mini;
-}
-
+/* ================= Standings (pure logic in lib/engine.js) ================= */
 function rankGroup(group) {
-  const stats = computeStats(group);
-  return stats.slice().sort((a, b) => {
-    if (b.pts !== a.pts) return b.pts - a.pts;
-    if (b.gd !== a.gd) return b.gd - a.gd;
-    if (b.gf !== a.gf) return b.gf - a.gf;
-    const tied = stats
-      .filter((s) => s.pts === a.pts && s.gd === a.gd && s.gf === a.gf)
-      .map((s) => s.idx);
-    if (tied.length > 1) {
-      const h2h = headToHead(group, tied);
-      const ha = h2h[a.idx]; const hb = h2h[b.idx];
-      if (hb.pts !== ha.pts) return hb.pts - ha.pts;
-      if (hb.gd !== ha.gd) return hb.gd - ha.gd;
-      if (hb.gf !== ha.gf) return hb.gf - ha.gf;
-    }
-    return a.name.localeCompare(b.name);
-  });
+  return GSB.rankGroup(state.names[group], state.scores[group]);
 }
 
 /* Ranked list of all 12 third-placed teams (top 8 advance). */
@@ -618,19 +557,9 @@ function setupBoardUI() {
   }
 }
 
-function outcome(s) {
-  if (!s || s[0] === null || s[1] === null) return null;
-  return s[0] > s[1] ? "home" : s[0] < s[1] ? "away" : "draw";
-}
-
-/* allowExact=false for Win/Draw/Loss submissions (capped at 10). */
-function scoreMatch(pred, actual, allowExact) {
-  if (!actual || actual[0] === null || actual[1] === null) return { kind: "pending", pts: 0 };
-  if (!pred || pred[0] === null || pred[1] === null) return { kind: "none", pts: 0 };
-  if (allowExact && pred[0] === actual[0] && pred[1] === actual[1]) return { kind: "exact", pts: 50 };
-  if (outcome(pred) === outcome(actual)) return { kind: "outcome", pts: 10 };
-  return { kind: "miss", pts: 0 };
-}
+/* outcome + scoreMatch live in lib/engine.js (so they're unit-tested). */
+const outcome = GSB.outcome;
+const scoreMatch = GSB.scoreMatch;
 
 /* Teams a submission predicted to reach each knockout round (snapshotted
    at submit time from the bracket picks). */

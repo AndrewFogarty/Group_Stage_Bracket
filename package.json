@@ -1,0 +1,13 @@
+{
+  "name": "group-stage-bracket",
+  "version": "1.0.0",
+  "private": true,
+  "description": "World Cup 2026 group-stage predictor + bracket",
+  "scripts": {
+    "test": "node --test",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0"
+  }
+}

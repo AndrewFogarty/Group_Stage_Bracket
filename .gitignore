@@ -3,3 +3,8 @@
 
 images/Champagne.png
 Batman ZOK.jpg
+
+node_modules/
+test-results/
+playwright-report/
+/playwright/.cache/

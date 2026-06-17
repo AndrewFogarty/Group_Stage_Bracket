@@ -71,6 +71,24 @@ When configured, the app shows “🌐 Shared leaderboard”, submissions go to 
 database, and it polls every 45s (plus a **↻ Refresh** button). Blank config =
 local-only (“💾 This device”).
 
+## Install as an app (PWA)
+The site is a Progressive Web App — open it on your phone and choose **"Add to
+Home Screen"** to install it; it launches full-screen and works offline (a
+service worker caches the app shell; live results are fetched network-first).
+
+## Testing
+- **Unit tests** cover the pure tournament logic in `lib/engine.js` (scoring,
+  standings, FIFA tiebreakers) using Node's built-in runner — no install:
+  ```
+  node --test          # or: npm test
+  ```
+- **End-to-end** (optional) uses Playwright against the served site:
+  ```
+  npm i -D @playwright/test && npx playwright install
+  npm run test:e2e
+  ```
+- **CI**: `.github/workflows/ci.yml` runs the unit tests on every push/PR.
+
 ## Notes
 - Default lineups follow the published draw; playoff slots resolve once those
   qualifiers are known. Every team name is editable.
