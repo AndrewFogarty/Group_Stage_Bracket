@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-17T14:32:15.813597Z",
+  "updated": "2026-06-17T20:38:53.621Z",
   "results": {
     "A": [
       [
@@ -143,7 +143,10 @@
       null
     ],
     "K": [
-      null,
+      [
+        1,
+        1
+      ],
       null,
       null,
       null,
@@ -168,7 +171,6 @@
   },
   "schedule": [
     {
-      "n": null,
       "d": "2026-06-11",
       "t": "13:00 UTC-6",
       "s": "A",
@@ -179,7 +181,6 @@
       "v": "Estadio Azteca (Mexico City, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-11",
       "t": "20:00 UTC-6",
       "s": "A",
@@ -190,7 +191,6 @@
       "v": "Estadio Akron (Guadalajara, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-18",
       "t": "12:00 UTC-4",
       "s": "A",
@@ -201,7 +201,6 @@
       "v": "Mercedes-Benz Stadium (Atlanta, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-18",
       "t": "19:00 UTC-6",
       "s": "A",
@@ -212,7 +211,6 @@
       "v": "Estadio Akron (Guadalajara, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-24",
       "t": "19:00 UTC-6",
       "s": "A",
@@ -223,7 +221,6 @@
       "v": "Estadio Azteca (Mexico City, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-24",
       "t": "19:00 UTC-6",
       "s": "A",
@@ -234,7 +231,6 @@
       "v": "Estadio BBVA (Monterrey, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-12",
       "t": "15:00 UTC-4",
       "s": "B",
@@ -245,7 +241,6 @@
       "v": "BMO Field (Toronto, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-13",
       "t": "12:00 UTC-7",
       "s": "B",
@@ -256,7 +251,6 @@
       "v": "Levi's Stadium (San Francisco Bay Area, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-18",
       "t": "12:00 UTC-7",
       "s": "B",
@@ -267,7 +261,6 @@
       "v": "SoFi Stadium (Los Angeles, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-18",
       "t": "15:00 UTC-7",
       "s": "B",
@@ -278,7 +271,6 @@
       "v": "BC Place (Vancouver, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-24",
       "t": "12:00 UTC-7",
       "s": "B",
@@ -289,7 +281,6 @@
       "v": "BC Place (Vancouver, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-24",
       "t": "12:00 UTC-7",
       "s": "B",
@@ -300,7 +291,6 @@
       "v": "Lumen Field (Seattle, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-13",
       "t": "18:00 UTC-4",
       "s": "C",
@@ -311,7 +301,6 @@
       "v": "MetLife Stadium (New York/New Jersey, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-13",
       "t": "21:00 UTC-4",
       "s": "C",
@@ -322,7 +311,6 @@
       "v": "Gillette Stadium (Boston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-19",
       "t": "18:00 UTC-4",
       "s": "C",
@@ -333,7 +321,6 @@
       "v": "Gillette Stadium (Boston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-19",
       "t": "20:30 UTC-4",
       "s": "C",
@@ -344,7 +331,6 @@
       "v": "Lincoln Financial Field (Philadelphia, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-24",
       "t": "18:00 UTC-4",
       "s": "C",
@@ -355,7 +341,6 @@
       "v": "Hard Rock Stadium (Miami, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-24",
       "t": "18:00 UTC-4",
       "s": "C",
@@ -366,7 +351,6 @@
       "v": "Mercedes-Benz Stadium (Atlanta, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-12",
       "t": "18:00 UTC-7",
       "s": "D",
@@ -377,7 +361,6 @@
       "v": "SoFi Stadium (Los Angeles, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-13",
       "t": "21:00 UTC-7",
       "s": "D",
@@ -388,7 +371,6 @@
       "v": "BC Place (Vancouver, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-19",
       "t": "12:00 UTC-7",
       "s": "D",
@@ -399,7 +381,6 @@
       "v": "Lumen Field (Seattle, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-19",
       "t": "20:00 UTC-7",
       "s": "D",
@@ -410,7 +391,6 @@
       "v": "Levi's Stadium (San Francisco Bay Area, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-25",
       "t": "19:00 UTC-7",
       "s": "D",
@@ -421,7 +401,6 @@
       "v": "SoFi Stadium (Los Angeles, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-25",
       "t": "19:00 UTC-7",
       "s": "D",
@@ -432,7 +411,6 @@
       "v": "Levi's Stadium (San Francisco Bay Area, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-14",
       "t": "12:00 UTC-5",
       "s": "E",
@@ -443,7 +421,6 @@
       "v": "NRG Stadium (Houston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-14",
       "t": "19:00 UTC-4",
       "s": "E",
@@ -454,7 +431,6 @@
       "v": "Lincoln Financial Field (Philadelphia, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-20",
       "t": "16:00 UTC-4",
       "s": "E",
@@ -465,7 +441,6 @@
       "v": "BMO Field (Toronto, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-20",
       "t": "19:00 UTC-5",
       "s": "E",
@@ -476,7 +451,6 @@
       "v": "Arrowhead Stadium (Kansas City, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-25",
       "t": "16:00 UTC-4",
       "s": "E",
@@ -487,7 +461,6 @@
       "v": "Lincoln Financial Field (Philadelphia, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-25",
       "t": "16:00 UTC-4",
       "s": "E",
@@ -498,7 +471,6 @@
       "v": "MetLife Stadium (New York/New Jersey, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-14",
       "t": "15:00 UTC-5",
       "s": "F",
@@ -509,7 +481,6 @@
       "v": "AT&T Stadium (Dallas, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-14",
       "t": "20:00 UTC-6",
       "s": "F",
@@ -520,7 +491,6 @@
       "v": "Estadio BBVA (Monterrey, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-20",
       "t": "12:00 UTC-5",
       "s": "F",
@@ -531,7 +501,6 @@
       "v": "NRG Stadium (Houston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-20",
       "t": "22:00 UTC-6",
       "s": "F",
@@ -542,7 +511,6 @@
       "v": "Estadio BBVA (Monterrey, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-25",
       "t": "18:00 UTC-5",
       "s": "F",
@@ -553,7 +521,6 @@
       "v": "AT&T Stadium (Dallas, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-25",
       "t": "18:00 UTC-5",
       "s": "F",
@@ -564,7 +531,6 @@
       "v": "Arrowhead Stadium (Kansas City, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-15",
       "t": "12:00 UTC-7",
       "s": "G",
@@ -575,7 +541,6 @@
       "v": "Lumen Field (Seattle, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-15",
       "t": "18:00 UTC-7",
       "s": "G",
@@ -586,7 +551,6 @@
       "v": "SoFi Stadium (Los Angeles, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-21",
       "t": "12:00 UTC-7",
       "s": "G",
@@ -597,7 +561,6 @@
       "v": "SoFi Stadium (Los Angeles, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-21",
       "t": "18:00 UTC-7",
       "s": "G",
@@ -608,7 +571,6 @@
       "v": "BC Place (Vancouver, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-26",
       "t": "20:00 UTC-7",
       "s": "G",
@@ -619,7 +581,6 @@
       "v": "Lumen Field (Seattle, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-26",
       "t": "20:00 UTC-7",
       "s": "G",
@@ -630,7 +591,6 @@
       "v": "BC Place (Vancouver, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-15",
       "t": "12:00 UTC-4",
       "s": "H",
@@ -641,7 +601,6 @@
       "v": "Mercedes-Benz Stadium (Atlanta, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-15",
       "t": "18:00 UTC-4",
       "s": "H",
@@ -652,7 +611,6 @@
       "v": "Hard Rock Stadium (Miami, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-21",
       "t": "12:00 UTC-4",
       "s": "H",
@@ -663,7 +621,6 @@
       "v": "Mercedes-Benz Stadium (Atlanta, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-21",
       "t": "18:00 UTC-4",
       "s": "H",
@@ -674,7 +631,6 @@
       "v": "Hard Rock Stadium (Miami, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-26",
       "t": "19:00 UTC-5",
       "s": "H",
@@ -685,7 +641,6 @@
       "v": "NRG Stadium (Houston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-26",
       "t": "18:00 UTC-6",
       "s": "H",
@@ -696,7 +651,6 @@
       "v": "Estadio Akron (Guadalajara, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-16",
       "t": "15:00 UTC-4",
       "s": "I",
@@ -707,7 +661,6 @@
       "v": "MetLife Stadium (New York/New Jersey, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-16",
       "t": "18:00 UTC-4",
       "s": "I",
@@ -718,7 +671,6 @@
       "v": "Gillette Stadium (Boston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-22",
       "t": "17:00 UTC-4",
       "s": "I",
@@ -729,7 +681,6 @@
       "v": "Lincoln Financial Field (Philadelphia, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-22",
       "t": "20:00 UTC-4",
       "s": "I",
@@ -740,7 +691,6 @@
       "v": "MetLife Stadium (New York/New Jersey, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-26",
       "t": "15:00 UTC-4",
       "s": "I",
@@ -751,7 +701,6 @@
       "v": "Gillette Stadium (Boston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-26",
       "t": "15:00 UTC-4",
       "s": "I",
@@ -762,7 +711,6 @@
       "v": "BMO Field (Toronto, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-16",
       "t": "20:00 UTC-5",
       "s": "J",
@@ -773,7 +721,6 @@
       "v": "Arrowhead Stadium (Kansas City, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-16",
       "t": "21:00 UTC-7",
       "s": "J",
@@ -784,7 +731,6 @@
       "v": "Levi's Stadium (San Francisco Bay Area, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-22",
       "t": "12:00 UTC-5",
       "s": "J",
@@ -795,7 +741,6 @@
       "v": "AT&T Stadium (Dallas, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-22",
       "t": "20:00 UTC-7",
       "s": "J",
@@ -806,7 +751,6 @@
       "v": "Levi's Stadium (San Francisco Bay Area, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-27",
       "t": "21:00 UTC-5",
       "s": "J",
@@ -817,7 +761,6 @@
       "v": "Arrowhead Stadium (Kansas City, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-27",
       "t": "21:00 UTC-5",
       "s": "J",
@@ -828,18 +771,16 @@
       "v": "AT&T Stadium (Dallas, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-17",
       "t": "12:00 UTC-5",
       "s": "K",
       "h": "Portugal",
       "a": "DR Congo",
-      "hg": null,
-      "ag": null,
+      "hg": 1,
+      "ag": 1,
       "v": "NRG Stadium (Houston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-17",
       "t": "20:00 UTC-6",
       "s": "K",
@@ -850,7 +791,6 @@
       "v": "Estadio Azteca (Mexico City, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-23",
       "t": "12:00 UTC-5",
       "s": "K",
@@ -861,7 +801,6 @@
       "v": "NRG Stadium (Houston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-23",
       "t": "20:00 UTC-6",
       "s": "K",
@@ -872,7 +811,6 @@
       "v": "Estadio Akron (Guadalajara, MEX)"
     },
     {
-      "n": null,
       "d": "2026-06-27",
       "t": "19:30 UTC-4",
       "s": "K",
@@ -883,7 +821,6 @@
       "v": "Hard Rock Stadium (Miami, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-27",
       "t": "19:30 UTC-4",
       "s": "K",
@@ -894,7 +831,6 @@
       "v": "Mercedes-Benz Stadium (Atlanta, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-17",
       "t": "15:00 UTC-5",
       "s": "L",
@@ -905,7 +841,6 @@
       "v": "AT&T Stadium (Dallas, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-17",
       "t": "19:00 UTC-4",
       "s": "L",
@@ -916,7 +851,6 @@
       "v": "BMO Field (Toronto, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-23",
       "t": "16:00 UTC-4",
       "s": "L",
@@ -927,7 +861,6 @@
       "v": "Gillette Stadium (Boston, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-23",
       "t": "19:00 UTC-4",
       "s": "L",
@@ -938,7 +871,6 @@
       "v": "BMO Field (Toronto, CAN)"
     },
     {
-      "n": null,
       "d": "2026-06-27",
       "t": "17:00 UTC-4",
       "s": "L",
@@ -949,7 +881,6 @@
       "v": "MetLife Stadium (New York/New Jersey, USA)"
     },
     {
-      "n": null,
       "d": "2026-06-27",
       "t": "17:00 UTC-4",
       "s": "L",
