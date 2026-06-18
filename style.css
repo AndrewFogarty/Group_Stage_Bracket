@@ -1096,6 +1096,22 @@ tbody tr.eliminated {
   min-width: 40rem;
   height: 26rem;
 }
+/* Six-column variant (adds the Round of 32, 16 matches) — wider + taller so the
+   R32 boxes don't overlap, and slightly tighter boxes to fit the extra column. */
+.mini-bracket.has-r32 {
+  min-width: 54rem;
+  height: 42rem;
+}
+.mini-bracket.has-r32 .mb-team {
+  width: 84%;                /* = 14% of the bracket → matches the 6-col SVG geometry */
+  font-size: 0.62rem;
+  padding: 1px 4px;
+  gap: 3px;
+}
+.mini-bracket.has-r32 .r-r32 .mb-team {
+  font-size: 0.56rem;
+  padding: 1px 3px;
+}
 .mb-lines {
   position: absolute;
   inset: 0;

@@ -213,13 +213,23 @@ function escapeHtml(str) {
 }
 
 /* ================= Standings (pure logic in lib/engine.js) ================= */
-/* Effective scores: actual result for played matches, else your prediction —
-   so standings + the bracket reflect real results plus your remaining picks. */
+/* Effective scores: official result for played matches, else the in-play live
+   scoreline for a match that has kicked off, else your prediction — so
+   standings + the bracket reflect real results (including a match being played
+   right now) plus your remaining picks. Without the in-play fallback, a group
+   containing a kicked-off-but-unfinished match (which can no longer be
+   predicted) would never count as complete, leaving even its winner (e.g. 1B)
+   unresolved while Switzerland–Bosnia is still on the pitch. */
 function effScores(group) {
   const live = liveResults();
+  const names = state.names[group] || [];
   return state.scores[group].map((pred, i) => {
     const a = (live[group] || [])[i];
-    return a && a[0] != null && a[1] != null ? a : pred;
+    if (a && a[0] != null && a[1] != null) return a;
+    const fx = FIXTURES[i];
+    const lv = liveScoreFor(names[fx[0]], names[fx[1]]);
+    if (lv && lv.hg != null && lv.ag != null) return [lv.hg, lv.ag];
+    return pred;
   });
 }
 function rankGroup(group) {
@@ -869,6 +879,7 @@ function subBracketTree(sub) {
     const round = (ids) => ids.map(node);
     const champ = winnerOf(104);
     return {
+      R32: round(ROUND_ORDER.R32),
       R16: round(ROUND_ORDER.R16),
       QF: round(ROUND_ORDER.QF),
       SF: round(ROUND_ORDER.SF),
@@ -1105,12 +1116,14 @@ function renderMiniBracket(sub) {
     </div>`;
 
   // SVG elbow connectors. Geometry is deterministic for a power-of-two tree:
-  // a round of n matches has vertical centres at (2i+1)/(2n). Columns are 5
-  // equal 20%-wide slots (centres 10,30,50,70,90); boxes are 15% wide so the
-  // gutter between them hosts the connector verticals.
+  // a round of n matches has vertical centres at (2i+1)/(2n). Columns are 6
+  // equal slots (R32, R16, QF, SF, Final, Champion); boxes sit in the slot
+  // centre so the gutter between them hosts the connector verticals.
+  const NCOL = 6;
   const cy = (i, n) => (100 * (2 * i + 1)) / (2 * n);
-  const hw = 7.5;                       // half box width (% of viewBox)
-  const xc = (c) => 10 + 20 * c;        // column centre x
+  const slotW = 100 / NCOL;
+  const hw = slotW * 0.42;              // half box width (% of viewBox)
+  const xc = (c) => slotW * (c + 0.5);  // column centre x
   let d = "";
   const link = (c, n) => {              // n = match count in source round
     const x0r = xc(c) + hw, x1l = xc(c + 1) - hw, b = (xc(c) + xc(c + 1)) / 2;
@@ -1119,10 +1132,11 @@ function renderMiniBracket(sub) {
       d += `M${x0r} ${a}H${b}M${x0r} ${bb}H${b}M${b} ${a}V${bb}M${b} ${mid}H${x1l}`;
     }
   };
-  link(0, 8); // R16 -> QF
-  link(1, 4); // QF  -> SF
-  link(2, 2); // SF  -> Final
-  d += `M${xc(3) + hw} 50H${xc(4) - hw}`; // Final -> Champion
+  link(0, 16); // R32 -> R16
+  link(1, 8);  // R16 -> QF
+  link(2, 4);  // QF  -> SF
+  link(3, 2);  // SF  -> Final
+  d += `M${xc(4) + hw} 50H${xc(5) - hw}`; // Final -> Champion
   const lines = `<svg class="mb-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <path d="${d}" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
     </svg>`;
@@ -1130,8 +1144,9 @@ function renderMiniBracket(sub) {
   return `<div class="sc-ko">
       <div class="sc-ko-title">Knockout bracket</div>
       <div class="mb-wrap">
-        <div class="mini-bracket">
+        <div class="mini-bracket has-r32">
           ${lines}
+          ${roundHtml(tree.R32, "r-r32")}
           ${roundHtml(tree.R16, "r-r16")}
           ${roundHtml(tree.QF, "r-qf")}
           ${roundHtml(tree.SF, "r-sf")}
