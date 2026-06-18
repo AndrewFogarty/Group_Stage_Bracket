@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-18T20:16:34.101Z",
+  "updated": "2026-06-18T23:55:19.889Z",
   "results": {
     "A": [
       [
@@ -29,7 +29,10 @@
         1
       ],
       null,
-      null,
+      [
+        1,
+        4
+      ],
       null,
       null
     ],
@@ -268,8 +271,8 @@
       "s": "B",
       "h": "Switzerland",
       "a": "Bosnia",
-      "hg": null,
-      "ag": null,
+      "hg": 4,
+      "ag": 1,
       "v": "SoFi Stadium (Los Angeles, USA)"
     },
     {

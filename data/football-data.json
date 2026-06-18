@@ -1,6 +1,6 @@
 {
   "source": "API-Football (api-sports.io)",
-  "updated": "2026-06-18T20:05:22.560Z",
+  "updated": "2026-06-18T23:56:01.518Z",
   "season": 2026,
   "teams": {
     "Mexico": {
@@ -77998,7 +77998,815 @@
             ]
           }
         },
-        "kind": "live"
+        "kind": "final"
+      },
+      "report": {
+        "goals": [
+          {
+            "side": "home",
+            "player": "M. Sadilek",
+            "assist": "A. Sojka",
+            "minute": 6,
+            "extra": null,
+            "own": false,
+            "pen": false
+          },
+          {
+            "side": "away",
+            "player": "T. Mokoena",
+            "assist": null,
+            "minute": 83,
+            "extra": null,
+            "own": false,
+            "pen": true
+          }
+        ],
+        "players": {
+          "241": {
+            "name": "Michal Sadílek",
+            "rating": 7.7,
+            "minutes": 67,
+            "goals": 1,
+            "assists": 0,
+            "shots": 2,
+            "shotsOn": 1,
+            "passes": 23,
+            "passAcc": 18,
+            "tackles": 1,
+            "interceptions": 1,
+            "duelsWon": 2,
+            "duelsTotal": 5,
+            "dribbles": 0
+          },
+          "794": {
+            "name": "Patrik Schick",
+            "rating": 6.5,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 2,
+            "shotsOn": 1,
+            "passes": 22,
+            "passAcc": 20,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 3,
+            "duelsTotal": 9,
+            "dribbles": 0
+          },
+          "818": {
+            "name": "Tomáš Chorý",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "1231": {
+            "name": "Vladimír Coufal",
+            "rating": 7,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 22,
+            "passAcc": 14,
+            "tackles": 1,
+            "interceptions": 1,
+            "duelsWon": 3,
+            "duelsTotal": 5,
+            "dribbles": 2
+          },
+          "1237": {
+            "name": "Jaroslav Zelený",
+            "rating": 6.3,
+            "minutes": 43,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 0,
+            "passes": 11,
+            "passAcc": 8,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 2,
+            "duelsTotal": 2,
+            "dribbles": 1
+          },
+          "1243": {
+            "name": "Tomáš Souček",
+            "rating": 6.3,
+            "minutes": 31,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 10,
+            "passAcc": 8,
+            "tackles": 1,
+            "interceptions": 0,
+            "duelsWon": 2,
+            "duelsTotal": 4,
+            "dribbles": 0
+          },
+          "2252": {
+            "name": "Tomáš Holeš",
+            "rating": 6.3,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 35,
+            "passAcc": 27,
+            "tackles": 0,
+            "interceptions": 3,
+            "duelsWon": 1,
+            "duelsTotal": 4,
+            "dribbles": 1
+          },
+          "3275": {
+            "name": "Ronwen Williams",
+            "rating": 6.3,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 64,
+            "passAcc": 48,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 1,
+            "dribbles": 0
+          },
+          "3287": {
+            "name": "Teboho Mokoena",
+            "rating": 8,
+            "minutes": 98,
+            "goals": 1,
+            "assists": 0,
+            "shots": 2,
+            "shotsOn": 1,
+            "passes": 97,
+            "passAcc": 93,
+            "tackles": 2,
+            "interceptions": 2,
+            "duelsWon": 5,
+            "duelsTotal": 10,
+            "dribbles": 0
+          },
+          "25348": {
+            "name": "Vladimír Darida",
+            "rating": 6.9,
+            "minutes": 55,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 17,
+            "passAcc": 13,
+            "tackles": 1,
+            "interceptions": 1,
+            "duelsWon": 4,
+            "duelsTotal": 5,
+            "dribbles": 2
+          },
+          "46245": {
+            "name": "Ricardo Goss",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "46334": {
+            "name": "Aubrey Modiba",
+            "rating": 7.3,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 2,
+            "shotsOn": 0,
+            "passes": 52,
+            "passAcc": 45,
+            "tackles": 6,
+            "interceptions": 1,
+            "duelsWon": 7,
+            "duelsTotal": 8,
+            "dribbles": 0
+          },
+          "46417": {
+            "name": "Sipho Chaine",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "46458": {
+            "name": "Nkosinathi Sibisi",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "46601": {
+            "name": "Khuliso Mudau",
+            "rating": 6.6,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 55,
+            "passAcc": 52,
+            "tackles": 3,
+            "interceptions": 2,
+            "duelsWon": 4,
+            "duelsTotal": 7,
+            "dribbles": 0
+          },
+          "66019": {
+            "name": "Adam Hložek",
+            "rating": 6.2,
+            "minutes": 67,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 0,
+            "passes": 12,
+            "passAcc": 8,
+            "tackles": 1,
+            "interceptions": 1,
+            "duelsWon": 2,
+            "duelsTotal": 11,
+            "dribbles": 0
+          },
+          "66214": {
+            "name": "David Douděra",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "66275": {
+            "name": "Mojmír Chytil",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "66340": {
+            "name": "Jan Kuchta",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "66347": {
+            "name": "Jindřich Staněk",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "66353": {
+            "name": "Lukáš Provod",
+            "rating": 6.6,
+            "minutes": 31,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 0,
+            "passes": 6,
+            "passAcc": 4,
+            "tackles": 1,
+            "interceptions": 0,
+            "duelsWon": 1,
+            "duelsTotal": 2,
+            "dribbles": 0
+          },
+          "66387": {
+            "name": "Pavel Šulc",
+            "rating": 6.3,
+            "minutes": 43,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 16,
+            "passAcc": 11,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 2,
+            "duelsTotal": 5,
+            "dribbles": 1
+          },
+          "66407": {
+            "name": "Ladislav Krejčí",
+            "rating": 7.3,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 3,
+            "shotsOn": 0,
+            "passes": 49,
+            "passAcc": 46,
+            "tackles": 4,
+            "interceptions": 1,
+            "duelsWon": 11,
+            "duelsTotal": 15,
+            "dribbles": 1
+          },
+          "98936": {
+            "name": "Lyle Foster",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "127429": {
+            "name": "Iqraam Rayners",
+            "rating": 6.2,
+            "minutes": 66,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 9,
+            "passAcc": 8,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 2,
+            "duelsTotal": 7,
+            "dribbles": 0
+          },
+          "128772": {
+            "name": "David Zima",
+            "rating": 6.3,
+            "minutes": 20,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 8,
+            "passAcc": 7,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 2,
+            "duelsTotal": 2,
+            "dribbles": 0
+          },
+          "138804": {
+            "name": "Matěj Kovář",
+            "rating": 6.6,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 24,
+            "passAcc": 16,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "162194": {
+            "name": "Lukáš Červ",
+            "rating": 7,
+            "minutes": 78,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 1,
+            "passes": 25,
+            "passAcc": 20,
+            "tackles": 1,
+            "interceptions": 0,
+            "duelsWon": 4,
+            "duelsTotal": 6,
+            "dribbles": 1
+          },
+          "162964": {
+            "name": "Robin Hranáč",
+            "rating": 6.7,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 36,
+            "passAcc": 30,
+            "tackles": 1,
+            "interceptions": 1,
+            "duelsWon": 3,
+            "duelsTotal": 8,
+            "dribbles": 0
+          },
+          "163041": {
+            "name": "Bradley Cross",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "179893": {
+            "name": "Oswin Appollis",
+            "rating": 7,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 38,
+            "passAcc": 34,
+            "tackles": 2,
+            "interceptions": 0,
+            "duelsWon": 5,
+            "duelsTotal": 6,
+            "dribbles": 2
+          },
+          "194430": {
+            "name": "Thalente Mbatha",
+            "rating": 6.7,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 34,
+            "passAcc": 30,
+            "tackles": 3,
+            "interceptions": 1,
+            "duelsWon": 3,
+            "duelsTotal": 6,
+            "dribbles": 0
+          },
+          "201354": {
+            "name": "Evidence Makgopa",
+            "rating": 6.5,
+            "minutes": 32,
+            "goals": 0,
+            "assists": 0,
+            "shots": 2,
+            "shotsOn": 2,
+            "passes": 6,
+            "passAcc": 5,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 3,
+            "duelsTotal": 7,
+            "dribbles": 1
+          },
+          "268710": {
+            "name": "Jayden Adams",
+            "rating": 6.3,
+            "minutes": 45,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 20,
+            "passAcc": 20,
+            "tackles": 0,
+            "interceptions": 1,
+            "duelsWon": 0,
+            "duelsTotal": 1,
+            "dribbles": 0
+          },
+          "269349": {
+            "name": "Lukáš Horníček",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "290212": {
+            "name": "Denis Višinský",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "295977": {
+            "name": "Tshepang Moremi",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "330174": {
+            "name": "Tholo Thabang Matuludi",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "337740": {
+            "name": "Štěpán Chaloupek",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "354831": {
+            "name": "Thapelo Maseko",
+            "rating": 6.9,
+            "minutes": 84,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 0,
+            "passes": 18,
+            "passAcc": 17,
+            "tackles": 1,
+            "interceptions": 1,
+            "duelsWon": 6,
+            "duelsTotal": 12,
+            "dribbles": 2
+          },
+          "359561": {
+            "name": "Kamogelo Sebelebele",
+            "rating": 6.5,
+            "minutes": 14,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 4,
+            "passAcc": 4,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 4,
+            "dribbles": 0
+          },
+          "386837": {
+            "name": "Alexandr Sojka",
+            "rating": 7.3,
+            "minutes": 55,
+            "goals": 0,
+            "assists": 1,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 23,
+            "passAcc": 20,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 3,
+            "duelsTotal": 6,
+            "dribbles": 1
+          },
+          "392387": {
+            "name": "Olwethu Makhanya",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "406752": {
+            "name": "Ime Okon",
+            "rating": 7,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 84,
+            "passAcc": 80,
+            "tackles": 1,
+            "interceptions": 1,
+            "duelsWon": 3,
+            "duelsTotal": 3,
+            "dribbles": 0
+          },
+          "414149": {
+            "name": "Relebohile Mofokeng",
+            "rating": 6.2,
+            "minutes": 53,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 1,
+            "passes": 21,
+            "passAcc": 16,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 5,
+            "dribbles": 0
+          },
+          "430078": {
+            "name": "Samukelo Kabini",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "474630": {
+            "name": "Khulumani Ndamane",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "510799": {
+            "name": "Mbekezeli Mbokazi",
+            "rating": 6.9,
+            "minutes": 98,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 0,
+            "passes": 61,
+            "passAcc": 56,
+            "tackles": 2,
+            "interceptions": 1,
+            "duelsWon": 6,
+            "duelsTotal": 12,
+            "dribbles": 0
+          },
+          "555437": {
+            "name": "Hugo Sochurek",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          }
+        }
       }
     },
     "Switzerland|Bosnia": {
@@ -78019,7 +78827,7 @@
         "sides": {
           "home": {
             "team": "Switzerland",
-            "formation": "4-3-3",
+            "formation": "4-3-1-2",
             "coach": "Murat Yakin",
             "startXI": [
               {
@@ -78090,8 +78898,8 @@
                 "id": 163032,
                 "name": "Fabian Rieder",
                 "number": 22,
-                "pos": "F",
-                "grid": "4:3",
+                "pos": "M",
+                "grid": "4:1",
                 "photo": "https://media.api-sports.io/football/players/163032.png"
               },
               {
@@ -78099,7 +78907,7 @@
                 "name": "Breel Embolo",
                 "number": 7,
                 "pos": "F",
-                "grid": "4:2",
+                "grid": "5:2",
                 "photo": "https://media.api-sports.io/football/players/421.png"
               },
               {
@@ -78107,11 +78915,51 @@
                 "name": "Dan Ndoye",
                 "number": 11,
                 "pos": "F",
-                "grid": "4:1",
+                "grid": "5:1",
                 "photo": "https://media.api-sports.io/football/players/48648.png"
               }
             ],
             "subs": [
+              {
+                "id": 406244,
+                "name": "Johan Manzambi",
+                "number": 9,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/406244.png"
+              },
+              {
+                "id": 957,
+                "name": "Djibril Sow",
+                "number": 15,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/957.png"
+              },
+              {
+                "id": 48471,
+                "name": "Rubén Vargas",
+                "number": 17,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/48471.png"
+              },
+              {
+                "id": 349344,
+                "name": "Luca Jaquez",
+                "number": 25,
+                "pos": "D",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/349344.png"
+              },
+              {
+                "id": 48497,
+                "name": "Cédric Itten",
+                "number": 26,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/48497.png"
+              },
               {
                 "id": 1142,
                 "name": "Yvon Mvogo",
@@ -78145,28 +78993,12 @@
                 "photo": "https://media.api-sports.io/football/players/162414.png"
               },
               {
-                "id": 349344,
-                "name": "Luca Jaquez",
-                "number": 25,
-                "pos": "D",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/349344.png"
-              },
-              {
                 "id": 2810,
                 "name": "Denis Zakaria",
                 "number": 6,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/2810.png"
-              },
-              {
-                "id": 406244,
-                "name": "Johan Manzambi",
-                "number": 9,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/406244.png"
               },
               {
                 "id": 264705,
@@ -78177,28 +79009,12 @@
                 "photo": "https://media.api-sports.io/football/players/264705.png"
               },
               {
-                "id": 957,
-                "name": "Djibril Sow",
-                "number": 15,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/957.png"
-              },
-              {
                 "id": 952,
                 "name": "Christian Fassnacht",
                 "number": 16,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/952.png"
-              },
-              {
-                "id": 48471,
-                "name": "Rubén Vargas",
-                "number": 17,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/48471.png"
               },
               {
                 "id": 48389,
@@ -78215,14 +79031,6 @@
                 "pos": "F",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/123469.png"
-              },
-              {
-                "id": 48497,
-                "name": "Cédric Itten",
-                "number": 26,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/48497.png"
               }
             ]
           },
@@ -78322,6 +79130,46 @@
             ],
             "subs": [
               {
+                "id": 162222,
+                "name": "Ivan Bašić",
+                "number": 13,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/162222.png"
+              },
+              {
+                "id": 329409,
+                "name": "Esmir Bajraktarević",
+                "number": 20,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/329409.png"
+              },
+              {
+                "id": 50006,
+                "name": "Amir Hadžiahmetović",
+                "number": 16,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/50006.png"
+              },
+              {
+                "id": 77037,
+                "name": "Jovo Lukić",
+                "number": 25,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/77037.png"
+              },
+              {
+                "id": 340173,
+                "name": "Ermin Mahmić",
+                "number": 26,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/340173.png"
+              },
+              {
                 "id": 108370,
                 "name": "Martin Zlomislić",
                 "number": 22,
@@ -78370,14 +79218,6 @@
                 "photo": "https://media.api-sports.io/football/players/14301.png"
               },
               {
-                "id": 50006,
-                "name": "Amir Hadžiahmetović",
-                "number": 16,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/50006.png"
-              },
-              {
                 "id": 70514,
                 "name": "Armin Gigović",
                 "number": 8,
@@ -78394,44 +79234,12 @@
                 "photo": "https://media.api-sports.io/football/players/25129.png"
               },
               {
-                "id": 340173,
-                "name": "Ermin Mahmic",
-                "number": 26,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/340173.png"
-              },
-              {
-                "id": 162222,
-                "name": "Ivan Bašić",
-                "number": 13,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/162222.png"
-              },
-              {
-                "id": 329409,
-                "name": "Esmir Bajraktarević",
-                "number": 20,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/329409.png"
-              },
-              {
                 "id": 28382,
                 "name": "Haris Tabaković",
                 "number": 23,
                 "pos": "F",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/28382.png"
-              },
-              {
-                "id": 77037,
-                "name": "Jovo Lukić",
-                "number": 25,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/77037.png"
               },
               {
                 "id": 314377,
@@ -78444,7 +79252,874 @@
             ]
           }
         },
-        "kind": "live"
+        "kind": "final"
+      },
+      "report": {
+        "goals": [
+          {
+            "side": "home",
+            "player": "J. Manzambi",
+            "assist": null,
+            "minute": 74,
+            "extra": null,
+            "own": false,
+            "pen": false
+          },
+          {
+            "side": "home",
+            "player": "R. Vargas",
+            "assist": "B. Embolo",
+            "minute": 84,
+            "extra": null,
+            "own": false,
+            "pen": false
+          },
+          {
+            "side": "home",
+            "player": "J. Manzambi",
+            "assist": "R. Vargas",
+            "minute": 90,
+            "extra": null,
+            "own": false,
+            "pen": false
+          },
+          {
+            "side": "away",
+            "player": "E. Mahmic",
+            "assist": null,
+            "minute": 90,
+            "extra": 3,
+            "own": false,
+            "pen": false
+          },
+          {
+            "side": "home",
+            "player": "G. Xhaka",
+            "assist": null,
+            "minute": 90,
+            "extra": 7,
+            "own": false,
+            "pen": true
+          }
+        ],
+        "players": {
+          "5": {
+            "name": "Manuel Akanji",
+            "rating": 7.9,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 81,
+            "passAcc": 80,
+            "tackles": 3,
+            "interceptions": 2,
+            "duelsWon": 7,
+            "duelsTotal": 8,
+            "dribbles": 0
+          },
+          "421": {
+            "name": "Breel Embolo",
+            "rating": 7.6,
+            "minutes": 89,
+            "goals": 0,
+            "assists": 1,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 15,
+            "passAcc": 10,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 5,
+            "duelsTotal": 11,
+            "dribbles": 0
+          },
+          "790": {
+            "name": "Edin Džeko",
+            "rating": 6.7,
+            "minutes": 64,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 0,
+            "passes": 21,
+            "passAcc": 16,
+            "tackles": 0,
+            "interceptions": 1,
+            "duelsWon": 3,
+            "duelsTotal": 7,
+            "dribbles": 0
+          },
+          "951": {
+            "name": "Michel Aebischer",
+            "rating": 6.9,
+            "minutes": 71,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 0,
+            "passes": 31,
+            "passAcc": 27,
+            "tackles": 4,
+            "interceptions": 0,
+            "duelsWon": 7,
+            "duelsTotal": 9,
+            "dribbles": 1
+          },
+          "952": {
+            "name": "Christian Fassnacht",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "957": {
+            "name": "Djibril Sow",
+            "rating": 7,
+            "minutes": 19,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 10,
+            "passAcc": 8,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 1,
+            "duelsTotal": 1,
+            "dribbles": 0
+          },
+          "1142": {
+            "name": "Yvon Mvogo",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "1324": {
+            "name": "Ivan Šunjić",
+            "rating": 6.5,
+            "minutes": 86,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 34,
+            "passAcc": 33,
+            "tackles": 2,
+            "interceptions": 0,
+            "duelsWon": 2,
+            "duelsTotal": 6,
+            "dribbles": 0
+          },
+          "1442": {
+            "name": "Sead Kolašinac",
+            "rating": 5.7,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 51,
+            "passAcc": 40,
+            "tackles": 3,
+            "interceptions": 1,
+            "duelsWon": 5,
+            "duelsTotal": 10,
+            "dribbles": 1
+          },
+          "1464": {
+            "name": "Granit Xhaka",
+            "rating": 8.2,
+            "minutes": 90,
+            "goals": 1,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 1,
+            "passes": 104,
+            "passAcc": 95,
+            "tackles": 2,
+            "interceptions": 1,
+            "duelsWon": 4,
+            "duelsTotal": 6,
+            "dribbles": 0
+          },
+          "1631": {
+            "name": "Ricardo Rodríguez",
+            "rating": 6.3,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 60,
+            "passAcc": 51,
+            "tackles": 3,
+            "interceptions": 0,
+            "duelsWon": 3,
+            "duelsTotal": 5,
+            "dribbles": 0
+          },
+          "1741": {
+            "name": "Nikola Katić",
+            "rating": 6.2,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 38,
+            "passAcc": 31,
+            "tackles": 3,
+            "interceptions": 2,
+            "duelsWon": 5,
+            "duelsTotal": 7,
+            "dribbles": 0
+          },
+          "2803": {
+            "name": "Nico Elvedi",
+            "rating": 6.9,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 70,
+            "passAcc": 67,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 4,
+            "duelsTotal": 6,
+            "dribbles": 0
+          },
+          "2807": {
+            "name": "Remo Freuler",
+            "rating": 7.5,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 0,
+            "passes": 77,
+            "passAcc": 71,
+            "tackles": 2,
+            "interceptions": 0,
+            "duelsWon": 4,
+            "duelsTotal": 10,
+            "dribbles": 1
+          },
+          "2810": {
+            "name": "Denis Zakaria",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "7318": {
+            "name": "Amar Dedić",
+            "rating": 5.9,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 1,
+            "passes": 26,
+            "passAcc": 22,
+            "tackles": 2,
+            "interceptions": 1,
+            "duelsWon": 6,
+            "duelsTotal": 13,
+            "dribbles": 2
+          },
+          "9026": {
+            "name": "Nikola Vasilj",
+            "rating": 5.5,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 39,
+            "passAcc": 20,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 1,
+            "duelsTotal": 1,
+            "dribbles": 0
+          },
+          "14301": {
+            "name": "Stjepan Radeljić",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "25129": {
+            "name": "Dženis Burnić",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "25282": {
+            "name": "Gregor Kobel",
+            "rating": 5.9,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 36,
+            "passAcc": 24,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 2,
+            "duelsTotal": 2,
+            "dribbles": 0
+          },
+          "28382": {
+            "name": "Haris Tabaković",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "46930": {
+            "name": "Ermedin Demirović",
+            "rating": 6.2,
+            "minutes": 86,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 11,
+            "passAcc": 7,
+            "tackles": 1,
+            "interceptions": 0,
+            "duelsWon": 2,
+            "duelsTotal": 8,
+            "dribbles": 0
+          },
+          "48372": {
+            "name": "Eray Cömert",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "48378": {
+            "name": "Silvan Widmer",
+            "rating": 6.5,
+            "minutes": 86,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 26,
+            "passAcc": 20,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 3,
+            "dribbles": 0
+          },
+          "48389": {
+            "name": "Noah Okafor",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "48471": {
+            "name": "Rubén Vargas",
+            "rating": 8.5,
+            "minutes": 19,
+            "goals": 1,
+            "assists": 1,
+            "shots": 2,
+            "shotsOn": 2,
+            "passes": 9,
+            "passAcc": 8,
+            "tackles": 1,
+            "interceptions": 0,
+            "duelsWon": 1,
+            "duelsTotal": 1,
+            "dribbles": 0
+          },
+          "48497": {
+            "name": "Cédric Itten",
+            "rating": 6.7,
+            "minutes": 9,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 2,
+            "passAcc": 1,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 1,
+            "duelsTotal": 1,
+            "dribbles": 0
+          },
+          "48648": {
+            "name": "Dan Ndoye",
+            "rating": 6.3,
+            "minutes": 71,
+            "goals": 0,
+            "assists": 0,
+            "shots": 3,
+            "shotsOn": 2,
+            "passes": 16,
+            "passAcc": 13,
+            "tackles": 1,
+            "interceptions": 0,
+            "duelsWon": 4,
+            "duelsTotal": 9,
+            "dribbles": 0
+          },
+          "50006": {
+            "name": "Amir Hadžiahmetović",
+            "rating": 6.2,
+            "minutes": 12,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 3,
+            "passAcc": 3,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "53517": {
+            "name": "Dennis Hadžikadunić",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "70514": {
+            "name": "Armin Gigović",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "76867": {
+            "name": "Nihad Mujakić",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "77037": {
+            "name": "Jovo Lukić",
+            "rating": 6.3,
+            "minutes": 12,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 3,
+            "passAcc": 2,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 1,
+            "duelsTotal": 2,
+            "dribbles": 0
+          },
+          "108370": {
+            "name": "Martin Zlomislić",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "123468": {
+            "name": "Marvin Keller",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "123469": {
+            "name": "Zeki Amdouni",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "162222": {
+            "name": "Ivan Bašić",
+            "rating": 6.2,
+            "minutes": 27,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 13,
+            "passAcc": 12,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "162414": {
+            "name": "Aurèle Amenda",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "163032": {
+            "name": "Fabian Rieder",
+            "rating": 7.2,
+            "minutes": 71,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 29,
+            "passAcc": 26,
+            "tackles": 3,
+            "interceptions": 1,
+            "duelsWon": 5,
+            "duelsTotal": 7,
+            "dribbles": 0
+          },
+          "264094": {
+            "name": "Benjamin Tahirović",
+            "rating": 6.2,
+            "minutes": 63,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 21,
+            "passAcc": 20,
+            "tackles": 0,
+            "interceptions": 2,
+            "duelsWon": 0,
+            "duelsTotal": 4,
+            "dribbles": 0
+          },
+          "264705": {
+            "name": "Ardon Jashari",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "271350": {
+            "name": "Tarik Muharemović",
+            "rating": 6.3,
+            "minutes": 80,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 43,
+            "passAcc": 36,
+            "tackles": 0,
+            "interceptions": 3,
+            "duelsWon": 3,
+            "duelsTotal": 6,
+            "dribbles": 0
+          },
+          "314377": {
+            "name": "Samed Baždar",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "322101": {
+            "name": "Amar Memić",
+            "rating": 5.9,
+            "minutes": 90,
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 1,
+            "passes": 18,
+            "passAcc": 17,
+            "tackles": 2,
+            "interceptions": 0,
+            "duelsWon": 5,
+            "duelsTotal": 10,
+            "dribbles": 1
+          },
+          "329409": {
+            "name": "Esmir Bajraktarević",
+            "rating": 6.2,
+            "minutes": 26,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 9,
+            "passAcc": 9,
+            "tackles": 0,
+            "interceptions": 1,
+            "duelsWon": 0,
+            "duelsTotal": 3,
+            "dribbles": 0
+          },
+          "340173": {
+            "name": "Ermin Mahmić",
+            "rating": 7.5,
+            "minutes": 7,
+            "goals": 1,
+            "assists": 0,
+            "shots": 1,
+            "shotsOn": 1,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 1,
+            "dribbles": 0
+          },
+          "349344": {
+            "name": "Luca Jaquez",
+            "rating": 6.5,
+            "minutes": 12,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 8,
+            "passAcc": 7,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 1,
+            "duelsTotal": 1,
+            "dribbles": 0
+          },
+          "395559": {
+            "name": "Kerim Alajbegović",
+            "rating": 6.2,
+            "minutes": 89,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 23,
+            "passAcc": 17,
+            "tackles": 0,
+            "interceptions": 1,
+            "duelsWon": 2,
+            "duelsTotal": 7,
+            "dribbles": 1
+          },
+          "406244": {
+            "name": "Johan Manzambi",
+            "rating": 8.5,
+            "minutes": 19,
+            "goals": 2,
+            "assists": 0,
+            "shots": 2,
+            "shotsOn": 2,
+            "passes": 13,
+            "passAcc": 9,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 1,
+            "duelsTotal": 5,
+            "dribbles": 1
+          },
+          "409670": {
+            "name": "Arjan Malić",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          },
+          "446130": {
+            "name": "Mladen Jurkas",
+            "rating": null,
+            "minutes": 0,
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOn": 0,
+            "passes": 0,
+            "passAcc": null,
+            "tackles": 0,
+            "interceptions": 0,
+            "duelsWon": 0,
+            "duelsTotal": 0,
+            "dribbles": 0
+          }
+        }
       }
     },
     "Canada|Qatar": {
@@ -78470,7 +80145,7 @@
             "startXI": [
               {
                 "id": 51274,
-                "name": "M. Crepeau",
+                "name": "Maxime Crépeau",
                 "number": 16,
                 "pos": "G",
                 "grid": "1:1",
@@ -78478,7 +80153,7 @@
               },
               {
                 "id": 78547,
-                "name": "A. Johnston",
+                "name": "Alistair Johnston",
                 "number": 2,
                 "pos": "D",
                 "grid": "2:4",
@@ -78486,7 +80161,7 @@
               },
               {
                 "id": 327738,
-                "name": "L. De Fougerolles",
+                "name": "Luc De Fougerolles",
                 "number": 4,
                 "pos": "D",
                 "grid": "2:3",
@@ -78494,7 +80169,7 @@
               },
               {
                 "id": 51295,
-                "name": "D. Cornelius",
+                "name": "Derek Cornelius",
                 "number": 13,
                 "pos": "D",
                 "grid": "2:2",
@@ -78502,7 +80177,7 @@
               },
               {
                 "id": 50816,
-                "name": "R. Laryea",
+                "name": "Richie Laryea",
                 "number": 22,
                 "pos": "D",
                 "grid": "2:1",
@@ -78510,7 +80185,7 @@
               },
               {
                 "id": 51016,
-                "name": "T. Buchanan",
+                "name": "Tajon Buchanan",
                 "number": 17,
                 "pos": "M",
                 "grid": "3:4",
@@ -78518,7 +80193,7 @@
               },
               {
                 "id": 328046,
-                "name": "I. Kone",
+                "name": "Ismael Koné",
                 "number": 8,
                 "pos": "M",
                 "grid": "3:3",
@@ -78526,41 +80201,57 @@
               },
               {
                 "id": 35570,
-                "name": "S. Eustaquio",
+                "name": "Stephen Eustaquio",
                 "number": 7,
                 "pos": "M",
                 "grid": "3:2",
                 "photo": "https://media.api-sports.io/football/players/35570.png"
               },
               {
-                "id": 44798,
-                "name": "L. Millar",
-                "number": 11,
+                "id": 362145,
+                "name": "Ali Ahmed",
+                "number": 20,
                 "pos": "M",
                 "grid": "3:1",
-                "photo": "https://media.api-sports.io/football/players/44798.png"
+                "photo": "https://media.api-sports.io/football/players/362145.png"
               },
               {
                 "id": 8489,
-                "name": "J. David",
+                "name": "Jonathan David",
                 "number": 10,
                 "pos": "F",
                 "grid": "4:2",
                 "photo": "https://media.api-sports.io/football/players/8489.png"
               },
               {
-                "id": 351587,
-                "name": "T. Oluwaseyi",
-                "number": 12,
+                "id": 2001,
+                "name": "Cyle Larin",
+                "number": 9,
                 "pos": "F",
                 "grid": "4:1",
-                "photo": "https://media.api-sports.io/football/players/351587.png"
+                "photo": "https://media.api-sports.io/football/players/2001.png"
               }
             ],
             "subs": [
               {
+                "id": 407017,
+                "name": "Moise Bombito",
+                "number": 15,
+                "pos": "D",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/407017.png"
+              },
+              {
+                "id": 294824,
+                "name": "Nathan-Dylan Saliba",
+                "number": 25,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/294824.png"
+              },
+              {
                 "id": 51148,
-                "name": "D. St.Clair",
+                "name": "Dayne St. Clair",
                 "number": 1,
                 "pos": "G",
                 "grid": null,
@@ -78568,23 +80259,15 @@
               },
               {
                 "id": 284554,
-                "name": "O. Goodman",
+                "name": "Owen Goodman",
                 "number": 18,
                 "pos": "G",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/284554.png"
               },
               {
-                "id": 2001,
-                "name": "C. Larin",
-                "number": 9,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2001.png"
-              },
-              {
                 "id": 78494,
-                "name": "J. Waterman",
+                "name": "Joel Waterman",
                 "number": 5,
                 "pos": "D",
                 "grid": null,
@@ -78592,91 +80275,75 @@
               },
               {
                 "id": 509,
-                "name": "A. Davies",
+                "name": "Alphonso Davies",
                 "number": 19,
                 "pos": "D",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/509.png"
               },
               {
-                "id": 50826,
-                "name": "J. Shaffelburg",
-                "number": 14,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/50826.png"
-              },
-              {
-                "id": 193279,
-                "name": "J. Nelson",
-                "number": 26,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/193279.png"
-              },
-              {
-                "id": 407017,
-                "name": "M. Bombito",
-                "number": 15,
-                "pos": "D",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/407017.png"
-              },
-              {
                 "id": 416901,
-                "name": "N. Sigur",
+                "name": "Niko Sigur",
                 "number": 23,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/416901.png"
               },
               {
-                "id": 50817,
-                "name": "J. Osorio",
-                "number": 21,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/50817.png"
-              },
-              {
-                "id": 18938,
-                "name": "A. Jones",
-                "number": 3,
-                "pos": "D",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/18938.png"
-              },
-              {
                 "id": 50788,
-                "name": "M. Choiniere",
+                "name": "Mathieu Choinière",
                 "number": 6,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/50788.png"
               },
               {
-                "id": 294824,
-                "name": "N. Saliba",
-                "number": 25,
+                "id": 44798,
+                "name": "Liam Millar",
+                "number": 11,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/44798.png"
+              },
+              {
+                "id": 50826,
+                "name": "Jacob Shaffelburg",
+                "number": 14,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/50826.png"
+              },
+              {
+                "id": 50817,
+                "name": "Jonathan Osorio",
+                "number": 21,
                 "pos": "M",
                 "grid": null,
-                "photo": "https://media.api-sports.io/football/players/294824.png"
+                "photo": "https://media.api-sports.io/football/players/50817.png"
+              },
+              {
+                "id": 351587,
+                "name": "Tani Oluwaseyi",
+                "number": 12,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/351587.png"
               },
               {
                 "id": 313353,
-                "name": "P. David",
+                "name": "Promise David",
                 "number": 24,
                 "pos": "F",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/313353.png"
               },
               {
-                "id": 362145,
-                "name": "A. Ahmed",
-                "number": 20,
-                "pos": "M",
+                "id": 193279,
+                "name": "Jayden Nelson",
+                "number": 26,
+                "pos": "F",
                 "grid": null,
-                "photo": "https://media.api-sports.io/football/players/362145.png"
+                "photo": "https://media.api-sports.io/football/players/193279.png"
               }
             ]
           },
@@ -78687,19 +80354,19 @@
             "startXI": [
               {
                 "id": 42207,
-                "name": "M. Abunada",
+                "name": "Mahmud Abunada",
                 "number": 1,
                 "pos": "G",
                 "grid": "1:1",
                 "photo": "https://media.api-sports.io/football/players/42207.png"
               },
               {
-                "id": 542548,
-                "name": "A. Al Oui",
+                "id": 377930,
+                "name": "Ayoub Al Oui",
                 "number": 13,
-                "pos": null,
+                "pos": "D",
                 "grid": "2:4",
-                "photo": "https://media.api-sports.io/football/players/542548.png"
+                "photo": "https://media.api-sports.io/football/players/377930.png"
               },
               {
                 "id": 2530,
@@ -78711,7 +80378,7 @@
               },
               {
                 "id": 2532,
-                "name": "B. Khoukhi",
+                "name": "Boualem Khoukhi",
                 "number": 16,
                 "pos": "D",
                 "grid": "2:2",
@@ -78719,7 +80386,7 @@
               },
               {
                 "id": 175439,
-                "name": "H. Al Amin",
+                "name": "Homam Al-Amin",
                 "number": 14,
                 "pos": "D",
                 "grid": "2:1",
@@ -78727,7 +80394,7 @@
               },
               {
                 "id": 200981,
-                "name": "J. Gaber",
+                "name": "Jassem Gaber Abdulsallam",
                 "number": 5,
                 "pos": "M",
                 "grid": "3:3",
@@ -78735,7 +80402,7 @@
               },
               {
                 "id": 2535,
-                "name": "A. O. Madibo",
+                "name": "Assim Madibo",
                 "number": 23,
                 "pos": "M",
                 "grid": "3:2",
@@ -78743,7 +80410,7 @@
               },
               {
                 "id": 366516,
-                "name": "I. Laye",
+                "name": "Issa Laye",
                 "number": 4,
                 "pos": "M",
                 "grid": "3:1",
@@ -78759,7 +80426,7 @@
               },
               {
                 "id": 542541,
-                "name": "Y. Abdurisag",
+                "name": "Yusuf Abdurisag",
                 "number": 15,
                 "pos": "F",
                 "grid": "4:2",
@@ -78767,7 +80434,7 @@
               },
               {
                 "id": 2544,
-                "name": "A. Afif",
+                "name": "Akram Afif",
                 "number": 11,
                 "pos": "F",
                 "grid": "4:1",
@@ -78776,8 +80443,40 @@
             ],
             "subs": [
               {
+                "id": 42060,
+                "name": "Sultan Al-Brake",
+                "number": 18,
+                "pos": "D",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/42060.png"
+              },
+              {
+                "id": 2539,
+                "name": "Ahmed Fathi",
+                "number": 20,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/2539.png"
+              },
+              {
+                "id": 283174,
+                "name": "Mohamed Naceur Almanai",
+                "number": 26,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/283174.png"
+              },
+              {
+                "id": 339795,
+                "name": "Al-Hashmi Al-Hussain",
+                "number": 25,
+                "pos": "D",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/339795.png"
+              },
+              {
                 "id": 136503,
-                "name": "S. Zakaria",
+                "name": "Salah Zakaria",
                 "number": 21,
                 "pos": "G",
                 "grid": null,
@@ -78785,67 +80484,11 @@
               },
               {
                 "id": 42021,
-                "name": "M. Barsham",
+                "name": "Meshaal Barsham",
                 "number": 22,
                 "pos": "G",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/42021.png"
-              },
-              {
-                "id": 2545,
-                "name": "H. Al Haydos",
-                "number": 10,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2545.png"
-              },
-              {
-                "id": 42089,
-                "name": "M. Muntari",
-                "number": 9,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/42089.png"
-              },
-              {
-                "id": 542542,
-                "name": "A. Al Hussain",
-                "number": 25,
-                "pos": null,
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/542542.png"
-              },
-              {
-                "id": 2533,
-                "name": "A. Hatem",
-                "number": 6,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2533.png"
-              },
-              {
-                "id": 2543,
-                "name": "A. Ali",
-                "number": 19,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2543.png"
-              },
-              {
-                "id": 2539,
-                "name": "A. Fathi",
-                "number": 20,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2539.png"
-              },
-              {
-                "id": 423737,
-                "name": "T. Jamshid",
-                "number": 24,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/423737.png"
               },
               {
                 "id": 42288,
@@ -78856,49 +80499,73 @@
                 "photo": "https://media.api-sports.io/football/players/42288.png"
               },
               {
+                "id": 2533,
+                "name": "Abdelaziz Hatem",
+                "number": 6,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/2533.png"
+              },
+              {
                 "id": 2537,
-                "name": "K. Boudiaf",
+                "name": "Karim Boudiaf",
                 "number": 12,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/2537.png"
               },
               {
-                "id": 2542,
-                "name": "A. Alaaeldin",
-                "number": 7,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2542.png"
-              },
-              {
-                "id": 42060,
-                "name": "S. Al Brake",
-                "number": 18,
-                "pos": "D",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/42060.png"
-              },
-              {
                 "id": 42286,
-                "name": "A. Al Ganehi",
+                "name": "Ahmed Al-Ganehi",
                 "number": 17,
                 "pos": "F",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/42286.png"
               },
               {
-                "id": 283174,
-                "name": "M. Al Mannai",
-                "number": 26,
-                "pos": "M",
+                "id": 2543,
+                "name": "Almoez Ali",
+                "number": 19,
+                "pos": "F",
                 "grid": null,
-                "photo": "https://media.api-sports.io/football/players/283174.png"
+                "photo": "https://media.api-sports.io/football/players/2543.png"
+              },
+              {
+                "id": 2542,
+                "name": "Ahmed Alaaeldin",
+                "number": 7,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/2542.png"
+              },
+              {
+                "id": 42089,
+                "name": "Mohammed Muntari",
+                "number": 9,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/42089.png"
+              },
+              {
+                "id": 2545,
+                "name": "Hassan Al Haydos",
+                "number": 10,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/2545.png"
+              },
+              {
+                "id": 423737,
+                "name": "Tahsin Mohammed Jamshid",
+                "number": 24,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/423737.png"
               }
             ]
           }
         },
-        "kind": "recent"
+        "kind": "live"
       }
     },
     "Mexico|Korea Republic": {
@@ -88397,7 +90064,7 @@
         "sides": {
           "home": {
             "team": "Switzerland",
-            "formation": "4-3-3",
+            "formation": "4-3-1-2",
             "coach": "Murat Yakin",
             "startXI": [
               {
@@ -88468,8 +90135,8 @@
                 "id": 163032,
                 "name": "Fabian Rieder",
                 "number": 22,
-                "pos": "F",
-                "grid": "4:3",
+                "pos": "M",
+                "grid": "4:1",
                 "photo": "https://media.api-sports.io/football/players/163032.png"
               },
               {
@@ -88477,7 +90144,7 @@
                 "name": "Breel Embolo",
                 "number": 7,
                 "pos": "F",
-                "grid": "4:2",
+                "grid": "5:2",
                 "photo": "https://media.api-sports.io/football/players/421.png"
               },
               {
@@ -88485,11 +90152,51 @@
                 "name": "Dan Ndoye",
                 "number": 11,
                 "pos": "F",
-                "grid": "4:1",
+                "grid": "5:1",
                 "photo": "https://media.api-sports.io/football/players/48648.png"
               }
             ],
             "subs": [
+              {
+                "id": 406244,
+                "name": "Johan Manzambi",
+                "number": 9,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/406244.png"
+              },
+              {
+                "id": 957,
+                "name": "Djibril Sow",
+                "number": 15,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/957.png"
+              },
+              {
+                "id": 48471,
+                "name": "Rubén Vargas",
+                "number": 17,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/48471.png"
+              },
+              {
+                "id": 349344,
+                "name": "Luca Jaquez",
+                "number": 25,
+                "pos": "D",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/349344.png"
+              },
+              {
+                "id": 48497,
+                "name": "Cédric Itten",
+                "number": 26,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/48497.png"
+              },
               {
                 "id": 1142,
                 "name": "Yvon Mvogo",
@@ -88523,28 +90230,12 @@
                 "photo": "https://media.api-sports.io/football/players/162414.png"
               },
               {
-                "id": 349344,
-                "name": "Luca Jaquez",
-                "number": 25,
-                "pos": "D",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/349344.png"
-              },
-              {
                 "id": 2810,
                 "name": "Denis Zakaria",
                 "number": 6,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/2810.png"
-              },
-              {
-                "id": 406244,
-                "name": "Johan Manzambi",
-                "number": 9,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/406244.png"
               },
               {
                 "id": 264705,
@@ -88555,28 +90246,12 @@
                 "photo": "https://media.api-sports.io/football/players/264705.png"
               },
               {
-                "id": 957,
-                "name": "Djibril Sow",
-                "number": 15,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/957.png"
-              },
-              {
                 "id": 952,
                 "name": "Christian Fassnacht",
                 "number": 16,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/952.png"
-              },
-              {
-                "id": 48471,
-                "name": "Rubén Vargas",
-                "number": 17,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/48471.png"
               },
               {
                 "id": 48389,
@@ -88593,14 +90268,6 @@
                 "pos": "F",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/123469.png"
-              },
-              {
-                "id": 48497,
-                "name": "Cédric Itten",
-                "number": 26,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/48497.png"
               }
             ]
           },
@@ -88611,7 +90278,7 @@
             "startXI": [
               {
                 "id": 51274,
-                "name": "M. Crepeau",
+                "name": "Maxime Crépeau",
                 "number": 16,
                 "pos": "G",
                 "grid": "1:1",
@@ -88619,7 +90286,7 @@
               },
               {
                 "id": 78547,
-                "name": "A. Johnston",
+                "name": "Alistair Johnston",
                 "number": 2,
                 "pos": "D",
                 "grid": "2:4",
@@ -88627,7 +90294,7 @@
               },
               {
                 "id": 327738,
-                "name": "L. De Fougerolles",
+                "name": "Luc De Fougerolles",
                 "number": 4,
                 "pos": "D",
                 "grid": "2:3",
@@ -88635,7 +90302,7 @@
               },
               {
                 "id": 51295,
-                "name": "D. Cornelius",
+                "name": "Derek Cornelius",
                 "number": 13,
                 "pos": "D",
                 "grid": "2:2",
@@ -88643,7 +90310,7 @@
               },
               {
                 "id": 50816,
-                "name": "R. Laryea",
+                "name": "Richie Laryea",
                 "number": 22,
                 "pos": "D",
                 "grid": "2:1",
@@ -88651,7 +90318,7 @@
               },
               {
                 "id": 51016,
-                "name": "T. Buchanan",
+                "name": "Tajon Buchanan",
                 "number": 17,
                 "pos": "M",
                 "grid": "3:4",
@@ -88659,7 +90326,7 @@
               },
               {
                 "id": 328046,
-                "name": "I. Kone",
+                "name": "Ismael Koné",
                 "number": 8,
                 "pos": "M",
                 "grid": "3:3",
@@ -88667,41 +90334,57 @@
               },
               {
                 "id": 35570,
-                "name": "S. Eustaquio",
+                "name": "Stephen Eustaquio",
                 "number": 7,
                 "pos": "M",
                 "grid": "3:2",
                 "photo": "https://media.api-sports.io/football/players/35570.png"
               },
               {
-                "id": 44798,
-                "name": "L. Millar",
-                "number": 11,
+                "id": 362145,
+                "name": "Ali Ahmed",
+                "number": 20,
                 "pos": "M",
                 "grid": "3:1",
-                "photo": "https://media.api-sports.io/football/players/44798.png"
+                "photo": "https://media.api-sports.io/football/players/362145.png"
               },
               {
                 "id": 8489,
-                "name": "J. David",
+                "name": "Jonathan David",
                 "number": 10,
                 "pos": "F",
                 "grid": "4:2",
                 "photo": "https://media.api-sports.io/football/players/8489.png"
               },
               {
-                "id": 351587,
-                "name": "T. Oluwaseyi",
-                "number": 12,
+                "id": 2001,
+                "name": "Cyle Larin",
+                "number": 9,
                 "pos": "F",
                 "grid": "4:1",
-                "photo": "https://media.api-sports.io/football/players/351587.png"
+                "photo": "https://media.api-sports.io/football/players/2001.png"
               }
             ],
             "subs": [
               {
+                "id": 407017,
+                "name": "Moise Bombito",
+                "number": 15,
+                "pos": "D",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/407017.png"
+              },
+              {
+                "id": 294824,
+                "name": "Nathan-Dylan Saliba",
+                "number": 25,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/294824.png"
+              },
+              {
                 "id": 51148,
-                "name": "D. St.Clair",
+                "name": "Dayne St. Clair",
                 "number": 1,
                 "pos": "G",
                 "grid": null,
@@ -88709,23 +90392,15 @@
               },
               {
                 "id": 284554,
-                "name": "O. Goodman",
+                "name": "Owen Goodman",
                 "number": 18,
                 "pos": "G",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/284554.png"
               },
               {
-                "id": 2001,
-                "name": "C. Larin",
-                "number": 9,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2001.png"
-              },
-              {
                 "id": 78494,
-                "name": "J. Waterman",
+                "name": "Joel Waterman",
                 "number": 5,
                 "pos": "D",
                 "grid": null,
@@ -88733,91 +90408,75 @@
               },
               {
                 "id": 509,
-                "name": "A. Davies",
+                "name": "Alphonso Davies",
                 "number": 19,
                 "pos": "D",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/509.png"
               },
               {
-                "id": 50826,
-                "name": "J. Shaffelburg",
-                "number": 14,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/50826.png"
-              },
-              {
-                "id": 193279,
-                "name": "J. Nelson",
-                "number": 26,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/193279.png"
-              },
-              {
-                "id": 407017,
-                "name": "M. Bombito",
-                "number": 15,
-                "pos": "D",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/407017.png"
-              },
-              {
                 "id": 416901,
-                "name": "N. Sigur",
+                "name": "Niko Sigur",
                 "number": 23,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/416901.png"
               },
               {
-                "id": 50817,
-                "name": "J. Osorio",
-                "number": 21,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/50817.png"
-              },
-              {
-                "id": 18938,
-                "name": "A. Jones",
-                "number": 3,
-                "pos": "D",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/18938.png"
-              },
-              {
                 "id": 50788,
-                "name": "M. Choiniere",
+                "name": "Mathieu Choinière",
                 "number": 6,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/50788.png"
               },
               {
-                "id": 294824,
-                "name": "N. Saliba",
-                "number": 25,
+                "id": 44798,
+                "name": "Liam Millar",
+                "number": 11,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/44798.png"
+              },
+              {
+                "id": 50826,
+                "name": "Jacob Shaffelburg",
+                "number": 14,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/50826.png"
+              },
+              {
+                "id": 50817,
+                "name": "Jonathan Osorio",
+                "number": 21,
                 "pos": "M",
                 "grid": null,
-                "photo": "https://media.api-sports.io/football/players/294824.png"
+                "photo": "https://media.api-sports.io/football/players/50817.png"
+              },
+              {
+                "id": 351587,
+                "name": "Tani Oluwaseyi",
+                "number": 12,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/351587.png"
               },
               {
                 "id": 313353,
-                "name": "P. David",
+                "name": "Promise David",
                 "number": 24,
                 "pos": "F",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/313353.png"
               },
               {
-                "id": 362145,
-                "name": "A. Ahmed",
-                "number": 20,
-                "pos": "M",
+                "id": 193279,
+                "name": "Jayden Nelson",
+                "number": 26,
+                "pos": "F",
                 "grid": null,
-                "photo": "https://media.api-sports.io/football/players/362145.png"
+                "photo": "https://media.api-sports.io/football/players/193279.png"
               }
             ]
           }
@@ -88937,6 +90596,46 @@
             ],
             "subs": [
               {
+                "id": 162222,
+                "name": "Ivan Bašić",
+                "number": 13,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/162222.png"
+              },
+              {
+                "id": 329409,
+                "name": "Esmir Bajraktarević",
+                "number": 20,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/329409.png"
+              },
+              {
+                "id": 50006,
+                "name": "Amir Hadžiahmetović",
+                "number": 16,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/50006.png"
+              },
+              {
+                "id": 77037,
+                "name": "Jovo Lukić",
+                "number": 25,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/77037.png"
+              },
+              {
+                "id": 340173,
+                "name": "Ermin Mahmić",
+                "number": 26,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/340173.png"
+              },
+              {
                 "id": 108370,
                 "name": "Martin Zlomislić",
                 "number": 22,
@@ -88985,14 +90684,6 @@
                 "photo": "https://media.api-sports.io/football/players/14301.png"
               },
               {
-                "id": 50006,
-                "name": "Amir Hadžiahmetović",
-                "number": 16,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/50006.png"
-              },
-              {
                 "id": 70514,
                 "name": "Armin Gigović",
                 "number": 8,
@@ -89009,44 +90700,12 @@
                 "photo": "https://media.api-sports.io/football/players/25129.png"
               },
               {
-                "id": 340173,
-                "name": "Ermin Mahmic",
-                "number": 26,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/340173.png"
-              },
-              {
-                "id": 162222,
-                "name": "Ivan Bašić",
-                "number": 13,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/162222.png"
-              },
-              {
-                "id": 329409,
-                "name": "Esmir Bajraktarević",
-                "number": 20,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/329409.png"
-              },
-              {
                 "id": 28382,
                 "name": "Haris Tabaković",
                 "number": 23,
                 "pos": "F",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/28382.png"
-              },
-              {
-                "id": 77037,
-                "name": "Jovo Lukić",
-                "number": 25,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/77037.png"
               },
               {
                 "id": 314377,
@@ -89065,19 +90724,19 @@
             "startXI": [
               {
                 "id": 42207,
-                "name": "M. Abunada",
+                "name": "Mahmud Abunada",
                 "number": 1,
                 "pos": "G",
                 "grid": "1:1",
                 "photo": "https://media.api-sports.io/football/players/42207.png"
               },
               {
-                "id": 542548,
-                "name": "A. Al Oui",
+                "id": 377930,
+                "name": "Ayoub Al Oui",
                 "number": 13,
-                "pos": null,
+                "pos": "D",
                 "grid": "2:4",
-                "photo": "https://media.api-sports.io/football/players/542548.png"
+                "photo": "https://media.api-sports.io/football/players/377930.png"
               },
               {
                 "id": 2530,
@@ -89089,7 +90748,7 @@
               },
               {
                 "id": 2532,
-                "name": "B. Khoukhi",
+                "name": "Boualem Khoukhi",
                 "number": 16,
                 "pos": "D",
                 "grid": "2:2",
@@ -89097,7 +90756,7 @@
               },
               {
                 "id": 175439,
-                "name": "H. Al Amin",
+                "name": "Homam Al-Amin",
                 "number": 14,
                 "pos": "D",
                 "grid": "2:1",
@@ -89105,7 +90764,7 @@
               },
               {
                 "id": 200981,
-                "name": "J. Gaber",
+                "name": "Jassem Gaber Abdulsallam",
                 "number": 5,
                 "pos": "M",
                 "grid": "3:3",
@@ -89113,7 +90772,7 @@
               },
               {
                 "id": 2535,
-                "name": "A. O. Madibo",
+                "name": "Assim Madibo",
                 "number": 23,
                 "pos": "M",
                 "grid": "3:2",
@@ -89121,7 +90780,7 @@
               },
               {
                 "id": 366516,
-                "name": "I. Laye",
+                "name": "Issa Laye",
                 "number": 4,
                 "pos": "M",
                 "grid": "3:1",
@@ -89137,7 +90796,7 @@
               },
               {
                 "id": 542541,
-                "name": "Y. Abdurisag",
+                "name": "Yusuf Abdurisag",
                 "number": 15,
                 "pos": "F",
                 "grid": "4:2",
@@ -89145,7 +90804,7 @@
               },
               {
                 "id": 2544,
-                "name": "A. Afif",
+                "name": "Akram Afif",
                 "number": 11,
                 "pos": "F",
                 "grid": "4:1",
@@ -89154,8 +90813,40 @@
             ],
             "subs": [
               {
+                "id": 42060,
+                "name": "Sultan Al-Brake",
+                "number": 18,
+                "pos": "D",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/42060.png"
+              },
+              {
+                "id": 2539,
+                "name": "Ahmed Fathi",
+                "number": 20,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/2539.png"
+              },
+              {
+                "id": 283174,
+                "name": "Mohamed Naceur Almanai",
+                "number": 26,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/283174.png"
+              },
+              {
+                "id": 339795,
+                "name": "Al-Hashmi Al-Hussain",
+                "number": 25,
+                "pos": "D",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/339795.png"
+              },
+              {
                 "id": 136503,
-                "name": "S. Zakaria",
+                "name": "Salah Zakaria",
                 "number": 21,
                 "pos": "G",
                 "grid": null,
@@ -89163,67 +90854,11 @@
               },
               {
                 "id": 42021,
-                "name": "M. Barsham",
+                "name": "Meshaal Barsham",
                 "number": 22,
                 "pos": "G",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/42021.png"
-              },
-              {
-                "id": 2545,
-                "name": "H. Al Haydos",
-                "number": 10,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2545.png"
-              },
-              {
-                "id": 42089,
-                "name": "M. Muntari",
-                "number": 9,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/42089.png"
-              },
-              {
-                "id": 542542,
-                "name": "A. Al Hussain",
-                "number": 25,
-                "pos": null,
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/542542.png"
-              },
-              {
-                "id": 2533,
-                "name": "A. Hatem",
-                "number": 6,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2533.png"
-              },
-              {
-                "id": 2543,
-                "name": "A. Ali",
-                "number": 19,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2543.png"
-              },
-              {
-                "id": 2539,
-                "name": "A. Fathi",
-                "number": 20,
-                "pos": "M",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2539.png"
-              },
-              {
-                "id": 423737,
-                "name": "T. Jamshid",
-                "number": 24,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/423737.png"
               },
               {
                 "id": 42288,
@@ -89234,44 +90869,68 @@
                 "photo": "https://media.api-sports.io/football/players/42288.png"
               },
               {
+                "id": 2533,
+                "name": "Abdelaziz Hatem",
+                "number": 6,
+                "pos": "M",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/2533.png"
+              },
+              {
                 "id": 2537,
-                "name": "K. Boudiaf",
+                "name": "Karim Boudiaf",
                 "number": 12,
                 "pos": "M",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/2537.png"
               },
               {
-                "id": 2542,
-                "name": "A. Alaaeldin",
-                "number": 7,
-                "pos": "F",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/2542.png"
-              },
-              {
-                "id": 42060,
-                "name": "S. Al Brake",
-                "number": 18,
-                "pos": "D",
-                "grid": null,
-                "photo": "https://media.api-sports.io/football/players/42060.png"
-              },
-              {
                 "id": 42286,
-                "name": "A. Al Ganehi",
+                "name": "Ahmed Al-Ganehi",
                 "number": 17,
                 "pos": "F",
                 "grid": null,
                 "photo": "https://media.api-sports.io/football/players/42286.png"
               },
               {
-                "id": 283174,
-                "name": "M. Al Mannai",
-                "number": 26,
-                "pos": "M",
+                "id": 2543,
+                "name": "Almoez Ali",
+                "number": 19,
+                "pos": "F",
                 "grid": null,
-                "photo": "https://media.api-sports.io/football/players/283174.png"
+                "photo": "https://media.api-sports.io/football/players/2543.png"
+              },
+              {
+                "id": 2542,
+                "name": "Ahmed Alaaeldin",
+                "number": 7,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/2542.png"
+              },
+              {
+                "id": 42089,
+                "name": "Mohammed Muntari",
+                "number": 9,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/42089.png"
+              },
+              {
+                "id": 2545,
+                "name": "Hassan Al Haydos",
+                "number": 10,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/2545.png"
+              },
+              {
+                "id": 423737,
+                "name": "Tahsin Mohammed Jamshid",
+                "number": 24,
+                "pos": "F",
+                "grid": null,
+                "photo": "https://media.api-sports.io/football/players/423737.png"
               }
             ]
           }
@@ -99190,12 +100849,12 @@
   },
   "live": [
     {
-      "home": "Switzerland",
-      "away": "Bosnia",
-      "hg": 0,
+      "home": "Canada",
+      "away": "Qatar",
+      "hg": 6,
       "ag": 0,
-      "elapsed": 46,
-      "extra": null,
+      "elapsed": 90,
+      "extra": 3,
       "status": "2H"
     }
   ]
