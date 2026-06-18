@@ -99,6 +99,22 @@ window.WC_HISTORY = {
       ],
     },
     {
+      key: "titles", title: "World Cups Won", icon: "🏆",
+      note: "Most World Cup titles won as a player (Pelé is the only 3-time winner; only Brazil & Italy have multiple 2-time winners).",
+      rows: [
+        { name: "Pelé", code: "BR", value: 3 },
+        { name: "Cafú", code: "BR", value: 2 },
+        { name: "Giuseppe Meazza", code: "IT", value: 2 },
+        { name: "Giovanni Ferrari", code: "IT", value: 2 },
+        { name: "Eraldo Monzeglio", code: "IT", value: 2 },
+        { name: "Garrincha", code: "BR", value: 2 },
+        { name: "Didi", code: "BR", value: 2 },
+        { name: "Djalma Santos", code: "BR", value: 2 },
+        { name: "Nílton Santos", code: "BR", value: 2 },
+        { name: "Vavá", code: "BR", value: 2 },
+      ],
+    },
+    {
       key: "yellowcards", title: "Yellow Cards", icon: "🟨", approx: true,
       rows: [
         { name: "Javier Mascherano", code: "AR", value: 7 },
@@ -111,22 +127,6 @@ window.WC_HISTORY = {
         { name: "Carles Puyol", code: "ES", value: 5 },
         { name: "Sergio Ramos", code: "ES", value: 5 },
         { name: "Lionel Messi", code: "AR", value: 5 },
-      ],
-    },
-    {
-      key: "titles", title: "World Cups Won", icon: "🏆",
-      note: "Most World Cup titles won as a player (Pelé is the only 3-time winner).",
-      rows: [
-        { name: "Pelé", code: "BR", value: 3 },
-        { name: "Cafú", code: "BR", value: 2 },
-        { name: "Djalma Santos", code: "BR", value: 2 },
-        { name: "Nílton Santos", code: "BR", value: 2 },
-        { name: "Garrincha", code: "BR", value: 2 },
-        { name: "Didi", code: "BR", value: 2 },
-        { name: "Gilmar", code: "BR", value: 2 },
-        { name: "Vavá", code: "BR", value: 2 },
-        { name: "Mário Zagallo", code: "BR", value: 2 },
-        { name: "Giuseppe Meazza", code: "IT", value: 2 },
       ],
     },
     {

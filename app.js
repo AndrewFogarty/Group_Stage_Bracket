@@ -556,10 +556,12 @@ async function initAuth() {
     const { data } = await SB.auth.getSession();
     authUser = (data && data.session && data.session.user) || null;
   } catch (e) { /* ignore */ }
-  if (authUser) { markEntered(); showApp(); }
-  SB.auth.onAuthStateChange((_event, sess) => {
+  // A restored session is kept for identity, but it must NOT auto-enter the app
+  // or auto-sign-in. Only an explicit "Sign in with Google" click (which fires a
+  // SIGNED_IN event after the OAuth redirect) enters.
+  SB.auth.onAuthStateChange((event, sess) => {
     authUser = (sess && sess.user) || null;
-    if (authUser) { markEntered(); showApp(); }
+    if (event === "SIGNED_IN") { markEntered(); showApp(); }
     applyAuthUI();
     refreshBoard();
   });
@@ -589,18 +591,19 @@ function applyAuthUI() {
   const username = document.getElementById("username");
   if (!signin || !signout || !who) return;
   if (!SHARED) { signin.style.display = "none"; signout.style.display = "none"; who.style.display = "none"; return; }
+  // Submit & lock is always available — you can edit and hit it immediately;
+  // if you're not signed in yet, clicking it kicks off Google sign-in.
+  if (submit) submit.style.display = "";
   if (authUser) {
     signin.style.display = "none";
     signout.style.display = "";
     who.style.display = "";
     who.textContent = "✓ " + googleName();
-    if (submit) submit.style.display = "";
     if (username) { username.style.display = ""; if (!username.value) username.value = googleName(); }
   } else {
     signin.style.display = "";
     signout.style.display = "none";
     who.style.display = "none";
-    if (submit) submit.style.display = "none";
     if (username) username.style.display = "none";
   }
   updateSubmitLabel();
@@ -663,8 +666,10 @@ function initTitleScreen() {
   const u = document.getElementById("title-username");
   if (u) u.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); enterAsGuest(); } });
 
-  // Already signed in or previously entered -> skip straight to the app.
-  if (authUser || hasEntered()) { showApp(); return; }
+  // Returning user (already entered on this device once) -> straight to the app
+  // so they can edit immediately. A restored Google session alone does NOT skip
+  // the gate — signing in requires actually clicking the button.
+  if (hasEntered()) { showApp(); return; }
   document.body.classList.add("title-active");
 }
 
@@ -973,7 +978,7 @@ async function submitPredictions() {
 function updateSubmitLabel() {
   const btn = document.getElementById("submit-bracket");
   if (btn && !btn.classList.contains("submitted")) {
-    btn.textContent = myId() ? "✏️ Update my entry" : "🔒 Submit & lock";
+    btn.textContent = "🔒 Submit & lock";
   }
 }
 
