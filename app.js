@@ -595,17 +595,21 @@ function applyAuthUI() {
   // Submit & lock is always available — you can edit and hit it immediately;
   // if you're not signed in yet, clicking it kicks off Google sign-in.
   if (submit) submit.style.display = "";
+  const rename = document.getElementById("rename");
   if (authUser) {
     signin.style.display = "none";
     signout.style.display = "";
+    if (username && !username.value) username.value = googleName();
+    if (username) username.style.display = "none"; // shown only while renaming
     who.style.display = "";
-    who.textContent = "✓ " + googleName();
-    if (username) { username.style.display = ""; if (!username.value) username.value = googleName(); }
+    who.textContent = "✓ " + ((username && username.value) || googleName());
+    if (rename) rename.style.display = "";
   } else {
     signin.style.display = "";
     signout.style.display = "none";
     who.style.display = "none";
     if (username) username.style.display = "none";
+    if (rename) rename.style.display = "none";
   }
   updateSubmitLabel();
 }
@@ -1233,6 +1237,23 @@ function toEasternTime(t) {
   return `${h12}:${m[2]} ${ampm}`;
 }
 
+/* Live in-play score for a matchup (either order) from window.WC_FOOTBALL.live. */
+function liveScoreFor(home, away) {
+  const list = (window.WC_FOOTBALL && window.WC_FOOTBALL.live) || [];
+  for (const m of list) {
+    if (m.home === home && m.away === away) return { hg: m.hg, ag: m.ag, elapsed: m.elapsed, extra: m.extra, status: m.status };
+    if (m.home === away && m.away === home) return { hg: m.ag, ag: m.hg, elapsed: m.elapsed, extra: m.extra, status: m.status };
+  }
+  return null;
+}
+function liveLabel(lv) {
+  const s = lv.status;
+  if (s === "HT") return "HT";
+  if (s === "P") return "PENS";
+  if (s === "BT" || s === "ET") return "ET" + (lv.elapsed ? " " + lv.elapsed + "'" : "");
+  return lv.elapsed != null ? lv.elapsed + (lv.extra ? "+" + lv.extra : "") + "'" : "LIVE";
+}
+
 function renderSchedule() {
   const host = document.getElementById("schedule-strip");
   if (!host) return;
@@ -1245,7 +1266,12 @@ function renderSchedule() {
   host.innerHTML = list
     .map((m) => {
       const played = m.hg !== null;
-      const mid = played ? `<span class="sch-score">${m.hg}–${m.ag}</span>` : `<span class="sch-v">v</span>`;
+      const lv = !played ? liveScoreFor(m.h, m.a) : null;
+      const mid = played
+        ? `<span class="sch-score">${m.hg}–${m.ag}</span>`
+        : lv
+          ? `<span class="sch-livebox"><span class="sch-livescore">${lv.hg}–${lv.ag}</span><span class="sch-min"><span class="sch-livedot"></span>${escapeHtml(liveLabel(lv))}</span></span>`
+          : `<span class="sch-v">v</span>`;
       const stage = m.s.length === 1 ? "Group " + m.s : m.s;
       const city = window.WCWeather ? WCWeather.cityFromVenue(m.v) : null;
       const wx = !played && city
@@ -1254,8 +1280,8 @@ function renderSchedule() {
       const info = !played
         ? `<button class="sch-info" type="button" data-home="${escapeHtml(m.h)}" data-away="${escapeHtml(m.a)}" title="Lineups, head-to-head & squad stats" aria-label="Match info for ${escapeHtml(m.h)} versus ${escapeHtml(m.a)}">ⓘ</button>`
         : "";
-      return `<div class="sch-card${played ? " done" : ""}">
-        <div class="sch-meta">${fmtDate(m.d)} · ${toEasternTime(m.t)} ET · ${stage}${info}</div>
+      return `<div class="sch-card${played ? " done" : lv ? " live" : ""}">
+        <div class="sch-meta">${lv ? '<span class="sch-livetag">● LIVE</span> ' : ""}${fmtDate(m.d)} · ${toEasternTime(m.t)} ET · ${stage}${info}</div>
         <div class="sch-row">
           <span class="sch-team">${flagFor(m.h)}<span class="sch-name">${escapeHtml(m.h)}</span></span>
           ${mid}
@@ -1268,6 +1294,20 @@ function renderSchedule() {
 
   // Populate live weather (Open-Meteo) for the upcoming-match cards.
   if (window.WCWeather) WCWeather.fill(".schedule-strip .sch-wx");
+}
+
+/* Pull the freshest live scores (refreshed server-side every ~5 min) and
+   re-render the schedule, so in-play matches tick over without a full reload. */
+function pollLiveScores() {
+  fetch("data/football-data.json?_=" + Date.now())
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => {
+      if (!d || !d.teams) return;
+      window.WC_FOOTBALL = d; // full refresh: live scores + updated 2026 tallies
+      renderSchedule();
+      renderHistory();
+    })
+    .catch(() => { /* offline / not deployed yet — ignore */ });
 }
 
 /* ================= Match info modal (lineups · H2H · squad stats) =========
@@ -1999,9 +2039,38 @@ function wireEvents() {
   document.getElementById("refresh-board").addEventListener("click", refreshBoard);
   document.getElementById("signin").addEventListener("click", signInWithGoogle);
   document.getElementById("signout").addEventListener("click", signOut);
-  document.getElementById("username").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); submitPredictions(); }
-  });
+
+  // ✏️ Rename your bracket: reveal the name field, then commit on Enter/blur.
+  const renameBtn = document.getElementById("rename");
+  const usernameEl = document.getElementById("username");
+  const startRename = () => {
+    if (!usernameEl) return;
+    document.getElementById("whoami").style.display = "none";
+    if (renameBtn) renameBtn.style.display = "none";
+    usernameEl.style.display = "";
+    usernameEl.focus();
+    usernameEl.select();
+  };
+  const finishRename = () => {
+    if (!usernameEl) return;
+    const who = document.getElementById("whoami");
+    const name = (usernameEl.value || "").trim() || googleName();
+    usernameEl.value = name;
+    if (authUser) {
+      usernameEl.style.display = "none";
+      who.textContent = "✓ " + name;
+      who.style.display = "";
+      if (renameBtn) renameBtn.style.display = "";
+      markDirty(); // name changed — Submit & lock to save it
+    }
+  };
+  if (renameBtn) renameBtn.addEventListener("click", startRename);
+  if (usernameEl) {
+    usernameEl.addEventListener("blur", finishRename);
+    usernameEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); usernameEl.blur(); }
+    });
+  }
   document.getElementById("clear-board").addEventListener("click", () => {
     if (!board.length) return;
     if (!confirm("Remove all leaderboard entries on this device?")) return;
@@ -2060,6 +2129,10 @@ initAuth();
 
 // Re-lock matches as their kickoff time passes while the page stays open.
 setInterval(markConfirmedMatches, 15000);
+
+// Keep live scores (and the 2026 board) ticking over without a full reload.
+pollLiveScores();
+setInterval(pollLiveScores, 90000);
 
 // Re-flow the masonry columns when the viewport width changes.
 let layoutTimer = null;

@@ -5,7 +5,7 @@ name: Update live data
 
 on:
   schedule:
-    - cron: "0 * * * *" # hourly (GitHub cron can be delayed/skipped; also runnable on demand)
+    - cron: "*/5 * * * *" # every 5 min (GitHub may delay/coalesce runs under load)
   workflow_dispatch: {} # lets you run it on demand from the Actions tab
 
 permissions:

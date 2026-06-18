@@ -304,6 +304,29 @@ function normaliseLineups(resp, hId, aId) {
   return out;
 }
 
+/* ---- Live scores for World Cup matches currently in play (cheap, runs every
+   refresh). Team ids are mapped back to our display names via the cache. ---- */
+async function fetchLiveScores(cache) {
+  const idToName = {};
+  for (const [name, id] of Object.entries(cache.teamIds || {})) idToName[id] = name;
+  const body = await api("/fixtures", { live: "all" });
+  const out = [];
+  for (const f of body.response || []) {
+    if (!f.league || f.league.id !== 1) continue; // World Cup only
+    const t = f.teams || {}, g = f.goals || {}, st = (f.fixture && f.fixture.status) || {};
+    out.push({
+      home: idToName[t.home && t.home.id] || (t.home && t.home.name),
+      away: idToName[t.away && t.away.id] || (t.away && t.away.name),
+      hg: g.home == null ? 0 : g.home,
+      ag: g.away == null ? 0 : g.away,
+      elapsed: st.elapsed == null ? null : st.elapsed,
+      extra: st.extra == null ? null : st.extra,
+      status: st.short || null,
+    });
+  }
+  return out;
+}
+
 /* ---- Which matches to prepare. Every group matchup gets H2H + a lineup (so
    the info button works on played AND upcoming group games); knockout fixtures
    are added once their two teams are known and within the horizon. ---- */
@@ -337,6 +360,14 @@ async function main() {
   const data = loadJson(OUT_JSON, { teams: {}, matches: {} });
   data.teams = data.teams || {};
   data.matches = data.matches || {};
+
+  // Live scores first (1 cheap call) so in-play matches refresh every run.
+  try {
+    data.live = await fetchLiveScores(cache);
+    log(`${data.live.length} live World Cup match(es).`);
+  } catch (e) {
+    if (e.message !== "__BUDGET__") log("live scores failed:", e.message);
+  }
 
   const matches = relevantMatches();
   log(`${matches.length} match(es) to prepare; budget ${REQUEST_BUDGET} requests.`);
@@ -407,6 +438,7 @@ function writeOut(data) {
     season: SEASON,
     teams: data.teams || {},
     matches: data.matches || {},
+    live: data.live || [],
   };
   fs.mkdirSync(path.join(ROOT, "data"), { recursive: true });
   fs.writeFileSync(OUT_JSON, JSON.stringify(out, null, 2));

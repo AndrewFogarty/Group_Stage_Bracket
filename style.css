@@ -2525,3 +2525,46 @@ body.mi-open { overflow: hidden; }
   padding: 0.05rem 0.3rem;
 }
 .wch-empty { color: rgba(255, 255, 255, 0.55); font-size: 0.82rem; font-style: italic; }
+
+/* ================= Live in-play scores (schedule strip) ================= */
+.sch-card.live {
+  border-color: rgba(224, 70, 60, 0.6);
+  box-shadow: 0 0 0 1px rgba(224, 70, 60, 0.4) inset, 0 0 14px rgba(224, 70, 60, 0.25);
+}
+.sch-livetag {
+  color: #ff6b5e;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+.sch-livebox { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.sch-livescore { font-family: var(--cond); font-weight: 700; font-size: 1.05rem; color: #fff; }
+.sch-min {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.66rem;
+  color: #ffb3ac;
+  font-weight: 600;
+}
+.sch-livedot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #ff5247;
+  animation: live-pulse 1.2s ease-in-out infinite;
+}
+@keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* Rename-your-bracket pencil (next to the signed-in name) */
+.rename-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 0.15rem 0.25rem;
+  border-radius: 6px;
+  opacity: 0.7;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.rename-btn:hover { opacity: 1; transform: scale(1.12); }
