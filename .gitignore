@@ -4,6 +4,11 @@
 images/Champagne.png
 Batman ZOK.jpg
 
+# API keys — never commit
+.env
+.env.local
+.apifootball-key
+
 node_modules/
 test-results/
 playwright-report/

@@ -326,6 +326,7 @@ function buildGroups() {
           <span class="flag">${flagHtml(codeFor(g, ai))}</span>
         </span>
         <span class="match-lock" title="Locked — the match has kicked off; this prediction can no longer be changed" aria-hidden="true">🔒</span>
+        <button class="match-info" type="button" data-group="${g}" data-match="${m}" title="Lineups, head-to-head & squad stats" aria-label="Match info">ⓘ</button>
         <span class="match-actual"></span>
         <span class="match-venue"></span>`;
       matches.appendChild(row);
@@ -741,16 +742,24 @@ function hydrateMyGuesses() {
   for (const g of GROUP_LETTERS) {
     const arr = sub.scores[g] || [];
     arr.forEach((sc, i) => {
-      if (isLocked(g, i)) return; // don't auto-fill played or already-kicked-off matches
-      const cur = state.scores[g][i];
-      if ((cur[0] == null || cur[1] == null) && Array.isArray(sc) && sc[0] != null && sc[1] != null) {
+      const valid = Array.isArray(sc) && sc[0] != null && sc[1] != null;
+      if (!valid) return;
+      if (isLocked(g, i)) {
+        // Played / kicked-off: show your stored pick read-only so it can be
+        // graded against the actual result (the input stays disabled).
         state.scores[g][i] = [normScore(sc[0]), normScore(sc[1])];
         changed = true;
+      } else {
+        const cur = state.scores[g][i];
+        if (cur[0] == null || cur[1] == null) {
+          state.scores[g][i] = [normScore(sc[0]), normScore(sc[1])];
+          changed = true;
+        }
       }
     });
   }
   if (changed) { syncInputs(); renderAll(); saveState(); }
-  else markPredictionAccuracy(); // apply locked-match blanking even if nothing was filled
+  else markPredictionAccuracy();
 }
 
 function setupBoardUI() {
@@ -795,6 +804,45 @@ function subPredicted(sub) {
     if (sub.bracket) state.bracket = sub.bracket;
     thirdMap = thirdAssignments();
     return predictedAdvancement();
+  } finally {
+    state.scores = savedScores;
+    state.bracket = savedBracket;
+    thirdMap = savedThird;
+  }
+}
+
+/* Reconstruct a submission's knockout bracket (R16 → Final) as match nodes so
+   the leaderboard "View" can draw a mini version of the official tree. Each
+   node carries both participants, which side was picked to advance, and whether
+   that pick was correct (vs live results). State is swapped temporarily so the
+   existing participant()/bracketAccuracy() engines work unchanged. */
+function subBracketTree(sub) {
+  const savedScores = state.scores, savedBracket = state.bracket, savedThird = thirdMap;
+  try {
+    if (sub.scores) state.scores = sub.scores;
+    if (sub.bracket) state.bracket = sub.bracket;
+    thirdMap = thirdAssignments();
+    const node = (id) => {
+      const w = state.bracket[id] || null; // "home" | "away" | null
+      return {
+        id,
+        home: participant(id, "home"),
+        away: participant(id, "away"),
+        pick: w,
+        acc: w ? bracketAccuracy(id, w) : "", // "correct" | "wrong" | ""
+      };
+    };
+    const round = (ids) => ids.map(node);
+    const champ = winnerOf(104);
+    return {
+      R16: round(ROUND_ORDER.R16),
+      QF: round(ROUND_ORDER.QF),
+      SF: round(ROUND_ORDER.SF),
+      F: round([104]),
+      champion: champ && champ.known && champ.name
+        ? { name: champ.name, code: champ.code, acc: bracketAccuracy(104, state.bracket[104]) }
+        : null,
+    };
   } finally {
     state.scores = savedScores;
     state.bracket = savedBracket;
@@ -851,8 +899,12 @@ function scoreSubmission(sub) {
     const preds = (sub.scores && sub.scores[g]) || [];
     const acts = live[g] || [];
     for (let i = 0; i < 6; i++) {
-      if (lockedSet.has(g + i)) { locked++; continue; } // pre-confirmed — excluded
       const r = scoreMatch(preds[i], acts[i], allowExact);
+      // Every played match you predicted counts. You can't enter a prediction
+      // after kickoff (the inputs lock), so a stored pick was always made in
+      // time — there's nothing to exclude. `locked` is kept only as an FYI
+      // count of picks for matches already played when you last submitted.
+      if (lockedSet.has(g + i) && r.kind !== "pending" && r.kind !== "none") locked++;
       if (r.kind === "exact") { total += 50; exact++; scored++; }
       else if (r.kind === "outcome") { total += 10; outc++; scored++; }
       else if (r.kind === "miss") { miss++; scored++; }
@@ -986,6 +1038,87 @@ function renderLeaderboard() {
     .join("");
 }
 
+/* Mini knockout bracket (R16 → Final → Champion) for a leaderboard entry.
+   A flex column per round + an SVG overlay of elbow connectors that link each
+   picked winner to its match in the next round, mirroring the official tree. */
+function renderMiniBracket(sub) {
+  const tree = subBracketTree(sub);
+
+  const teamRow = (p, picked, acc, extra) => {
+    const known = p && p.known && p.name;
+    const cls = picked ? "pick " + (acc || "pending") : "dim";
+    const flag = known ? flagHtml(p.code) : '<span class="mb-dot">•</span>';
+    const code = known ? code3(p.name) : "—";
+    const ttl = known ? p.name : (p && p.label) || "TBD";
+    return `<div class="mb-team ${cls} ${extra || ""}" title="${escapeHtml(ttl)}">
+        <span class="mb-flag">${flag}</span><span class="mb-code">${escapeHtml(code)}</span>
+      </div>`;
+  };
+
+  const matchHtml = (m) =>
+    `<div class="mb-match">
+        ${teamRow(m.home, m.pick === "home", m.acc, "")}
+        ${teamRow(m.away, m.pick === "away", m.acc, "")}
+      </div>`;
+
+  const roundHtml = (nodes, cls) =>
+    `<div class="mb-round ${cls || ""}">${nodes.map(matchHtml).join("")}</div>`;
+
+  // Champion column (single highlighted team).
+  const ch = tree.champion;
+  const champHtml = `<div class="mb-round mb-champ-col">
+      <div class="mb-match">
+        ${ch
+          ? `<div class="mb-team pick champ ${ch.acc || "pending"}" title="${escapeHtml(ch.name)}">
+               <span class="mb-flag">${flagHtml(ch.code)}</span><span class="mb-code">${escapeHtml(code3(ch.name))}</span>
+             </div>`
+          : `<div class="mb-team dim champ" title="No champion picked"><span class="mb-flag">🏆</span><span class="mb-code">—</span></div>`}
+      </div>
+    </div>`;
+
+  // SVG elbow connectors. Geometry is deterministic for a power-of-two tree:
+  // a round of n matches has vertical centres at (2i+1)/(2n). Columns are 5
+  // equal 20%-wide slots (centres 10,30,50,70,90); boxes are 15% wide so the
+  // gutter between them hosts the connector verticals.
+  const cy = (i, n) => (100 * (2 * i + 1)) / (2 * n);
+  const hw = 7.5;                       // half box width (% of viewBox)
+  const xc = (c) => 10 + 20 * c;        // column centre x
+  let d = "";
+  const link = (c, n) => {              // n = match count in source round
+    const x0r = xc(c) + hw, x1l = xc(c + 1) - hw, b = (xc(c) + xc(c + 1)) / 2;
+    for (let j = 0; j < n / 2; j++) {
+      const a = cy(2 * j, n), bb = cy(2 * j + 1, n), mid = (a + bb) / 2;
+      d += `M${x0r} ${a}H${b}M${x0r} ${bb}H${b}M${b} ${a}V${bb}M${b} ${mid}H${x1l}`;
+    }
+  };
+  link(0, 8); // R16 -> QF
+  link(1, 4); // QF  -> SF
+  link(2, 2); // SF  -> Final
+  d += `M${xc(3) + hw} 50H${xc(4) - hw}`; // Final -> Champion
+  const lines = `<svg class="mb-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="${d}" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>`;
+
+  return `<div class="sc-ko">
+      <div class="sc-ko-title">Knockout bracket</div>
+      <div class="mb-wrap">
+        <div class="mini-bracket">
+          ${lines}
+          ${roundHtml(tree.R16, "r-r16")}
+          ${roundHtml(tree.QF, "r-qf")}
+          ${roundHtml(tree.SF, "r-sf")}
+          ${roundHtml(tree.F, "r-f")}
+          ${champHtml}
+        </div>
+      </div>
+      <div class="mb-legend">
+        <span class="mb-key correct">advanced</span>
+        <span class="mb-key wrong">missed</span>
+        <span class="mb-key pending">undecided</span>
+      </div>
+    </div>`;
+}
+
 /* Detailed scorecard with green/gold/red highlighting per match. */
 function renderScorecard(id) {
   const host = document.getElementById("scorecard");
@@ -1005,7 +1138,7 @@ function renderScorecard(id) {
   let html = `<div class="sc-head">
       <span class="sc-name">${escapeHtml(sub.username)}</span>
       <span class="sc-total">${sc.total} pts</span>
-      <span class="sc-sub">${sc.exact} exact · ${sc.outcome} result · ${sc.miss} miss · ${sc.locked} 🔒${sc.koHits ? " · KO " + sc.koHits + "×20" : ""}${sc.champ ? " · 🏆+100" : ""}</span>
+      <span class="sc-sub">${sc.exact} exact · ${sc.outcome} result · ${sc.miss} miss${sc.koHits ? " · KO " + sc.koHits + "×20" : ""}${sc.champ ? " · 🏆+100" : ""}</span>
       <button class="sc-close" type="button" aria-label="Close">✕</button>
     </div>
     <div class="sc-legend">
@@ -1013,7 +1146,6 @@ function renderScorecard(id) {
       <span class="sc-chip outcome">10</span> result
       <span class="sc-chip miss">0</span> miss
       <span class="sc-chip pending">·</span> not played
-      <span class="sc-chip locked">🔒</span> already confirmed (no points)
     </div>
     <div class="sc-groups">`;
 
@@ -1024,45 +1156,25 @@ function renderScorecard(id) {
       const pred = (sub.scores[g] || [])[i];
       const act = (live[g] || [])[i];
       const nm = state.names[g];
-      if (lockedSet.has(g + i)) {
-        const t = `${nm[hi]} v ${nm[ai]} — already confirmed at submit time (no points)`;
-        html += `<span class="sc-chip locked" title="${escapeHtml(t)}">🔒</span>`;
-        return;
-      }
+      const wasLocked = lockedSet.has(g + i);
       const r = scoreMatch(pred, act, allowExact);
       const shown = sub.mode === "result" ? sym(pred) : fmt(pred);
-      const title = `${nm[hi]} v ${nm[ai]} — you ${sub.mode === "result" ? sym(pred) : fmt(pred)}, actual ${fmt(act)}${r.pts ? " (+" + r.pts + ")" : ""}`;
-      html += `<span class="sc-chip ${r.kind}" title="${escapeHtml(title)}">${shown === "—" ? "·" : shown}</span>`;
+      // Colour any played match with a prediction (red/gold/green). Matches that
+      // were already played when this entry was last submitted are marked, but
+      // they still earn their points.
+      const lockTitle = wasLocked ? " — already played when submitted" : "";
+      const ptsTitle = r.pts ? " (+" + r.pts + ")" : "";
+      const title = `${nm[hi]} v ${nm[ai]} — you ${sub.mode === "result" ? sym(pred) : fmt(pred)}, actual ${fmt(act)}${ptsTitle}${lockTitle}`;
+      html += `<span class="sc-chip ${r.kind}${wasLocked ? " was-locked" : ""}" title="${escapeHtml(title)}">${shown === "—" ? "·" : shown}</span>`;
     });
     html += `</div></div>`;
   }
   html += `</div>`;
 
-  // Simple knockout bracket: who they sent to each round (3-letter codes).
-  const pred = subPredicted(sub);
-  const adv = (window.WC_LIVE && window.WC_LIVE.advanced) || {};
-  const koCol = (title, key, list) => {
-    const chips = (list || [])
-      .map((n) => {
-        const hit = (adv[key] || []).includes(n);
-        return `<span class="ko-chip${hit ? " hit" : ""}" title="${escapeHtml(n)}">${escapeHtml(code3(n))}</span>`;
-      })
-      .join("");
-    return `<div class="ko-col"><span class="ko-rnd">${title}</span>
-        <div class="ko-chips">${chips || '<span class="ko-chip empty">—</span>'}</div></div>`;
-  };
-  const champHit = pred.champion && adv.champion && pred.champion === adv.champion;
-  html += `<div class="sc-ko">
-      <div class="sc-ko-title">Knockout picks</div>
-      <div class="ko-cols">
-        ${koCol("R16", "R16", pred.R16)}
-        ${koCol("QF", "QF", pred.QF)}
-        ${koCol("SF", "SF", pred.SF)}
-        ${koCol("Final", "FINAL", pred.FINAL)}
-        <div class="ko-col"><span class="ko-rnd">🏆</span>
-          <div class="ko-chips"><span class="ko-chip champ${champHit ? " hit" : ""}" title="${escapeHtml(pred.champion || "")}">${escapeHtml(code3(pred.champion))}</span></div></div>
-      </div>
-    </div>`;
+  // Mini version of the official bracket: tree with lines connecting each
+  // picked winner forward to the next round (green = correct, red = wrong,
+  // gold = your pick, undecided).
+  html += renderMiniBracket(sub);
 
   host.innerHTML = html;
   host.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -1108,8 +1220,11 @@ function renderSchedule() {
       const wx = !played && city
         ? `<span class="sch-wx" data-city="${escapeHtml(city)}" data-date="${m.d}" title="Live match-day forecast"></span>`
         : "";
+      const info = !played
+        ? `<button class="sch-info" type="button" data-home="${escapeHtml(m.h)}" data-away="${escapeHtml(m.a)}" title="Lineups, head-to-head & squad stats" aria-label="Match info for ${escapeHtml(m.h)} versus ${escapeHtml(m.a)}">ⓘ</button>`
+        : "";
       return `<div class="sch-card${played ? " done" : ""}">
-        <div class="sch-meta">${fmtDate(m.d)} · ${toEasternTime(m.t)} ET · ${stage}</div>
+        <div class="sch-meta">${fmtDate(m.d)} · ${toEasternTime(m.t)} ET · ${stage}${info}</div>
         <div class="sch-row">
           <span class="sch-team">${flagFor(m.h)}<span class="sch-name">${escapeHtml(m.h)}</span></span>
           ${mid}
@@ -1122,6 +1237,276 @@ function renderSchedule() {
 
   // Populate live weather (Open-Meteo) for the upcoming-match cards.
   if (window.WCWeather) WCWeather.fill(".schedule-strip .sch-wx");
+}
+
+/* ================= Match info modal (lineups · H2H · squad stats) =========
+   Data comes from window.WC_FOOTBALL (API-Football, refreshed server-side by
+   the Update live data Action). Everything degrades gracefully to a friendly
+   notice while the feed is still empty. */
+function footballData() { return window.WC_FOOTBALL || { teams: {}, matches: {} }; }
+function matchInfoData(home, away) {
+  const f = footballData();
+  return (f.matches && f.matches[`${home}|${away}`]) || null;
+}
+function teamInfoData(name) {
+  const f = footballData();
+  return (f.teams && f.teams[name]) || null;
+}
+
+function miNotice(msg) {
+  return `<div class="mi-empty">${escapeHtml(msg)}</div>`;
+}
+
+/* --- Lineups (official XI when live, otherwise the team's last game) --- */
+/* A player chip: circular headshot (falls back to the shirt number), number
+   badge, and name. */
+function playerChip(p, posStyle) {
+  const num = p.number != null ? String(p.number) : "";
+  const img = p.photo
+    ? `<img class="pp-photo" src="${escapeHtml(p.photo)}" alt="" loading="lazy"
+         onerror="this.remove();this.parentNode.classList.add('pp-noimg');" />`
+    : "";
+  // Number shown beside the name (clear, never clipped); the in-circle number
+  // is only a fallback for when the headshot fails to load.
+  const numName = num ? `<span class="pp-no">${escapeHtml(num)}</span>` : "";
+  return `<div class="pp" ${posStyle ? `style="${posStyle}"` : ""}>
+      <div class="pp-shirt">${img}<span class="pp-fallnum">${escapeHtml(num)}</span></div>
+      <div class="pp-name">${numName}<span class="pp-nm">${escapeHtml(p.name || "—")}</span></div>
+    </div>`;
+}
+
+/* Lay the starting XI out on a vertical pitch using the API grid ("row:col",
+   row 1 = keeper at the back, col 1 = left), so wingers/full-backs sit on
+   their true side. */
+function renderPitch(startXI) {
+  const withGrid = (startXI || []).filter((p) => p.grid);
+  if (withGrid.length < (startXI || []).length || !withGrid.length) return null;
+  const rows = {};
+  withGrid.forEach((p) => {
+    const r = parseInt(p.grid.split(":")[0], 10);
+    (rows[r] = rows[r] || []).push(p);
+  });
+  const rowKeys = Object.keys(rows).map(Number).sort((a, b) => a - b);
+  const R = rowKeys.length;
+  let chips = "";
+  rowKeys.forEach((rk, i) => {
+    const line = rows[rk].slice().sort(
+      (a, b) => (+a.grid.split(":")[1]) - (+b.grid.split(":")[1])
+    );
+    const C = line.length;
+    const top = 100 - ((i + 0.5) / R) * 100; // keeper (i=0) near the bottom
+    line.forEach((p, j) => {
+      const left = ((j + 0.5) / C) * 100; // col 1 -> left of the screen
+      chips += playerChip(p, `top:${top.toFixed(1)}%;left:${left.toFixed(1)}%`);
+    });
+  });
+  return `<div class="mi-pitch">${chips}</div>`;
+}
+
+function renderLineupSide(side) {
+  if (!side) return `<div class="mi-xi">${miNotice("No lineup available.")}</div>`;
+  const pitch = renderPitch(side.startXI);
+  const listFallback = `<ol class="mi-players">${(side.startXI || []).map((p) =>
+    `<li><span class="mi-num">${p.number != null ? p.number : "·"}</span>
+       <span class="mi-pname">${escapeHtml(p.name || "—")}</span>
+       <span class="mi-ppos">${escapeHtml(p.pos || "")}</span></li>`).join("")
+    || miNotice("Starting XI not available.")}</ol>`;
+  const subs = (side.subs || []).slice(0, 12).map((p) =>
+    `<li><span class="mi-num">${p.number != null ? p.number : "·"}</span>
+       <span class="mi-pname">${escapeHtml(p.name || "—")}</span>
+       <span class="mi-ppos">${escapeHtml(p.pos || "")}</span></li>`).join("");
+  return `<div class="mi-xi">
+      <div class="mi-xi-head">
+        <span class="mi-team">${escapeHtml(side.team || "")}</span>
+        ${side.formation ? `<span class="mi-form">${escapeHtml(side.formation)}</span>` : ""}
+      </div>
+      ${side.coach ? `<div class="mi-coach">Coach: ${escapeHtml(side.coach)}</div>` : ""}
+      ${pitch || listFallback}
+      ${subs ? `<div class="mi-subs-h">Substitutes</div><ol class="mi-players subs">${subs}</ol>` : ""}
+    </div>`;
+}
+
+function renderLineupTab(data, home, away) {
+  if (!data || !data.lineup || !data.lineup.sides) {
+    return miNotice("Lineups will appear here once the data feed runs (refreshes hourly).");
+  }
+  const { sides, live } = data.lineup;
+  const banner = live
+    ? `<div class="mi-live"><span class="mi-dot"></span> Official lineup (live)</div>`
+    : `<div class="mi-last">Showing each side's most recent lineup (the official XI for an upcoming match is published shortly before kickoff).</div>`;
+  return `${banner}
+    <div class="mi-xis">
+      ${renderLineupSide(sides.home)}
+      ${renderLineupSide(sides.away)}
+    </div>`;
+}
+
+/* --- Head-to-head over the last ~26 years --- */
+function renderH2HTab(data, home, away) {
+  if (!data || !data.h2h) {
+    return miNotice("Head-to-head history will appear here once the data feed runs.");
+  }
+  const h = data.h2h;
+  if (!h.total) {
+    return miNotice(`No recorded meetings between ${home} and ${away} in the last ${h.years} years.`);
+  }
+  const seg = (cls, n, pct) => n ? `<span class="${cls}" style="width:${pct}%" title="${n} (${pct}%)"></span>` : "";
+  return `<div class="mi-h2h">
+      <p class="mi-h2h-sub">${h.total} meeting${h.total === 1 ? "" : "s"} over the last ${h.years} years</p>
+      <div class="mi-h2h-bar">
+        ${seg("hb-home", h.homeWins, h.homeWinPct)}
+        ${seg("hb-draw", h.draws, h.drawPct)}
+        ${seg("hb-away", h.awayWins, h.awayWinPct)}
+      </div>
+      <table class="mi-h2h-table">
+        <thead><tr><th>${escapeHtml(home)} wins</th><th>Draws</th><th>${escapeHtml(away)} wins</th></tr></thead>
+        <tbody><tr>
+          <td><strong>${h.homeWins}</strong><span class="mi-pct">${h.homeWinPct}%</span></td>
+          <td><strong>${h.draws}</strong><span class="mi-pct">${h.drawPct}%</span></td>
+          <td><strong>${h.awayWins}</strong><span class="mi-pct">${h.awayWinPct}%</span></td>
+        </tr></tbody>
+      </table>
+    </div>`;
+}
+
+/* --- Per-squad season stats with top-performer highlights --- */
+function renderSquadTable(name) {
+  const t = teamInfoData(name);
+  if (!t || !t.players || !t.players.length) {
+    return `<div class="mi-squad"><h4>${escapeHtml(name)}</h4>${miNotice("Squad stats will appear once the data feed runs.")}</div>`;
+  }
+  // Per-game stats are only meaningful for players who featured this season.
+  const squad = t.players.filter((p) => p.games > 0);
+  if (!squad.length) {
+    return `<div class="mi-squad"><h4>${escapeHtml(name)}</h4>${miNotice("No player appearances recorded yet this season.")}</div>`;
+  }
+  // Squad leader per metric, with a minimum-appearances guard so a single-cap
+  // player can't top a per-game ranking on a fluke. Falls back to all if needed.
+  const maxG = Math.max(...squad.map((p) => p.games));
+  const minG = Math.max(2, Math.ceil(maxG / 3));
+  const topName = (metric) => {
+    let pool = squad.filter((p) => p.games >= minG && p[metric] > 0);
+    if (!pool.length) pool = squad.filter((p) => p[metric] > 0);
+    if (!pool.length) return null;
+    return pool.slice().sort((a, b) => b[metric] - a[metric])[0].name;
+  };
+  const L = { goals: topName("gpg"), assists: topName("apg"), fouls: topName("fpg") };
+  const lead = (player, metric) => (L[metric] && player.name === L[metric]) ? " mi-top" : "";
+  const rows = squad.map((p) => `
+    <tr>
+      <td class="mi-pl">${p.photo ? `<img class="mi-photo" src="${escapeHtml(p.photo)}" alt="" loading="lazy" />` : ""}<span>${escapeHtml(p.name)}</span></td>
+      <td class="mi-pos">${escapeHtml(p.pos || "—")}</td>
+      <td>${p.games}</td>
+      <td class="mi-wc">${p.wcGoals || 0}</td>
+      <td class="mi-wc">${p.wcAssists || 0}</td>
+      <td class="mi-g${lead(p, "goals")}">${p.gpg.toFixed(2)}</td>
+      <td class="mi-a${lead(p, "assists")}">${p.apg.toFixed(2)}</td>
+      <td>${p.mpg}</td>
+      <td class="mi-f${lead(p, "fouls")}">${p.fpg.toFixed(2)}</td>
+      <td class="mi-yc">${p.yellow}</td>
+      <td class="mi-rc">${p.red}</td>
+    </tr>`).join("");
+  return `<div class="mi-squad">
+      <h4>${escapeHtml(name)} <span class="mi-season">${t.season || ""} season</span></h4>
+      <div class="mi-table-wrap">
+        <table class="mi-stats">
+          <thead><tr>
+            <th class="mi-pl">Player</th><th>Pos</th><th title="Games played">GP</th>
+            <th title="World Cup goals so far">🏆G</th><th title="World Cup assists so far">🏆A</th>
+            <th title="Goals per game (all competitions, this season)">G/G</th><th title="Assists per game (all competitions, this season)">A/G</th>
+            <th title="Minutes per game">Min</th><th title="Fouls per game">F/G</th>
+            <th title="Yellow cards">🟨</th><th title="Red cards">🟥</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderStatsTab(home, away) {
+  return `<div class="mi-legend">Highlighted = squad leader in
+      <span class="mi-key g">goals/game</span>
+      <span class="mi-key a">assists/game</span>
+      <span class="mi-key f">fouls/game</span></div>
+    <div class="mi-squads">
+      ${renderSquadTable(home)}
+      ${renderSquadTable(away)}
+    </div>`;
+}
+
+let miActiveTab = "lineup";
+function openMatchInfo(home, away) {
+  const body = document.getElementById("mi-body");
+  const overlay = document.getElementById("match-info");
+  if (!body || !overlay) return;
+  // Match data is keyed by the official home|away order, which may differ from
+  // a group fixture's order — fall back to the reverse so either side opens it.
+  let data = matchInfoData(home, away);
+  if (!data && matchInfoData(away, home)) { const t = home; home = away; away = t; data = matchInfoData(home, away); }
+  const tab = (id, label) =>
+    `<button class="mi-tab ${miActiveTab === id ? "active" : ""}" data-tab="${id}" type="button">${label}</button>`;
+  const panel = miActiveTab === "h2h" ? renderH2HTab(data, home, away)
+    : miActiveTab === "stats" ? renderStatsTab(home, away)
+    : renderLineupTab(data, home, away);
+
+  body.innerHTML = `
+    <div class="mi-header" id="mi-title">
+      <span class="mi-side">${flagFor(home)}<span>${escapeHtml(home)}</span></span>
+      <span class="mi-v">vs</span>
+      <span class="mi-side away"><span>${escapeHtml(away)}</span>${flagFor(away)}</span>
+    </div>
+    <div class="mi-tabs">
+      ${tab("lineup", "Lineups")}
+      ${tab("h2h", "Head-to-Head")}
+      ${tab("stats", "Squad Stats")}
+    </div>
+    <div class="mi-panel">${panel}</div>`;
+
+  body.dataset.home = home;
+  body.dataset.away = away;
+  overlay.hidden = false;
+  document.body.classList.add("mi-open");
+}
+
+function closeMatchInfo() {
+  const overlay = document.getElementById("match-info");
+  if (overlay) overlay.hidden = true;
+  document.body.classList.remove("mi-open");
+}
+
+function wireMatchInfo() {
+  const strip = document.getElementById("schedule-strip");
+  if (strip) {
+    strip.addEventListener("click", (e) => {
+      const btn = e.target.closest(".sch-info");
+      if (!btn) return;
+      miActiveTab = "lineup";
+      openMatchInfo(btn.dataset.home, btn.dataset.away);
+    });
+  }
+  // Info button on every group match row.
+  if (groupsEl) {
+    groupsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest(".match-info");
+      if (!btn) return;
+      const g = btn.dataset.group, m = +btn.dataset.match;
+      const [hi, ai] = FIXTURES[m];
+      miActiveTab = "lineup";
+      openMatchInfo(state.names[g][hi], state.names[g][ai]);
+    });
+  }
+  const overlay = document.getElementById("match-info");
+  const close = document.getElementById("mi-close");
+  if (close) close.addEventListener("click", closeMatchInfo);
+  if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeMatchInfo(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMatchInfo(); });
+  const body = document.getElementById("mi-body");
+  if (body) body.addEventListener("click", (e) => {
+    const t = e.target.closest(".mi-tab");
+    if (!t) return;
+    miActiveTab = t.dataset.tab;
+    openMatchInfo(body.dataset.home, body.dataset.away);
+  });
 }
 
 /* ================= Venues (stadium · city, country) ================= */
@@ -1165,18 +1550,16 @@ function fillGroupVenues() {
   });
 }
 
-/* "Act." row under each match: the official scoreline in black. */
+/* "Act." row under each match: the official scoreline, shown inline so you can
+   see the real result against your prediction. */
 function fillActuals() {
   const live = liveResults();
-  document.querySelectorAll(".match").forEach((row) => {
-    const el = row.querySelector(".match-actual");
-    if (!el) return;
+  document.querySelectorAll(".match .match-actual").forEach((el) => {
+    const row = el.closest(".match");
     const a = (live[row.dataset.group] || [])[+row.dataset.match];
-    if (a && a[0] != null && a[1] != null) {
-      el.innerHTML = `<span class="act-label">Act.</span><span class="act-box">${a[0]}</span><span class="act-dash">–</span><span class="act-box">${a[1]}</span>`;
-    } else {
-      el.innerHTML = "";
-    }
+    el.innerHTML = (a && a[0] != null && a[1] != null)
+      ? `<span class="act-label">Act.</span><span class="act-box">${a[0]}</span><span class="act-dash">–</span><span class="act-box">${a[1]}</span>`
+      : "";
   });
 }
 
@@ -1190,47 +1573,34 @@ function setEditorLocked(sub) {
   editorLockedSet = new Set((sub && sub.locked) || []);
 }
 
+/* Colour-grade each played match by your prediction vs the actual result:
+   ★ exact (gold), ✓ right outcome (green), ✗ wrong (red), and a neutral grey
+   for played matches you didn't predict. */
 function markPredictionAccuracy() {
   const live = liveResults();
+  const allowExact = state.mode !== "result";
   document.querySelectorAll(".match").forEach((row) => {
     const g = row.dataset.group;
     const m = +row.dataset.match;
-    const badge = row.querySelector(".match-grade");
-    if (!badge) return;
-    const actual = (live[g] || [])[m];
-    const pred = state.scores[g][m];
     row.classList.remove("guess-exact", "guess-ok", "guess-miss", "guess-none");
-    // Finished before the bracket was submitted → blank box, no gold/colour.
-    if (editorLockedSet.has(g + m)) {
-      badge.className = "match-grade";
-      badge.textContent = "";
-      row.querySelectorAll(".goal").forEach((el) => { el.value = ""; });
-      return;
-    }
-    const played = actual && actual[0] !== null && actual[1] !== null;
-    const guessed = pred && pred[0] !== null && pred[1] !== null;
-    if (!played) { badge.className = "match-grade"; badge.textContent = ""; return; }
-    if (!guessed) { // played but no guess -> grey
-      badge.className = "match-grade";
-      badge.textContent = "";
-      row.classList.add("guess-none");
-      return;
-    }
-    // Exact scoreline → gold. This is the ONLY thing that earns gold.
-    if (pred[0] === actual[0] && pred[1] === actual[1]) {
-      badge.className = "match-grade exact";
-      badge.textContent = "★";
-      badge.title = `Exact! ${pred[0]}–${pred[1]}`;
-      row.classList.add("guess-exact");
-      return;
-    }
+    const badge = row.querySelector(".match-grade");
+    if (badge) { badge.className = "match-grade"; badge.textContent = ""; badge.title = ""; }
+
+    const actual = (live[g] || [])[m];
+    if (!actual || actual[0] == null || actual[1] == null) return; // not played yet
+    const pred = state.scores[g][m];
+    if (!pred || pred[0] == null || pred[1] == null) { row.classList.add("guess-none"); return; }
+
     let kind, sym;
-    if (outcome(pred) === outcome(actual)) { kind = "ok"; sym = "✓"; }
+    if (allowExact && pred[0] === actual[0] && pred[1] === actual[1]) { kind = "exact"; sym = "★"; }
+    else if (outcome(pred) === outcome(actual)) { kind = "ok"; sym = "✓"; }
     else { kind = "miss"; sym = "✗"; }
-    badge.className = "match-grade " + kind;
-    badge.textContent = sym;
-    badge.title = `Your pick ${pred[0]}–${pred[1]} · actual ${actual[0]}–${actual[1]}`;
-    row.classList.add("guess-" + kind); // gold / green / red on the guess boxes
+    if (badge) {
+      badge.className = "match-grade " + kind;
+      badge.textContent = sym;
+      badge.title = `Your pick ${pred[0]}–${pred[1]} · actual ${actual[0]}–${actual[1]}`;
+    }
+    row.classList.add("guess-" + kind);
   });
 }
 
@@ -1428,6 +1798,7 @@ wireEvents();
 setMode(state.mode);
 renderAll();
 renderSchedule();
+wireMatchInfo();
 fillGroupVenues();
 setupBoardUI();
 refreshBoard();

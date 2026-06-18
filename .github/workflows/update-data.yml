@@ -24,11 +24,16 @@ jobs:
       - name: Fetch live data (openfootball — no API key needed)
         run: node scripts/fetch-live-data.js
 
+      - name: Fetch lineups, H2H & player stats (API-Football)
+        env:
+          APIFOOTBALL_KEY: ${{ secrets.APIFOOTBALL_KEY }}
+        run: node scripts/fetch-football-stats.js
+
       - name: Commit & push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/live-data.json live-data.js
+          git add data/live-data.json live-data.js football-data.js data/football-data.json data/football-cache.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else

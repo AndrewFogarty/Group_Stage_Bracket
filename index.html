@@ -155,7 +155,6 @@
               <tr><th>Correct result (Win / Draw / Loss)</th><td>10</td></tr>
               <tr><th>Knockout — team correctly advanced</th><td>20</td></tr>
               <tr><th>Correct champion</th><td>100</td></tr>
-              <tr><th>Already-confirmed match 🔒</th><td>0</td></tr>
             </tbody>
           </table>
           <p>
@@ -204,10 +203,20 @@
       </p>
     </footer>
 
+    <!-- Match info modal (lineups · H2H · squad stats) — filled by app.js -->
+    <div id="match-info" class="mi-overlay" hidden>
+      <div class="mi-dialog" role="dialog" aria-modal="true" aria-labelledby="mi-title">
+        <button id="mi-close" class="mi-close" type="button" aria-label="Close">✕</button>
+        <div id="mi-body" class="mi-body"><!-- filled by app.js --></div>
+      </div>
+    </div>
+
     <!-- data.js defines the editable tournament data; must load first -->
     <script src="data.js"></script>
     <!-- live-data.js (optional) provides WC_LIVE actual results -->
     <script src="live-data.js"></script>
+    <!-- football-data.js (optional) provides WC_FOOTBALL lineups, H2H, player stats -->
+    <script src="football-data.js"></script>
     <!-- Supabase client + config for the shared leaderboard (optional) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
