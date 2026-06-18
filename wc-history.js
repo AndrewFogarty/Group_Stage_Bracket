@@ -1,19 +1,25 @@
 /* =====================================================================
-   wc-history.js — All-time FIFA World Cup leaderboards (1930–2022).
+   wc-history.js — All-time FIFA World Cup leaderboards (1930–2022) plus a
+   live "this tournament" board.
 
    Goals and goalkeeper clean sheets are well-documented. Assists,
-   goals+assists, and red cards are sparsely/inconsistently recorded
-   across World Cup history, so those panels use the best-available
-   figures and are flagged `approx: true` (the UI labels them).
+   goals+assists, World Cup wins, yellow and red cards are sparsely or
+   inconsistently recorded historically, so those panels use best-available
+   figures and are flagged `approx: true` (the UI labels them with ≈).
 
-   `code` is an ISO 3166-1 alpha-2 flag code (or "ENG" for England),
-   resolved by flagHtml() in app.js. Edit here to keep it current.
+   Players still active at the 2026 World Cup carry an `id` (API-Football
+   player id). app.js adds their live 2026 goals/assists on top of the
+   historical base and re-sorts, so the boards update as the tournament runs.
+
+   The `tournament_ga` panel is computed entirely live from window.WC_FOOTBALL.
+
+   `code` is an ISO 3166-1 alpha-2 flag code (or "ENG"), resolved by flagHtml().
    ===================================================================== */
 window.WC_HISTORY = {
   era: "1930–2022",
   note:
-    "All-time FIFA World Cup records (1930–2022). Goals & clean sheets are official FIFA records; " +
-    "assists, goals + assists, yellow cards and red cards use best-available historical data and are approximate (≈).",
+    "All-time FIFA World Cup records — historical base (1930–2022) plus live 2026 goals/assists. " +
+    "Goals & clean sheets are official; assists, goals + assists, wins and cards are best-available (≈).",
   panels: [
     {
       key: "goals", title: "Goals", icon: "⚽",
@@ -22,9 +28,9 @@ window.WC_HISTORY = {
         { name: "Ronaldo", code: "BR", value: 15 },
         { name: "Gerd Müller", code: "DE", value: 14 },
         { name: "Just Fontaine", code: "FR", value: 13 },
-        { name: "Lionel Messi", code: "AR", value: 13 },
+        { name: "Lionel Messi", code: "AR", value: 13, id: 154 },
         { name: "Pelé", code: "BR", value: 12 },
-        { name: "Kylian Mbappé", code: "FR", value: 12 },
+        { name: "Kylian Mbappé", code: "FR", value: 12, id: 278 },
         { name: "Sándor Kocsis", code: "HU", value: 11 },
         { name: "Jürgen Klinsmann", code: "DE", value: 11 },
         { name: "Gabriel Batistuta", code: "AR", value: 10 },
@@ -35,12 +41,12 @@ window.WC_HISTORY = {
       rows: [
         { name: "Pelé", code: "BR", value: 10 },
         { name: "Diego Maradona", code: "AR", value: 8 },
-        { name: "Lionel Messi", code: "AR", value: 8 },
+        { name: "Lionel Messi", code: "AR", value: 8, id: 154 },
         { name: "Grzegorz Lato", code: "PL", value: 8 },
         { name: "Pierre Littbarski", code: "DE", value: 7 },
         { name: "Thomas Müller", code: "DE", value: 6 },
         { name: "Bastian Schweinsteiger", code: "DE", value: 6 },
-        { name: "Neymar", code: "BR", value: 6 },
+        { name: "Neymar", code: "BR", value: 6, id: 276 },
         { name: "Cesc Fàbregas", code: "ES", value: 5 },
         { name: "Diego Forlán", code: "UY", value: 5 },
       ],
@@ -48,16 +54,17 @@ window.WC_HISTORY = {
     {
       key: "ga", title: "Goals + Assists", icon: "✨", approx: true,
       rows: [
-        { name: "Pelé", code: "BR", value: 22, sub: "12 G · 10 A" },
-        { name: "Lionel Messi", code: "AR", value: 21, sub: "13 G · 8 A" },
-        { name: "Ronaldo", code: "BR", value: 19, sub: "15 G · 4 A" },
-        { name: "Miroslav Klose", code: "DE", value: 19, sub: "16 G · 3 A" },
-        { name: "Grzegorz Lato", code: "PL", value: 18, sub: "10 G · 8 A" },
-        { name: "Kylian Mbappé", code: "FR", value: 18, sub: "12 G · 6 A" },
-        { name: "Diego Maradona", code: "AR", value: 16, sub: "8 G · 8 A" },
-        { name: "Thomas Müller", code: "DE", value: 16, sub: "10 G · 6 A" },
-        { name: "Gerd Müller", code: "DE", value: 15, sub: "14 G · 1 A" },
-        { name: "Just Fontaine", code: "FR", value: 14, sub: "13 G · 1 A" },
+        { name: "Pelé", code: "BR", g: 12, a: 10 },
+        { name: "Lionel Messi", code: "AR", g: 13, a: 8, id: 154 },
+        { name: "Ronaldo", code: "BR", g: 15, a: 4 },
+        { name: "Miroslav Klose", code: "DE", g: 16, a: 3 },
+        { name: "Grzegorz Lato", code: "PL", g: 10, a: 8 },
+        { name: "Kylian Mbappé", code: "FR", g: 12, a: 6, id: 278 },
+        { name: "Diego Maradona", code: "AR", g: 8, a: 8 },
+        { name: "Thomas Müller", code: "DE", g: 10, a: 6 },
+        { name: "Gerd Müller", code: "DE", g: 14, a: 1 },
+        { name: "Just Fontaine", code: "FR", g: 13, a: 1 },
+        { name: "Neymar", code: "BR", g: 8, a: 6, id: 276 },
       ],
     },
     {
@@ -73,6 +80,22 @@ window.WC_HISTORY = {
         { name: "Gordon Banks", code: "ENG", value: 6 },
         { name: "Dino Zoff", code: "IT", value: 5 },
         { name: "Emiliano Martínez", code: "AR", value: 5 },
+      ],
+    },
+    {
+      key: "wcwins", title: "Match Wins", icon: "🏆", approx: true,
+      note: "Most World Cup matches won (career).",
+      rows: [
+        { name: "Miroslav Klose", code: "DE", value: 17 },
+        { name: "Cafú", code: "BR", value: 16 },
+        { name: "Philipp Lahm", code: "DE", value: 14 },
+        { name: "Bastian Schweinsteiger", code: "DE", value: 13 },
+        { name: "Thomas Müller", code: "DE", value: 13 },
+        { name: "Lúcio", code: "BR", value: 13 },
+        { name: "Lothar Matthäus", code: "DE", value: 13 },
+        { name: "Lionel Messi", code: "AR", value: 12 },
+        { name: "Paolo Maldini", code: "IT", value: 12 },
+        { name: "Diego Maradona", code: "AR", value: 11 },
       ],
     },
     {
@@ -105,6 +128,11 @@ window.WC_HISTORY = {
         { name: "Felipe Melo", code: "BR", value: 1 },
         { name: "John Heitinga", code: "NL", value: 1 },
       ],
+    },
+    {
+      // Computed live from window.WC_FOOTBALL by app.js (top goals + assists
+      // in the current tournament). Rows left empty on purpose.
+      key: "tournament_ga", title: "Goals + Assists", icon: "🔥", live: true, rows: [],
     },
   ],
 };

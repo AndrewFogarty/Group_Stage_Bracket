@@ -1273,10 +1273,9 @@ function miNotice(msg) {
    badge, and name. */
 function ratingClass(r) {
   if (r == null) return "";
-  if (r >= 8) return "r-hi";
-  if (r >= 7) return "r-mid";
-  if (r >= 6) return "r-ok";
-  return "r-lo";
+  if (r >= 7) return "r-good"; // green
+  if (r >= 6) return "r-ok";   // yellow
+  return "r-bad";              // red
 }
 function playerChip(p, posStyle, perf) {
   const num = p.number != null ? String(p.number) : "";
@@ -1604,27 +1603,92 @@ function wireMatchInfo() {
 }
 
 /* ================= All-time World Cup history leaderboards ================= */
+/* Live 2026 World Cup tally per player id (from API-Football squad data). */
+function liveWcMap() {
+  const map = {};
+  const f = window.WC_FOOTBALL;
+  if (f && f.teams) {
+    for (const [team, t] of Object.entries(f.teams)) {
+      const code = NAME_CODE[team] || "";
+      for (const p of t.players || []) {
+        if (p.id == null) continue;
+        map[p.id] = { goals: p.wcGoals || 0, assists: p.wcAssists || 0, name: p.name, code, team };
+      }
+    }
+  }
+  return map;
+}
+
+/* Top goal+assist contributors in the current tournament (fully live). */
+function tournamentGARows() {
+  const f = window.WC_FOOTBALL;
+  const rows = [];
+  if (f && f.teams) {
+    for (const [team, t] of Object.entries(f.teams)) {
+      const code = NAME_CODE[team] || "";
+      for (const p of t.players || []) {
+        const g = p.wcGoals || 0, a = p.wcAssists || 0;
+        if (g + a > 0) rows.push({ name: p.name, code, displayValue: g + a, g, a, sub: `${g} G · ${a} A` });
+      }
+    }
+  }
+  rows.sort((x, y) => y.displayValue - x.displayValue || y.g - x.g);
+  return rows.slice(0, 10);
+}
+
 function renderHistory() {
   const grid = document.getElementById("wch-grid");
   const data = window.WC_HISTORY;
   if (!grid || !data) return;
   const noteEl = document.querySelector(".wch-note");
   if (noteEl) noteEl.textContent = data.note || "";
+  const live = liveWcMap();
+
   grid.innerHTML = (data.panels || []).map((p) => {
-    const rows = (p.rows || []).map((r, i) => `
-      <li class="wch-row${i === 0 ? " lead" : ""}">
-        <span class="wch-rank">${i + 1}</span>
-        <span class="wch-flag">${flagHtml(r.code)}</span>
-        <span class="wch-name"><span class="wch-nm">${escapeHtml(r.name)}</span>${r.sub ? `<span class="wch-sub">${escapeHtml(r.sub)}</span>` : ""}</span>
-        <span class="wch-val">${escapeHtml(String(r.value))}</span>
-      </li>`).join("");
-    return `<div class="wch-card">
+    let rows;
+    if (p.live) {
+      rows = tournamentGARows();
+    } else {
+      rows = (p.rows || []).map((r) => {
+        const L = r.id ? live[r.id] : null;
+        let value, sub = r.sub, add = 0;
+        if (p.key === "ga") {
+          let g = r.g || 0, a = r.a || 0;
+          if (L) { g += L.goals; a += L.assists; add = L.goals + L.assists; }
+          value = g + a; sub = `${g} G · ${a} A`;
+        } else {
+          value = r.value;
+          if (L) {
+            add = p.key === "goals" ? L.goals : p.key === "assists" ? L.assists : 0;
+            value += add;
+          }
+        }
+        return { name: r.name, code: r.code, displayValue: value, sub, add };
+      });
+      if (["goals", "assists", "ga"].includes(p.key)) {
+        rows.sort((x, y) => y.displayValue - x.displayValue);
+      }
+      rows = rows.slice(0, 10);
+    }
+
+    const body = rows.length
+      ? rows.map((r, i) => `
+        <li class="wch-row${i === 0 ? " lead" : ""}">
+          <span class="wch-rank">${i + 1}</span>
+          <span class="wch-flag">${flagHtml(r.code)}</span>
+          <span class="wch-name"><span class="wch-nm">${escapeHtml(r.name)}</span>${r.sub ? `<span class="wch-sub">${escapeHtml(r.sub)}</span>` : ""}</span>
+          <span class="wch-val">${escapeHtml(String(r.displayValue))}${r.add ? `<span class="wch-live" title="+${r.add} at the 2026 World Cup">+${r.add}</span>` : ""}</span>
+        </li>`).join("")
+      : `<li class="wch-row"><span class="wch-empty">No goals or assists yet — check back after kickoff.</span></li>`;
+
+    const heading = p.live ? `2026 WC — ${escapeHtml(p.title)}` : `Top 10 — ${escapeHtml(p.title)}`;
+    return `<div class="wch-card${p.live ? " wch-card-live" : ""}">
         <div class="wch-card-head">
           <span class="wch-icon" aria-hidden="true">${p.icon || ""}</span>
-          <h3>Top 10 — ${escapeHtml(p.title)}</h3>
-          ${p.approx ? `<span class="wch-approx" title="Approximate — best-available historical data">≈</span>` : ""}
+          <h3>${heading}</h3>
+          ${p.live ? `<span class="wch-livebadge">LIVE</span>` : p.approx ? `<span class="wch-approx" title="Approximate — best-available historical data">≈</span>` : ""}
         </div>
-        <ol class="wch-list">${rows}</ol>
+        <ol class="wch-list">${body}</ol>
         ${p.note ? `<p class="wch-card-note">${escapeHtml(p.note)}</p>` : ""}
       </div>`;
   }).join("");

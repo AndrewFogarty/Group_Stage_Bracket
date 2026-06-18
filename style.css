@@ -2457,22 +2457,23 @@ body.mi-open { overflow: hidden; }
 /* --- Match report: ratings on pitch, goals summary, performance table --- */
 .pp-rating {
   position: absolute;
-  top: -5px; left: -5px;
-  min-width: 1.05rem;
-  padding: 0 2px;
+  top: -6px; left: -6px;
+  width: 1.2rem;
+  height: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--cond);
   font-weight: 700;
-  font-size: 0.62rem;
-  line-height: 1.05rem;
-  text-align: center;
-  border-radius: 5px;
+  font-size: 0.6rem;
+  border-radius: 50%;
   color: #fff;
-  border: 1px solid rgba(0,0,0,0.3);
+  border: 1.5px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
-.pp-rating.r-hi  { background: #11a85f; }
-.pp-rating.r-mid { background: #6fae1f; }
-.pp-rating.r-ok  { background: #d6a019; color: #1a1400; }
-.pp-rating.r-lo  { background: #d24b4b; }
+.pp-rating.r-good { background: #11a85f; }            /* green: 7.0+ */
+.pp-rating.r-ok   { background: #e0a008; color: #1a1400; } /* yellow: 6.0–6.9 */
+.pp-rating.r-bad  { background: #d23b3b; }            /* red: < 6.0 */
 
 .mi-final { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.7rem; }
 .mi-goals {
@@ -2495,8 +2496,32 @@ body.mi-open { overflow: hidden; }
 .mi-goals .mi-nogoal { color: var(--muted); }
 
 .mi-perf td.mi-rt { font-weight: 800; border-radius: 4px; }
-.mi-perf td.mi-rt.r-hi  { color: #11a85f; }
-.mi-perf td.mi-rt.r-mid { color: #6f9e10; }
-.mi-perf td.mi-rt.r-ok  { color: #b7900a; }
-.mi-perf td.mi-rt.r-lo  { color: var(--red); }
+.mi-perf td.mi-rt.r-good { color: #11a85f; }
+.mi-perf td.mi-rt.r-ok   { color: #b7900a; }
+.mi-perf td.mi-rt.r-bad  { color: var(--red); }
 .mi-src { color: var(--muted); font-size: 0.72rem; font-style: italic; }
+
+/* Live 2026 additions on the all-time boards + the live tournament card */
+.wch-val { display: inline-flex; align-items: baseline; gap: 0.25rem; }
+.wch-live {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #34d27b;
+  background: rgba(24, 160, 90, 0.18);
+  border-radius: 4px;
+  padding: 0 3px;
+}
+.wch-card-live { border-color: rgba(255, 99, 71, 0.4); box-shadow: 0 0 0 1px rgba(255, 99, 71, 0.25) inset; }
+.wch-livebadge {
+  flex: 0 0 auto;
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: #e0463c;
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+}
+.wch-empty { color: rgba(255, 255, 255, 0.55); font-size: 0.82rem; font-style: italic; }
