@@ -1396,18 +1396,38 @@ function renderSchedule() {
   if (window.WCWeather) WCWeather.fill(".schedule-strip .sch-wx");
 }
 
-/* Pull the freshest live scores (refreshed server-side every ~5 min) and
-   re-render the schedule, so in-play matches tick over without a full reload. */
+/* Pull the freshest data and re-render so matches go live → final without a
+   page reload. Refreshes BOTH feeds: live-data.json (official results, schedule,
+   knockout advancement → window.WC_LIVE) and football-data.json (in-play scores,
+   squad tallies → window.WC_FOOTBALL). Previously only the latter was polled, so
+   a match that *finished* (its result moving into WC_LIVE) never updated until a
+   manual reload. If the user is mid-typing a score we skip the input-rebuilding
+   parts so their cursor isn't lost. */
 function pollLiveScores() {
-  fetch("data/football-data.json?_=" + Date.now())
-    .then((r) => (r.ok ? r.json() : null))
-    .then((d) => {
-      if (!d || !d.teams) return;
-      window.WC_FOOTBALL = d; // full refresh: live scores + updated 2026 tallies
-      renderSchedule();
-      renderHistory();
-    })
-    .catch(() => { /* offline / not deployed yet — ignore */ });
+  const bust = "?_=" + Date.now();
+  Promise.all([
+    fetch("data/live-data.json" + bust).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    fetch("data/football-data.json" + bust).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+  ]).then(([live, football]) => {
+    let changed = false;
+    if (live && live.results && live.schedule) { window.WC_LIVE = live; changed = true; }
+    if (football && football.teams) { window.WC_FOOTBALL = football; changed = true; }
+    if (!changed) return;
+    const editing = document.activeElement && document.activeElement.classList.contains("goal");
+    if (editing) {
+      // Update everything that reflects results, but don't rebuild the score
+      // inputs the user is currently editing.
+      fillActuals();
+      markPredictionAccuracy();
+      renderThirds();
+      renderBracket();
+      markMissingEntries();
+    } else {
+      renderAll();
+    }
+    renderSchedule();
+    renderHistory();
+  });
 }
 
 /* ================= Match info modal (lineups · H2H · squad stats) =========
