@@ -6,7 +6,7 @@ import React from "react";
    show one box per available broadcaster, deep-linking to its World Cup hub
    (ESPN does not expose per-match stream URLs). Constants are kept here so the
    destinations are easy to swap. */
-const PEACOCK_URL = "https://www.peacocktv.com/sports/soccer";
+const PEACOCK_URL = "https://www.peacocktv.com/watch/sports-La-Copa-Mundial-de-la-FIFA-2026";
 const FOX_URL = "https://www.foxsports.com/soccer/fifa-world-cup";
 
 /* Fall back to sensible WC2026 defaults when ESPN has not yet announced the
@@ -35,17 +35,20 @@ function Box({ href, brand, network, title }) {
 export default function WatchBoxes({ home, away }) {
   const bc = lookup(home, away);
   // No ESPN data yet → still offer both carriers with default labels, since
-  // every WC2026 match is available on the FOX family and on Peacock. The
-  // Peacock box always carries the streaming brand; the Fox box shows the exact
-  // channel ESPN reports (FOX vs FS1 vs FOX One) so users know where to tune in.
+  // every WC2026 match is available on the FOX family and on Peacock. Both
+  // boxes carry the brand label ("FOX" / "Peacock"); when ESPN reports the
+  // specific carrier (e.g. an FS1 game, or Telemundo in Spanish) we surface it
+  // in the tooltip rather than changing the label.
   const peacockTitle = bc && bc.peacock && bc.peacock.network
     ? `${DEFAULTS.peacock} (${bc.peacock.network})`
     : DEFAULTS.peacock;
-  const fox = (bc && bc.fox && bc.fox.network) || DEFAULTS.fox;
+  const foxTitle = bc && bc.fox && bc.fox.network
+    ? `${DEFAULTS.fox} (${bc.fox.network})`
+    : DEFAULTS.fox;
   return (
     <>
       <Box href={PEACOCK_URL} brand="peacock" network={DEFAULTS.peacock} title={peacockTitle} />
-      <Box href={FOX_URL} brand="fox" network={fox} />
+      <Box href={FOX_URL} brand="fox" network={DEFAULTS.fox} title={foxTitle} />
     </>
   );
 }
