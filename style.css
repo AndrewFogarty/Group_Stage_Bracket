@@ -2592,6 +2592,36 @@ body.mi-open { overflow: hidden; }
 .pp-rating.r-ok   { background: #e0a008; color: #1a1400; } /* yellow: 6.0–6.9 */
 .pp-rating.r-bad  { background: #d23b3b; }            /* red: < 6.0 */
 
+/* Live event badges on a player chip (goals top-right, card bottom-right). */
+.pp-ev {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--cond);
+  font-weight: 800;
+  font-size: 0.58rem;
+  line-height: 1;
+}
+.pp-ev.goal {
+  top: -0.55rem; right: -0.55rem;
+  min-width: 1.1rem; height: 1.1rem;
+  padding: 0 2px;
+  background: #0c1220;
+  color: #fff;
+  border: 1.5px solid #fff;
+  border-radius: 0.6rem;
+}
+.pp-ev.card {
+  bottom: -0.4rem; right: -0.4rem;
+  width: 0.6rem; height: 0.82rem;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+.pp-ev.card.yellow { background: #f5c518; }
+.pp-ev.card.red { background: #e23b3b; }
+
 .mi-final { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.7rem; }
 .mi-goals {
   display: grid;

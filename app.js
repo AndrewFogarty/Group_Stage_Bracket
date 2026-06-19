@@ -1489,31 +1489,73 @@ function applyEspnOverlay(j) {
    onto WC_FOOTBALL.matches so the ⓘ panel shows the announced XI in real time. */
 const espnLineups = {};   // eventId -> { hn, an, lineup }
 const espnLineupAt = {};  // eventId -> last fetch timestamp
+/* Pitch row (0 = keeper … 5 = forward) and side (-2 wide-left … +2 wide-right)
+   from a player's position, so ESPN XIs lay out on the same pitch graphic as the
+   API-Football lineups (which use a "row:col" grid). */
+function espnRowRank(p) {
+  const a = (p.pos || "").toUpperCase(), n = (p.posName || "").toLowerCase();
+  if (a === "G" || a === "GK" || /goalkeep/.test(n)) return 0;
+  if (/defensive mid/.test(n) || /^(DM|CDM|LDM|RDM)\b/.test(a)) return 2;
+  if (/attacking mid/.test(n) || /^(AM|CAM|LAM|RAM)\b/.test(a)) return 4;
+  if (/forward|striker|winger/.test(n) || /^(F|CF|ST|LF|RF|LW|RW|S)\b/.test(a)) return 5;
+  if (/defender|back|sweeper/.test(n) || /^(CD|CB|LCB|RCB|LB|RB|LWB|RWB|SW|D)\b/.test(a)) return 1;
+  return 3; // midfielder
+}
+function espnSideRank(p) {
+  const a = (p.pos || "").toUpperCase();
+  if (/^(LB|LWB|LW|LM|LF)\b/.test(a)) return -2;
+  if (/^(RB|RWB|RW|RM|RF)\b/.test(a)) return 2;
+  if (/-L$|^L/.test(a)) return -1;
+  if (/-R$|^R/.test(a)) return 1;
+  return 0;
+}
+function espnAddGrid(startXI) {
+  const ranked = startXI.map((p) => ({ p, rr: espnRowRank(p), sr: espnSideRank(p) }));
+  const rows = [...new Set(ranked.map((r) => r.rr))].sort((a, b) => a - b);
+  rows.forEach((rv, ri) => {
+    ranked.filter((r) => r.rr === rv).sort((a, b) => a.sr - b.sr || a.p.order - b.p.order)
+      .forEach((r, ci) => { r.p.grid = `${ri + 1}:${ci + 1}`; });
+  });
+}
+/* Per-player live stats from ESPN's roster stats array (no 0–10 rating — ESPN
+   doesn't publish one; ratings stay a post-match API-Football figure). */
+function espnPlayerPerf(rp) {
+  const m = {};
+  (rp.stats || []).forEach((s) => { m[s.name] = s.displayValue; });
+  const num = (k) => { const v = parseInt(m[k], 10); return Number.isFinite(v) ? v : 0; };
+  return { goals: num("totalGoals"), assists: num("goalAssists"), yellow: num("yellowCards"),
+    red: num("redCards"), shots: num("totalShots"), shotsOn: num("shotsOnTarget"), saves: num("saves") };
+}
 function espnParseLineup(summary, kind) {
   const rosters = summary && summary.rosters;
   if (!Array.isArray(rosters) || rosters.length < 2) return null;
+  const perf = {};
   const sideFor = (side) => {
     if (!side || !Array.isArray(side.roster)) return null;
     const players = side.roster.map((p) => {
       const a = p.athlete || {};
+      const id = a.id ? +a.id : null;
+      if (id != null) perf[id] = espnPlayerPerf(p);
       return {
-        id: a.id ? +a.id : null,
+        id,
         name: a.displayName || a.shortName || "—",
         number: p.jersey != null ? +p.jersey : null,
         pos: (p.position && p.position.abbreviation) || (a.position && a.position.abbreviation) || "",
+        posName: (p.position && p.position.name) || (a.position && a.position.name) || "",
         starter: !!p.starter,
         order: p.formationPlace != null ? +p.formationPlace : 99,
         photo: a.headshot && a.headshot.href ? a.headshot.href : null,
       };
     });
     const startXI = players.filter((p) => p.starter).sort((a, b) => a.order - b.order);
+    espnAddGrid(startXI); // lay the XI out on the pitch like the API-Football grid
     return { team: side.team && side.team.displayName, formation: side.formation || "", coach: null,
       startXI, subs: players.filter((p) => !p.starter) };
   };
   const home = sideFor(rosters.find((r) => r.homeAway === "home") || rosters[0]);
   const away = sideFor(rosters.find((r) => r.homeAway === "away") || rosters[1]);
   if (!home || !away || !home.startXI.length || !away.startXI.length) return null;
-  return { kind, sides: { home, away } };
+  return { kind, sides: { home, away }, perf };
 }
 /* Merge cached ESPN lineups onto WC_FOOTBALL.matches under both name orders,
    preserving any committed H2H / report already there. */
@@ -1636,8 +1678,15 @@ function playerChip(p, posStyle, perf) {
   const numName = num ? `<span class="pp-no">${escapeHtml(num)}</span>` : "";
   const rating = perf && perf.rating != null
     ? `<span class="pp-rating ${ratingClass(perf.rating)}">${perf.rating.toFixed(1)}</span>` : "";
+  // Live event badges (goals + cards) — shown for in-play matches (ESPN stats)
+  // and finished ones alike.
+  const ev = perf
+    ? (perf.goals ? `<span class="pp-ev goal" title="Goals">⚽${perf.goals > 1 ? perf.goals : ""}</span>` : "") +
+      (perf.red ? `<span class="pp-ev card red" title="Red card"></span>`
+        : perf.yellow ? `<span class="pp-ev card yellow" title="Yellow card"></span>` : "")
+    : "";
   return `<div class="pp" ${posStyle ? `style="${posStyle}"` : ""}>
-      <div class="pp-shirt">${img}<span class="pp-fallnum">${escapeHtml(num)}</span>${rating}</div>
+      <div class="pp-shirt">${img}<span class="pp-fallnum">${escapeHtml(num)}</span>${rating}${ev}</div>
       <div class="pp-name">${numName}<span class="pp-nm">${escapeHtml(p.name || "—")}</span></div>
     </div>`;
 }
@@ -1716,7 +1765,7 @@ function renderLineupTab(data, home, away) {
     return miNotice("Lineups will appear here once the data feed runs (refreshes hourly).");
   }
   const { sides, kind } = data.lineup;
-  const perf = (data.report && data.report.players) || null;
+  const perf = data.lineup.perf || (data.report && data.report.players) || null;
   const banner = kind === "live"
     ? `<div class="mi-live"><span class="mi-dot"></span> Official lineup (live)</div>`
     : kind === "announced"
