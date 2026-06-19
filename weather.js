@@ -1,8 +1,18 @@
 /* =================================================================
    Live match-day weather (Open-Meteo — free, no API key).
-   Resolves each host city to coordinates, fetches the daily forecast
+   Resolves each host city to coordinates, fetches the HOURLY forecast
    in °F, and exposes a tiny API the schedule strip uses to show a
-   weather emoji + high temperature for each upcoming match.
+   weather emoji + temperature AT KICKOFF for each upcoming match.
+
+   Why hourly-at-kickoff and not the daily high: every WC2026 match has
+   an evening or midday slot, and the day's high (often a mid-afternoon
+   number) badly overstates what it's like at a 9pm kickoff. Reading the
+   hourly value at the venue-local kickoff hour is far more relevant and
+   costs nothing extra on the same free API.
+
+   Indoor / closed-roof venues (Atlanta, Dallas, Houston, Vancouver)
+   are climate-controlled, so we label them "Indoor" instead of showing
+   an irrelevant outdoor forecast.
    ================================================================= */
 (function () {
   "use strict";
@@ -29,6 +39,16 @@
     "Vancouver, CAN": [49.277, -123.112],
   };
 
+  /* Closed/retractable-roof venues that play climate-controlled — the
+     forecast is irrelevant, so we show an "Indoor" badge instead.
+     (SoFi in LA has a fixed roof but open sides, so it stays outdoor.) */
+  const INDOOR_CITIES = new Set([
+    "Atlanta, USA", // Mercedes-Benz Stadium
+    "Dallas, USA", // AT&T Stadium
+    "Houston, USA", // NRG Stadium
+    "Vancouver, CAN", // BC Place
+  ]);
+
   /* WMO weather code -> { emoji, label } */
   function describe(code) {
     if (code === 0) return { emoji: "☀️", label: "Clear" };
@@ -51,58 +71,90 @@
     return m ? m[1].trim() : null;
   }
 
+  /* openfootball kickoff string "20:30 UTC-4" -> the venue-local hour (20).
+     The clock part is already in venue-local time, so we just take the hour
+     (rounding 30+ minutes up to the nearer hour). Returns null if unparsable. */
+  function kickoffHour(kickoff) {
+    const m = /(\d{1,2}):(\d{2})/.exec(kickoff || "");
+    if (!m) return null;
+    let h = parseInt(m[1], 10);
+    if (parseInt(m[2], 10) >= 30) h += 1;
+    return ((h % 24) + 24) % 24;
+  }
+
   /* In-flight / completed fetches per city. Each resolves to a map of
-     { "YYYY-MM-DD": { code, tmax } } so dates index in O(1). */
+     hourly readings keyed by "YYYY-MM-DDTHH:00" so the kickoff hour
+     indexes in O(1). */
   const cache = new Map();
 
   function fetchCity(city, startDate, endDate) {
-    if (cache.has(city)) return cache.get(city);
+    const key = `${city}|${startDate}|${endDate}`;
+    if (cache.has(key)) return cache.get(key);
     const coords = CITY_COORDS[city];
     if (!coords) {
       const empty = Promise.resolve(null);
-      cache.set(city, empty);
+      cache.set(key, empty);
       return empty;
     }
     const url =
       "https://api.open-meteo.com/v1/forecast" +
       `?latitude=${coords[0]}&longitude=${coords[1]}` +
-      "&daily=weather_code,temperature_2m_max" +
+      "&hourly=temperature_2m,weather_code,precipitation_probability" +
       "&temperature_unit=fahrenheit&timezone=auto" +
       `&start_date=${startDate}&end_date=${endDate}`;
     const p = fetch(url)
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
-        const d = j && j.daily;
-        if (!d || !d.time) return null;
-        const byDate = {};
-        d.time.forEach((day, i) => {
-          byDate[day] = { code: d.weather_code[i], tmax: d.temperature_2m_max[i] };
+        const h = j && j.hourly;
+        if (!h || !h.time) return null;
+        const byHour = {};
+        h.time.forEach((t, i) => {
+          byHour[t] = {
+            temp: h.temperature_2m[i],
+            code: h.weather_code[i],
+            pop: h.precipitation_probability ? h.precipitation_probability[i] : null,
+          };
         });
-        return byDate;
+        return byHour;
       })
       .catch(() => null);
-    cache.set(city, p);
+    cache.set(key, p);
     return p;
   }
 
-  /* Open-Meteo's free daily forecast reaches ~16 days ahead. */
+  /* Open-Meteo's free hourly forecast reaches ~16 days ahead. */
   function withinForecastWindow(date) {
     const ms = new Date(date + "T00:00:00").getTime() - Date.now();
     return ms <= 16 * 864e5 && ms >= -864e5; // up to 16 days out, or today
   }
 
+  /* Pad to two digits for the hourly key. */
+  function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+
   /* Fill every element matching `selector` that carries data-city +
-     data-date with an emoji and °F high. No-ops outside the window. */
+     data-date (+ optional data-kickoff) with an emoji and °F at kickoff.
+     Indoor venues get a static badge; outdoor ones fetch the forecast. */
   function fill(selector) {
     const els = Array.from(document.querySelectorAll(selector));
     if (!els.length) return;
 
-    // Group requested dates per city so each city is fetched once over
-    // the full span of dates it needs.
+    // Indoor venues never need a fetch — label and bail out for those.
+    els.forEach((el) => {
+      if (el.dataset.city && INDOOR_CITIES.has(el.dataset.city)) {
+        el.innerHTML =
+          `<span class="wx-emoji">🏟️</span><span class="wx-temp">Indoor</span>`;
+        el.title = "Climate-controlled (closed/retractable roof)";
+        el.dataset.wxDone = "indoor";
+      }
+    });
+
+    // Group requested dates per outdoor city so each city is fetched once
+    // over the full span of dates it needs.
     const spans = {}; // city -> [minDate, maxDate]
     els.forEach((el) => {
       const city = el.dataset.city;
       const date = el.dataset.date;
+      if (el.dataset.wxDone === "indoor") return;
       if (!city || !date || !CITY_COORDS[city] || !withinForecastWindow(date)) return;
       const s = spans[city] || [date, date];
       if (date < s[0]) s[0] = date;
@@ -112,18 +164,23 @@
 
     Object.keys(spans).forEach((city) => {
       const [start, end] = spans[city];
-      fetchCity(city, start, end).then((byDate) => {
-        if (!byDate) return;
+      fetchCity(city, start, end).then((byHour) => {
+        if (!byHour) return;
         els
-          .filter((el) => el.dataset.city === city)
+          .filter((el) => el.dataset.city === city && el.dataset.wxDone !== "indoor")
           .forEach((el) => {
-            const w = byDate[el.dataset.date];
-            if (!w || w.tmax == null) return;
+            const hr = kickoffHour(el.dataset.kickoff);
+            // Fall back to a representative afternoon hour if kickoff is unknown.
+            const hourKey = `${el.dataset.date}T${pad2(hr == null ? 18 : hr)}:00`;
+            const w = byHour[hourKey];
+            if (!w || w.temp == null) return;
             const info = describe(w.code);
             el.innerHTML =
               `<span class="wx-emoji">${info.emoji}</span>` +
-              `<span class="wx-temp">${Math.round(w.tmax)}°F</span>`;
-            el.title = `${info.label}${info.label ? " · " : ""}high ${Math.round(w.tmax)}°F (Open-Meteo)`;
+              `<span class="wx-temp">${Math.round(w.temp)}°F</span>`;
+            const rain = w.pop != null && w.pop >= 30 ? ` · ${w.pop}% rain` : "";
+            el.title =
+              `${info.label}${info.label ? " · " : ""}${Math.round(w.temp)}°F at kickoff${rain} (Open-Meteo)`;
           });
       });
     });

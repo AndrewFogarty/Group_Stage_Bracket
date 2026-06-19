@@ -798,6 +798,9 @@ async function loadBoardRemote() {
     }));
     renderLeaderboard();
     hydrateMyGuesses();
+    // Bracket-made odds derive from `board`, so refresh the schedule odds
+    // boxes now that it has (re)loaded.
+    if (window.WCBroadcasts) WCBroadcasts.fill(".schedule-strip .sch-watch");
   } catch (e) {
     console.warn("leaderboard load failed:", e.message || e);
   }
@@ -805,7 +808,12 @@ async function loadBoardRemote() {
 
 function refreshBoard() {
   if (SHARED) loadBoardRemote();
-  else { loadBoard(); renderLeaderboard(); hydrateMyGuesses(); }
+  else {
+    loadBoard();
+    renderLeaderboard();
+    hydrateMyGuesses();
+    if (window.WCBroadcasts) WCBroadcasts.fill(".schedule-strip .sch-watch");
+  }
 }
 
 /* Load your own submitted entry into the editor so it's always there to edit —
@@ -1354,6 +1362,82 @@ function liveLabel(lv) {
   return lv.elapsed != null ? lv.elapsed + (lv.extra ? "+" + lv.extra : "") + "'" : "LIVE";
 }
 
+/* ===== Bracket-made odds =========================================
+   "Implied" odds derived from everyone's submitted brackets: for an
+   upcoming group-stage match we tally how many submissions predicted a
+   home win / draw / away win (and the average predicted goal difference),
+   then convert each outcome's share into an American moneyline. The React
+   "odds" box (assets/broadcasts.js) calls window.WCOdds.forMatch to render
+   it under the Peacock/Fox/DraftKings/Polymarket row. */
+
+/* Map a group-stage pairing to its FIXTURES index + orientation.
+   Returns { fi, homeFirst } or null if both teams aren't in the group. */
+function groupFixtureFor(group, home, away) {
+  const teams = DEFAULT_GROUPS[group];
+  if (!teams) return null;
+  const names = teams.map((t) => t[0]);
+  const hi = names.indexOf(home), ai = names.indexOf(away);
+  if (hi < 0 || ai < 0) return null;
+  for (let fi = 0; fi < FIXTURES.length; fi++) {
+    const [p, q] = FIXTURES[fi];
+    if (p === hi && q === ai) return { fi, homeFirst: true };
+    if (p === ai && q === hi) return { fi, homeFirst: false };
+  }
+  return null;
+}
+
+/* Probability (0..1) -> American moneyline integer. */
+function toMoneyline(p) {
+  const cl = Math.min(0.99, Math.max(0.01, p));
+  if (cl >= 0.5) return -Math.round((100 * cl) / (1 - cl));
+  return Math.round((100 * (1 - cl)) / cl);
+}
+function fmtMoneyline(ml) { return (ml > 0 ? "+" : "") + ml; }
+
+/* Short uppercase code for a team name (compact odds pill). Strips accents
+   so "Côte d'Ivoire" -> "COT", "Korea Republic" -> "KOR". */
+function teamCode(name) {
+  const ascii = (name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const letters = ascii.replace(/[^A-Za-z]/g, "");
+  return letters.slice(0, 3).toUpperCase() || "?";
+}
+
+window.WCOdds = {
+  /* Consensus odds for a group-stage match, or null when it can't be
+     computed (knockout match, unknown teams, or no brackets yet). */
+  forMatch(group, home, away) {
+    if (!group || group.length !== 1) return null; // group stage only
+    const loc = groupFixtureFor(group, home, away);
+    if (!loc) return null;
+    let nH = 0, nD = 0, nA = 0, gdSum = 0, n = 0;
+    for (const sub of board) {
+      const arr = sub.scores && sub.scores[group];
+      const sc = arr && arr[loc.fi];
+      if (!Array.isArray(sc) || sc[0] == null || sc[1] == null) continue;
+      let hg = +sc[0], ag = +sc[1];
+      if (Number.isNaN(hg) || Number.isNaN(ag)) continue;
+      if (!loc.homeFirst) { const t = hg; hg = ag; ag = t; } // -> match-home view
+      n++;
+      gdSum += hg - ag;
+      if (hg > ag) nH++; else if (hg === ag) nD++; else nA++;
+    }
+    if (!n) return null;
+    const pH = nH / n, pD = nD / n, pA = nA / n;
+    const ml = { home: toMoneyline(pH), draw: toMoneyline(pD), away: toMoneyline(pA) };
+    // Favourite = highest-probability outcome.
+    let favKey = "home", favP = pH;
+    if (pD > favP) { favKey = "draw"; favP = pD; }
+    if (pA > favP) { favKey = "away"; favP = pA; }
+    const favCode = favKey === "draw" ? "DRAW" : teamCode(favKey === "home" ? home : away);
+    return {
+      n, home, away,
+      p: { home: pH, draw: pD, away: pA },
+      ml, gd: gdSum / n,
+      favKey, favCode, favMl: fmtMoneyline(ml[favKey]),
+    };
+  },
+};
+
 function renderSchedule() {
   const host = document.getElementById("schedule-strip");
   if (!host) return;
@@ -1375,10 +1459,10 @@ function renderSchedule() {
       const stage = m.s.length === 1 ? "Group " + m.s : m.s;
       const city = window.WCWeather ? WCWeather.cityFromVenue(m.v) : null;
       const wx = !played && city
-        ? `<span class="sch-wx" data-city="${escapeHtml(city)}" data-date="${m.d}" title="Live match-day forecast"></span>`
+        ? `<span class="sch-wx" data-city="${escapeHtml(city)}" data-date="${m.d}" data-kickoff="${escapeHtml(m.t)}" title="Live match-day forecast"></span>`
         : "";
       const watch = !played
-        ? `<span class="sch-watch" data-home="${escapeHtml(m.h)}" data-away="${escapeHtml(m.a)}"></span>`
+        ? `<span class="sch-watch" data-home="${escapeHtml(m.h)}" data-away="${escapeHtml(m.a)}" data-group="${escapeHtml(m.s)}"></span>`
         : "";
       const info = !played
         ? `<button class="sch-info" type="button" data-home="${escapeHtml(m.h)}" data-away="${escapeHtml(m.a)}" title="Lineups, head-to-head & squad stats" aria-label="Match info for ${escapeHtml(m.h)} versus ${escapeHtml(m.a)}">ⓘ</button>`

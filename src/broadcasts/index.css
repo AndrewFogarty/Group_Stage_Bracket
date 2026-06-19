@@ -1,14 +1,22 @@
-/* "Watch on" boxes under each upcoming schedule card, sitting next to the
-   weather widget. The .sch-watch placeholder is emitted by renderSchedule();
-   React fills it with one <a> per available broadcaster. */
+/* "Watch on" + odds boxes under each upcoming schedule card, sitting next to
+   the weather widget. The .sch-watch placeholder is emitted by
+   renderSchedule(); React fills it with two stacked rows: Peacock/Fox, then
+   DraftKings/Polymarket/bracket-odds. */
 .sch-watch {
   display: flex;
-  align-items: stretch;
-  justify-content: center;
+  flex-direction: column;
   gap: 0.35rem;
   margin-top: 0.4rem;
 }
 .sch-watch:empty { display: none; }
+
+/* One horizontal band of boxes inside the stack. */
+.watch-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.35rem;
+}
 
 .watch-box {
   flex: 1 1 0;
@@ -38,6 +46,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Small leading glyph (e.g. the 📊 on the odds pill). */
+.watch-box__tag {
+  font-size: 0.8em;
+  line-height: 1;
+}
 
 /* Peacock purple, Fox blue — brand-evocative without leaning on logos. */
 .watch-box--peacock {
@@ -47,4 +60,20 @@
 .watch-box--fox {
   background: linear-gradient(135deg, #0b2a6b, #1565d8);
   border-color: rgba(120, 165, 235, 0.55);
+}
+/* DraftKings green, Polymarket indigo — distinct from the Fox blue above. */
+.watch-box--draftkings {
+  background: linear-gradient(135deg, #0c5a2a, #1ca64c);
+  border-color: rgba(110, 220, 150, 0.5);
+}
+.watch-box--polymarket {
+  background: linear-gradient(135deg, #2a1b6b, #4b3fd1);
+  border-color: rgba(150, 135, 240, 0.55);
+}
+/* Bracket-made odds — gold to tie it to the bracket/leaderboard theme. */
+.watch-box--odds {
+  background: linear-gradient(135deg, #6b4e0c, #d4a017);
+  border-color: rgba(245, 210, 120, 0.6);
+  color: #1a1408;
+  font-variant-numeric: tabular-nums;
 }
