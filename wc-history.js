@@ -159,5 +159,15 @@ window.WC_HISTORY = {
       // in the current tournament). Rows left empty on purpose.
       key: "tournament_ga", title: "Goals + Assists", icon: "🔥", live: true, rows: [],
     },
+    {
+      // Live 2026 leaders, computed by app.js from window.WC_FOOTBALL.
+      key: "tournament_goals", title: "Goals", icon: "⚽", live: true, rows: [],
+    },
+    {
+      key: "tournament_assists", title: "Assists", icon: "🅰", live: true, rows: [],
+    },
+    {
+      key: "tournament_cleansheets", title: "Clean Sheets", icon: "🧤", live: true, rows: [],
+    },
   ],
 };

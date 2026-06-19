@@ -351,7 +351,7 @@ function buildGroups() {
         <span class="match-grade" aria-hidden="true"></span>
         <span class="team home">
           <span class="flag">${flagHtml(codeFor(g, hi))}</span>
-          <span class="tname" data-group="${g}" data-idx="${hi}" contenteditable="true" spellcheck="false"></span>
+          <span class="tname" data-group="${g}" data-idx="${hi}"></span>
         </span>
         <span class="mid">
           <span class="score">
@@ -366,7 +366,7 @@ function buildGroups() {
           </span>
         </span>
         <span class="team away">
-          <span class="tname" data-group="${g}" data-idx="${ai}" contenteditable="true" spellcheck="false"></span>
+          <span class="tname" data-group="${g}" data-idx="${ai}"></span>
           <span class="flag">${flagHtml(codeFor(g, ai))}</span>
         </span>
         <span class="match-lock" title="Locked — the match has kicked off; this prediction can no longer be changed" aria-hidden="true">🔒</span>
@@ -1938,6 +1938,15 @@ function renderH2HTab(data, home, away) {
     </div>`;
 }
 
+/* API-Football's season feed only files players under four broad positions, so
+   we shorten those to three-letter codes. (More specific roles like LW/CAM
+   aren't published in this data, so they can't be shown here.) */
+const POS_ABBR = { goalkeeper: "GK", defender: "DEF", midfielder: "MID", attacker: "FWD", forward: "FWD" };
+function posAbbr(pos) {
+  if (!pos) return "—";
+  return POS_ABBR[pos.toLowerCase()] || pos.slice(0, 3).toUpperCase();
+}
+
 /* --- Per-squad season stats with top-performer highlights --- */
 function renderSquadTable(name) {
   const t = teamInfoData(name);
@@ -1964,7 +1973,7 @@ function renderSquadTable(name) {
   const rows = squad.map((p) => `
     <tr>
       <td class="mi-pl">${p.photo ? `<img class="mi-photo" src="${escapeHtml(p.photo)}" alt="" loading="lazy" />` : ""}<span>${escapeHtml(p.name)}</span></td>
-      <td class="mi-pos">${escapeHtml(p.pos || "—")}</td>
+      <td class="mi-pos">${escapeHtml(posAbbr(p.pos))}</td>
       <td>${p.games}</td>
       <td class="mi-wc">${p.wcGoals || 0}</td>
       <td class="mi-wc">${p.wcAssists || 0}</td>
@@ -2164,6 +2173,58 @@ function tournamentGARows() {
   return rows.slice(0, 10);
 }
 
+/* Top 10 in a single live tournament metric (wcGoals / wcAssists), per player
+   across every squad. */
+function tournamentStatRows(metric) {
+  const f = window.WC_FOOTBALL;
+  const rows = [];
+  if (f && f.teams) {
+    for (const [team, t] of Object.entries(f.teams)) {
+      const code = NAME_CODE[team] || "";
+      for (const p of t.players || []) {
+        const v = p[metric] || 0;
+        if (v > 0) rows.push({ name: p.name, code, displayValue: v, sub: team });
+      }
+    }
+  }
+  rows.sort((x, y) => y.displayValue - x.displayValue);
+  return rows.slice(0, 10);
+}
+
+/* Top 10 clean sheets, credited to the goalkeeper who started a finished match
+   in which the opponent failed to score. Finished matches are the only ones
+   carrying a `report`, and the scoreline is reconstructed from its goal events
+   (own goals count for the other side). */
+function tournamentCleanSheetRows() {
+  const f = window.WC_FOOTBALL;
+  if (!f || !f.matches) return [];
+  const tally = {}; // goalkeeper id -> running clean-sheet row
+  for (const [key, m] of Object.entries(f.matches)) {
+    const rep = m.report;
+    if (!rep || !rep.goals) continue;
+    const sides = m.lineup && m.lineup.sides;
+    let home = 0, away = 0;
+    for (const ev of rep.goals) {
+      const forHome = ev.own ? ev.side === "away" : ev.side === "home";
+      if (forHome) home++; else away++;
+    }
+    const [homeName, awayName] = key.split("|");
+    // The match key carries the app's own display names (which the flag map is
+    // keyed on); the lineup's side.team uses API spellings, so prefer the key.
+    const credit = (side, conceded, teamName) => {
+      if (conceded > 0) return;            // not a clean sheet
+      const sd = sides && sides[side];
+      const gk = sd && ((sd.startXI || []).find((p) => p.pos === "G") || (sd.startXI || [])[0]);
+      if (!gk || gk.id == null) return;    // no lineup -> can't attribute
+      const e = tally[gk.id] || (tally[gk.id] = { name: gk.name, code: NAME_CODE[teamName] || "", sub: teamName, displayValue: 0 });
+      e.displayValue++;
+    };
+    credit("home", away, homeName);        // home keeps a clean sheet if away scored 0
+    credit("away", home, awayName);
+  }
+  return Object.values(tally).sort((x, y) => y.displayValue - x.displayValue).slice(0, 10);
+}
+
 function renderHistory() {
   const grid = document.getElementById("wch-grid");
   const data = window.WC_HISTORY;
@@ -2175,7 +2236,10 @@ function renderHistory() {
   grid.innerHTML = (data.panels || []).map((p) => {
     let rows;
     if (p.live) {
-      rows = tournamentGARows();
+      rows = p.key === "tournament_goals" ? tournamentStatRows("wcGoals")
+        : p.key === "tournament_assists" ? tournamentStatRows("wcAssists")
+        : p.key === "tournament_cleansheets" ? tournamentCleanSheetRows()
+        : tournamentGARows();
     } else {
       rows = (p.rows || []).map((r) => {
         const L = r.id ? live[r.id] : null;
@@ -2210,7 +2274,7 @@ function renderHistory() {
           <span class="wch-name"><span class="wch-nm">${escapeHtml(r.name)}</span>${r.sub ? `<span class="wch-sub">${escapeHtml(r.sub)}</span>` : ""}</span>
           <span class="wch-val">${escapeHtml(String(r.displayValue))}${r.add ? `<span class="wch-live" title="+${r.add} at the 2026 World Cup">+${r.add}</span>` : ""}</span>
         </li>`).join("")
-      : `<li class="wch-row"><span class="wch-empty">No goals or assists yet — check back after kickoff.</span></li>`;
+      : `<li class="wch-row"><span class="wch-empty">Nothing here yet — check back after kickoff.</span></li>`;
 
     const heading = p.live ? `2026 WC — ${escapeHtml(p.title)}` : `Top 10 — ${escapeHtml(p.title)}`;
     return `<div class="wch-card${p.live ? " wch-card-live" : ""}">
@@ -2443,16 +2507,6 @@ function onGoalInput(e) {
   markDirty();
 }
 
-function onNameEdit(e) {
-  const el = e.target;
-  if (!el.classList.contains("tname")) return;
-  const g = el.dataset.group; const idx = +el.dataset.idx;
-  state.names[g][idx] = el.textContent.trim() || DEFAULT_GROUPS[g][idx][0];
-  renderAll();
-  saveState();
-  markDirty();
-}
-
 function onResultClick(e) {
   const btn = e.target.closest(".res-btn");
   if (!btn) return;
@@ -2472,7 +2526,6 @@ function onResultClick(e) {
 function wireEvents() {
   groupsEl.addEventListener("input", onGoalInput);
   groupsEl.addEventListener("click", onResultClick);
-  groupsEl.addEventListener("blur", onNameEdit, true);
 
   document.getElementById("mode-score").addEventListener("click", () => {
     setMode("score");
@@ -2481,13 +2534,6 @@ function wireEvents() {
   document.getElementById("mode-result").addEventListener("click", () => {
     setMode("result");
     saveState();
-  });
-
-  groupsEl.addEventListener("keydown", (e) => {
-    if (e.target.classList.contains("tname") && e.key === "Enter") {
-      e.preventDefault();
-      e.target.blur();
-    }
   });
 
   bracketEl.addEventListener("click", (e) => {
@@ -2500,16 +2546,6 @@ function wireEvents() {
     saveState();
     markDirty();
     maybeCelebrateChampion();
-  });
-
-  document.getElementById("reset").addEventListener("click", () => {
-    if (!confirm("Clear all predicted scores and bracket picks?")) return;
-    for (const g of GROUP_LETTERS) state.scores[g] = FIXTURES.map(() => [null, null]);
-    state.bracket = {};
-    syncInputs();
-    renderAll();
-    saveState();
-    markDirty();
   });
 
   document.getElementById("randomize").addEventListener("click", () => {
