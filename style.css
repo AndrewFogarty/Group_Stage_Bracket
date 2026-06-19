@@ -1445,6 +1445,10 @@ body {
   gap: 0.5rem;
   margin: 0 0 0.9rem;
 }
+/* `hidden` attr must win over the flex display above (equal specificity). */
+.join-panel[hidden] {
+  display: none;
+}
 .join-panel input {
   font-family: var(--sans);
   font-size: 0.95rem;

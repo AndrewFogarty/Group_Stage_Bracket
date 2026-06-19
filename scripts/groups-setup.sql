@@ -46,7 +46,7 @@ create or replace function join_or_create_group(p_code text, p_name text, p_pass
 returns table (code text, name text, created boolean)
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   admin_email constant text := 'andrewfogarty111@gmail.com';  -- only this user can create pools
@@ -95,7 +95,7 @@ create or replace function set_group_password(p_code text, p_password text)
 returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   admin_email constant text := 'andrewfogarty111@gmail.com';  -- keep in sync with join_or_create_group
@@ -112,6 +112,12 @@ end;
 $$;
 
 grant execute on function set_group_password(text, text) to anon, authenticated;
+
+-- Safe public view of pools: exposes code, name, and WHETHER a password is set
+-- (never the hash). Lets the app show a 🔒 on password-protected pools.
+create or replace view group_meta as
+  select code, name, (pass_hash is not null) as locked from groups;
+grant select on group_meta to anon, authenticated;
 
 -- ---------------------------------------------------------------------
 --  One-time: move every EXISTING bracket into a "Family" pool.

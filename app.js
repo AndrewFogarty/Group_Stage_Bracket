@@ -668,6 +668,9 @@ function applyAuthUI() {
   // Submit & lock is always available — you can edit and hit it immediately;
   // if you're not signed in yet, clicking it kicks off Google sign-in.
   if (submit) submit.style.display = "";
+  // "＋ Add a group" (create a pool) is admin-only.
+  const addGrp = document.getElementById("add-group-btn");
+  if (addGrp) addGrp.style.display = isAdmin() ? "" : "none";
   const rename = document.getElementById("rename");
   if (authUser) {
     signin.style.display = "none";
@@ -890,6 +893,7 @@ function hydrateMyGuesses() {
    Shared (Supabase) mode only — local-only mode keeps the single board. */
 let myGroups = [];          // pools the signed-in user is in: [{code, name}]
 let groupMembers = {};      // code -> Set(user_id), for filtering the board
+let groupLocked = {};       // code -> bool (pool has a password) for the 🔒 badge
 let boardScope = "global";  // "global" | a pool code
 let pendingJoin = null;     // pool code from a ?group= invite, applied after sign-in
 
@@ -918,6 +922,13 @@ async function loadMembershipsRemote() {
     myGroups = mine.sort((a, b) => a.name.localeCompare(b.name));
     // If we're viewing a pool we're no longer in, fall back to global.
     if (boardScope !== "global" && !myGroups.some((g) => g.code === boardScope)) boardScope = "global";
+    // Which of my pools are password-protected (for the 🔒 badge).
+    groupLocked = {};
+    const codes = myGroups.map((g) => g.code);
+    if (codes.length) {
+      const { data: meta } = await SB.from("group_meta").select("code, locked").in("code", codes);
+      for (const r of meta || []) groupLocked[r.code] = !!r.locked;
+    }
   } catch (e) {
     console.warn("memberships load failed:", e.message || e);
   }
@@ -970,8 +981,8 @@ async function consumePendingJoin() {
   clearGroupParam();
   const res = await joinGroup(code);
   // Arriving via an invite link → only ask for the password (hide the code box).
-  if (!res.ok && res.needPassword) openJoinPanel(code, "", true);
-  else if (!res.ok && res.notFound) openJoinPanel(code, `No pool “${code}” yet.`);
+  if (!res.ok && res.needPassword) openJoinPanel("password", code, "");
+  else if (!res.ok && res.notFound) openJoinPanel("join", code, `No pool “${code}” yet.`);
 }
 
 /* Admin-only: set or change a pool's password (blank removes it). */
@@ -984,6 +995,7 @@ async function setPoolPassword(code) {
   try {
     const { error } = await SB.rpc("set_group_password", { p_code: code, p_password: pw });
     if (error) throw error;
+    await loadBoardRemote(); // refresh the 🔒 badge
     alert(pw ? `Password updated for “${name}”.` : `Password removed — “${name}” is now open.`);
   } catch (e) {
     alert("Couldn't update password: " + (e.message || e));
@@ -1007,7 +1019,7 @@ function renderScopeTabs() {
   if (!SHARED) { el.style.display = "none"; return; }
   const globalCount = board.filter((s) => !HIDDEN_USERS.has(s.username)).length;
   const tabs = [{ code: "global", label: "🌐 Global", count: globalCount }].concat(
-    myGroups.map((g) => ({ code: g.code, label: g.name, count: (groupMembers[g.code] || new Set()).size }))
+    myGroups.map((g) => ({ code: g.code, label: (groupLocked[g.code] ? "🔒 " : "") + g.name, count: (groupMembers[g.code] || new Set()).size }))
   );
   el.innerHTML =
     tabs.map((t) =>
@@ -1028,33 +1040,40 @@ function renderPoolActions() {
     `<button class="btn ghost" id="leave-pool" type="button">Leave “${escapeHtml((g && g.name) || boardScope)}”</button>`;
 }
 
-/* Open the join panel. In `lockCode` mode (arriving via an invite link) the
-   pool-code box is hidden and the person only enters the password. */
-function openJoinPanel(prefill, msg, lockCode) {
+/* Open the join panel in one of three modes:
+   - "join"     : just a pool-code box (no password — that's only asked for if
+                  the pool turns out to be locked).
+   - "create"   : admin-only — name + optional password to make a new group.
+   - "password" : locked pool / invite link — code hidden, password only. */
+function openJoinPanel(mode, code, msg) {
   const panel = document.getElementById("join-panel");
   if (!panel) return;
   panel.hidden = false;
-  const code = document.getElementById("join-code");
-  const pass = document.getElementById("join-pass");
+  panel.dataset.mode = mode;
+  const codeEl = document.getElementById("join-code");
+  const passEl = document.getElementById("join-pass");
   const go = document.getElementById("join-go");
   const title = document.getElementById("join-title");
   const m = document.getElementById("join-msg");
-  const admin = isAdmin();
-  if (lockCode) {
-    if (code) { code.value = prefill || ""; code.style.display = "none"; }
-    if (title) { title.textContent = `Enter the password for “${prefill}”`; title.style.display = ""; }
+  if (mode === "password") {
+    if (codeEl) { codeEl.value = code || ""; codeEl.style.display = "none"; }
+    if (passEl) { passEl.style.display = ""; passEl.placeholder = "Password"; }
+    if (title) { title.textContent = `🔒 Enter the password for “${code}”`; title.style.display = ""; }
     if (go) go.textContent = "Join";
-    if (pass) pass.placeholder = "Password";
-  } else {
-    if (code) { code.style.display = ""; if (prefill != null) code.value = prefill; }
-    if (title) title.style.display = "none";
-    // Only the admin can create pools / set passwords; everyone else only joins.
-    if (go) go.textContent = admin ? "Join / create" : "Join pool";
-    if (pass) pass.placeholder = admin ? "Set a password (optional)" : "Password (if required)";
+  } else if (mode === "create") {
+    if (codeEl) { codeEl.style.display = ""; codeEl.value = code || ""; codeEl.placeholder = "New group name"; }
+    if (passEl) { passEl.style.display = ""; passEl.placeholder = "Password (optional)"; }
+    if (title) { title.textContent = "Create a group"; title.style.display = ""; }
+    if (go) go.textContent = "Create";
+  } else { // "join"
+    if (codeEl) { codeEl.style.display = ""; codeEl.value = code || ""; codeEl.placeholder = "Pool code"; }
+    if (passEl) { passEl.style.display = "none"; } // password only appears if the pool is locked
+    if (title) { title.textContent = "Join a pool"; title.style.display = ""; }
+    if (go) go.textContent = "Join";
   }
-  if (pass) pass.value = "";
+  if (passEl) passEl.value = "";
   if (m) m.textContent = msg || "";
-  const focusEl = (lockCode || prefill) ? (pass || code) : code;
+  const focusEl = (mode === "password") ? passEl : codeEl;
   if (focusEl) focusEl.focus();
   panel.scrollIntoView({ behavior: "smooth", block: "center" });
 }
@@ -1075,7 +1094,7 @@ function setupBoardUI() {
     setInterval(loadBoardRemote, 45000); // keep roughly in sync
   } else {
     if (scope) scope.textContent = "💾 This device";
-    ["board-tabs", "join-panel", "pool-actions", "join-pool-btn"].forEach((id) => {
+    ["board-tabs", "join-panel", "pool-actions", "join-pool-btn", "add-group-btn"].forEach((id) => {
       const e = document.getElementById(id);
       if (e) e.style.display = "none";
     });
@@ -2898,10 +2917,7 @@ function wireEvents() {
   document.getElementById("submit-bracket").addEventListener("click", submitPredictions);
   document.getElementById("refresh-board").addEventListener("click", refreshBoard);
   const joinPoolBtn = document.getElementById("join-pool-btn");
-  if (joinPoolBtn) joinPoolBtn.addEventListener("click", () => {
-    openJoinPanel("", "");
-    document.getElementById("join-panel").scrollIntoView({ behavior: "smooth", block: "center" });
-  });
+  if (joinPoolBtn) joinPoolBtn.addEventListener("click", () => openJoinPanel("join"));
   document.getElementById("signin").addEventListener("click", signInWithGoogle);
   document.getElementById("signout").addEventListener("click", signOut);
 
@@ -2950,24 +2966,37 @@ function wireEvents() {
     const tab = e.target.closest(".board-tab");
     if (!tab) return;
     const code = tab.dataset.code;
-    if (code === "__join__") { openJoinPanel("", ""); return; }
+    if (code === "__join__") { openJoinPanel("join"); return; }
     boardScope = code;
     closeJoinPanel();
     renderScopeTabs();
     renderLeaderboard();
   });
+  const addGroupBtn = document.getElementById("add-group-btn");
+  if (addGroupBtn) addGroupBtn.addEventListener("click", () => openJoinPanel("create"));
   const joinPanel = document.getElementById("join-panel");
   if (joinPanel) joinPanel.addEventListener("submit", async (e) => {
     e.preventDefault();
     const msg = document.getElementById("join-msg");
+    const mode = joinPanel.dataset.mode || "join";
     const code = document.getElementById("join-code").value;
     const pass = document.getElementById("join-pass").value;
     if (!normCode(code)) { if (msg) msg.textContent = "Enter a pool code."; return; }
     if (msg) msg.textContent = "…";
+    if (mode === "join") {
+      // Try to join with no password; if the pool is locked, ask for it.
+      const res = await joinGroup(code, "");
+      if (res.ok) { closeJoinPanel(); renderScopeTabs(); renderLeaderboard(); }
+      else if (res.needPassword) openJoinPanel("password", code, "");
+      else if (res.notFound && msg) msg.textContent = "No pool with that code — ask the organizer.";
+      else if (msg) msg.textContent = "";
+      return;
+    }
+    // "create" (admin sets optional password) or "password" (enter to join).
     const res = await joinGroup(code, pass);
     if (res.ok) { closeJoinPanel(); renderScopeTabs(); renderLeaderboard(); }
-    else if (res.needPassword && msg) msg.textContent = "Wrong or missing password — try again.";
-    else if (res.notFound && msg) msg.textContent = "No pool with that code — ask the organizer to create it.";
+    else if (res.needPassword && msg) msg.textContent = "Wrong password — try again.";
+    else if (res.notFound && msg) msg.textContent = "Only the organizer can create a group.";
     else if (msg) msg.textContent = "";
   });
   const joinCancel = document.getElementById("join-cancel");
