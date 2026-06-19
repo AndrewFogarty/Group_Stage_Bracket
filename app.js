@@ -1979,7 +1979,7 @@ function renderSquadTable(name) {
       <td class="mi-wc">${p.wcAssists || 0}</td>
       <td class="mi-g${lead(p, "goals")}">${p.gpg.toFixed(2)}</td>
       <td class="mi-a${lead(p, "assists")}">${p.apg.toFixed(2)}</td>
-      <td>${p.mpg}</td>
+      <td>${p.mpg}'</td>
       <td class="mi-f${lead(p, "fouls")}">${p.fpg.toFixed(2)}</td>
       <td class="mi-yc">${p.yellow}</td>
       <td class="mi-rc">${p.red}</td>
@@ -1992,7 +1992,7 @@ function renderSquadTable(name) {
             <th class="mi-pl">Player</th><th>Pos</th><th title="Games played">GP</th>
             <th title="World Cup goals so far">🏆G</th><th title="World Cup assists so far">🏆A</th>
             <th title="Goals per game (all competitions, this season)">G/G</th><th title="Assists per game (all competitions, this season)">A/G</th>
-            <th title="Minutes per game">Min</th><th title="Fouls per game">F/G</th>
+            <th title="Minutes per game">MIN/G</th><th title="Fouls per game">F/G</th>
             <th title="Yellow cards">🟨</th><th title="Red cards">🟥</th>
           </tr></thead>
           <tbody>${rows}</tbody>
