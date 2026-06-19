@@ -116,13 +116,15 @@ async function fetchSquad(name, id) {
       // Sum across all competitions the player featured in this season, and
       // separately track this World Cup (league id 1) goals/assists.
       let games = 0, minutes = 0, goals = 0, assists = 0, yellow = 0, red = 0, fouls = 0;
-      let wcGoals = 0, wcAssists = 0;
+      let wcGoals = 0, wcAssists = 0, saves = 0, conceded = 0;
       let pos = "", number = null;
       for (const s of item.statistics || []) {
         games += (s.games && s.games.appearences) || 0;
         minutes += (s.games && s.games.minutes) || 0;
         goals += (s.goals && s.goals.total) || 0;
         assists += (s.goals && s.goals.assists) || 0;
+        saves += (s.goals && s.goals.saves) || 0;          // goalkeepers
+        conceded += (s.goals && s.goals.conceded) || 0;    // goalkeepers
         yellow += (s.cards && s.cards.yellow) || 0;
         yellow += (s.cards && s.cards.yellowred) || 0;
         red += (s.cards && s.cards.red) || 0;
@@ -141,7 +143,7 @@ async function fetchSquad(name, id) {
         photo: p.photo || (p.id ? `https://media.api-sports.io/football/players/${p.id}.png` : ""),
         pos, number,
         games, minutes, goals, assists, yellow, red, fouls,
-        wcGoals, wcAssists,
+        wcGoals, wcAssists, saves, conceded,
         gpg: per(goals), apg: per(assists), fpg: per(fouls),
         mpg: games > 0 ? Math.round(minutes / games) : 0,
       });

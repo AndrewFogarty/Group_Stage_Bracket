@@ -1947,63 +1947,194 @@ function posAbbr(pos) {
   return POS_ABBR[pos.toLowerCase()] || pos.slice(0, 3).toUpperCase();
 }
 
-/* --- Per-squad season stats with top-performer highlights --- */
+/* Outfield position grouping: descending sort puts FWD on top, then MID, DEF. */
+const POS_RANK = { FWD: 3, MID: 2, DEF: 1, GK: 0 };
+
+/* A sortable column heading (every column except the player name). The arrow
+   span is filled in by sortMiTable once a column becomes the active sort. */
+function miTh(label, title) {
+  return `<th data-sortable${title ? ` title="${title}"` : ""}>${label}<span class="mi-sarr"></span></th>`;
+}
+
+/* --- Per-squad season stats with top-performer highlights. Outfield players
+   and goalkeepers get separate tables (keepers carry keeping-specific stats),
+   and every column heading is click-to-sort. --- */
 function renderSquadTable(name) {
   const t = teamInfoData(name);
   if (!t || !t.players || !t.players.length) {
     return `<div class="mi-squad"><h4>${escapeHtml(name)}</h4>${miNotice("Squad stats will appear once the data feed runs.")}</div>`;
   }
   // Per-game stats are only meaningful for players who featured this season.
-  const squad = t.players.filter((p) => p.games > 0);
-  if (!squad.length) {
+  const featured = t.players.filter((p) => p.games > 0);
+  if (!featured.length) {
     return `<div class="mi-squad"><h4>${escapeHtml(name)}</h4>${miNotice("No player appearances recorded yet this season.")}</div>`;
   }
-  // Squad leader per metric, with a minimum-appearances guard so a single-cap
-  // player can't top a per-game ranking on a fluke. Falls back to all if needed.
-  const maxG = Math.max(...squad.map((p) => p.games));
+  const isKeeper = (p) => (p.pos || "").toLowerCase() === "goalkeeper";
+  const outfield = featured.filter((p) => !isKeeper(p));
+  const keepers = featured.filter(isKeeper).sort((a, b) => b.games - a.games);
+
+  // Squad leader per metric (outfield only), with a minimum-appearances guard so
+  // a single-cap player can't top a per-game ranking on a fluke.
+  const maxG = Math.max(...outfield.map((p) => p.games), 0);
   const minG = Math.max(2, Math.ceil(maxG / 3));
   const topName = (metric) => {
-    let pool = squad.filter((p) => p.games >= minG && p[metric] > 0);
-    if (!pool.length) pool = squad.filter((p) => p[metric] > 0);
+    let pool = outfield.filter((p) => p.games >= minG && p[metric] > 0);
+    if (!pool.length) pool = outfield.filter((p) => p[metric] > 0);
     if (!pool.length) return null;
     return pool.slice().sort((a, b) => b[metric] - a[metric])[0].name;
   };
   const L = { goals: topName("gpg"), assists: topName("apg"), fouls: topName("fpg") };
   const lead = (player, metric) => (L[metric] && player.name === L[metric]) ? " mi-top" : "";
-  const rows = squad.map((p) => `
+  const photoCell = (p) =>
+    `<td class="mi-pl">${p.photo ? `<img class="mi-photo" src="${escapeHtml(p.photo)}" alt="" loading="lazy" />` : ""}<span>${escapeHtml(p.name)}</span></td>`;
+
+  // --- Outfield players ---
+  const outRows = outfield.map((p) => `
     <tr>
-      <td class="mi-pl">${p.photo ? `<img class="mi-photo" src="${escapeHtml(p.photo)}" alt="" loading="lazy" />` : ""}<span>${escapeHtml(p.name)}</span></td>
-      <td class="mi-pos">${escapeHtml(posAbbr(p.pos))}</td>
+      ${photoCell(p)}
+      <td class="mi-pos" data-sort="${POS_RANK[posAbbr(p.pos)] || 0}">${escapeHtml(posAbbr(p.pos))}</td>
       <td>${p.games}</td>
       <td class="mi-wc">${p.wcGoals || 0}</td>
       <td class="mi-wc">${p.wcAssists || 0}</td>
       <td class="mi-g${lead(p, "goals")}">${p.gpg.toFixed(2)}</td>
       <td class="mi-a${lead(p, "assists")}">${p.apg.toFixed(2)}</td>
-      <td>${p.mpg}'</td>
+      <td data-sort="${p.mpg}">${p.mpg}'</td>
       <td class="mi-f${lead(p, "fouls")}">${p.fpg.toFixed(2)}</td>
       <td class="mi-yc">${p.yellow}</td>
       <td class="mi-rc">${p.red}</td>
     </tr>`).join("");
-  return `<div class="mi-squad">
-      <h4>${escapeHtml(name)} <span class="mi-season">${t.season || ""} season</span></h4>
-      <div class="mi-table-wrap">
+  const outTable = `<div class="mi-table-wrap">
         <table class="mi-stats">
           <thead><tr>
-            <th class="mi-pl">Player</th><th>Pos</th><th title="Games played">GP</th>
-            <th title="World Cup goals so far">🏆G</th><th title="World Cup assists so far">🏆A</th>
-            <th title="Goals per game (all competitions, this season)">G/G</th><th title="Assists per game (all competitions, this season)">A/G</th>
-            <th title="Minutes per game">MIN/G</th><th title="Fouls per game">F/G</th>
-            <th title="Yellow cards">🟨</th><th title="Red cards">🟥</th>
+            <th class="mi-pl">Player</th>
+            ${miTh("Pos", "Group by position (FWD → MID → DEF)")}
+            ${miTh("GP", "Games played")}
+            ${miTh("🏆G", "World Cup goals so far")}
+            ${miTh("🏆A", "World Cup assists so far")}
+            ${miTh("G/G", "Goals per game (all competitions, this season)")}
+            ${miTh("A/G", "Assists per game (all competitions, this season)")}
+            ${miTh("MIN/G", "Minutes per game")}
+            ${miTh("F/G", "Fouls per game")}
+            ${miTh("🟨", "Yellow cards")}
+            ${miTh("🟥", "Red cards")}
           </tr></thead>
-          <tbody>${rows}</tbody>
+          <tbody>${outRows}</tbody>
         </table>
-      </div>
+      </div>`;
+
+  // --- Goalkeepers (keeping-specific columns) ---
+  let gkTable = "";
+  if (keepers.length) {
+    const ks = wcKeeperStats();
+    const gkRows = keepers.map((p) => {
+      const k = ks[p.id] || { cs: 0, gc: 0 };
+      const saves = p.saves == null ? "—" : p.saves;
+      return `
+      <tr>
+        ${photoCell(p)}
+        <td>${p.games}</td>
+        <td data-sort="${p.mpg}">${p.mpg}'</td>
+        <td class="mi-wc">${k.cs}</td>
+        <td class="mi-wc">${k.gc}</td>
+        <td data-sort="${p.saves == null ? -1 : p.saves}">${saves}</td>
+        <td class="mi-yc">${p.yellow}</td>
+        <td class="mi-rc">${p.red}</td>
+      </tr>`;
+    }).join("");
+    gkTable = `<div class="mi-gk-head">🧤 Goalkeepers</div>
+      <div class="mi-table-wrap">
+        <table class="mi-stats mi-gk">
+          <thead><tr>
+            <th class="mi-pl">Player</th>
+            ${miTh("GP", "Games played")}
+            ${miTh("MIN/G", "Minutes per game")}
+            ${miTh("🏆CS", "World Cup clean sheets")}
+            ${miTh("🏆GC", "World Cup goals conceded")}
+            ${miTh("Saves", "Saves (all competitions, this season)")}
+            ${miTh("🟨", "Yellow cards")}
+            ${miTh("🟥", "Red cards")}
+          </tr></thead>
+          <tbody>${gkRows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  return `<div class="mi-squad">
+      <h4>${escapeHtml(name)} <span class="mi-season">${t.season || ""} season</span></h4>
+      ${outTable}
+      ${gkTable}
     </div>`;
+}
+
+/* WC clean sheets + goals conceded per goalkeeper id, derived from finished
+   match reports (scoreline rebuilt from goal events; credited to the keeper who
+   started). Saves aren't in match reports, so those come from the season feed. */
+function wcKeeperStats() {
+  const f = window.WC_FOOTBALL;
+  const map = {};
+  if (!f || !f.matches) return map;
+  for (const m of Object.values(f.matches)) {
+    const rep = m.report;
+    if (!rep || !rep.goals) continue;
+    const sides = m.lineup && m.lineup.sides;
+    if (!sides) continue;
+    let home = 0, away = 0;
+    for (const ev of rep.goals) {
+      const forHome = ev.own ? ev.side === "away" : ev.side === "home";
+      if (forHome) home++; else away++;
+    }
+    const apply = (side, conceded) => {
+      const sd = sides[side];
+      const gk = sd && ((sd.startXI || []).find((p) => p.pos === "G") || (sd.startXI || [])[0]);
+      if (!gk || gk.id == null) return;
+      const e = map[gk.id] || (map[gk.id] = { cs: 0, gc: 0 });
+      e.gc += conceded;
+      if (conceded === 0) e.cs++;
+    };
+    apply("home", away);
+    apply("away", home);
+  }
+  return map;
+}
+
+/* Reorder a squad table's rows by the clicked column. Numeric cells sort by
+   value (an explicit data-sort overrides the displayed text — e.g. position
+   rank, or "53'" minutes); default direction is descending, and re-clicking the
+   active column flips it. */
+function sortMiTable(th) {
+  const headRow = th.parentElement;
+  const col = [...headRow.children].indexOf(th);
+  const table = th.closest("table");
+  const tbody = table && table.querySelector("tbody");
+  if (!tbody) return;
+  const same = table.dataset.sortCol === String(col);
+  const dir = same && table.dataset.sortDir === "desc" ? "asc" : "desc";
+  table.dataset.sortCol = col;
+  table.dataset.sortDir = dir;
+  const value = (tr) => {
+    const td = tr.children[col];
+    if (!td) return -Infinity;
+    const raw = td.getAttribute("data-sort");
+    const text = raw != null ? raw : td.textContent.trim();
+    const n = parseFloat(text);
+    return isNaN(n) ? text.toLowerCase() : n;
+  };
+  [...tbody.children]
+    .sort((a, b) => {
+      const va = value(a), vb = value(b);
+      const cmp = (typeof va === "number" && typeof vb === "number")
+        ? va - vb : String(va).localeCompare(String(vb));
+      return dir === "desc" ? -cmp : cmp;
+    })
+    .forEach((r) => tbody.appendChild(r));
+  headRow.querySelectorAll("th").forEach((h) => h.removeAttribute("data-dir"));
+  th.setAttribute("data-dir", dir);
 }
 
 function renderStatsTab(home, away) {
   return `<p class="mi-note"><strong>GP</strong> = games played this season across <em>all</em>
-      competitions (club + country), not just the World Cup. The 🏆 columns show World Cup goals/assists only.</p>
+      competitions (club + country), not just the World Cup. 🏆 columns are World-Cup-only.
+      <strong>Tap any column heading to sort</strong> (high → low; tap again to reverse).</p>
     <div class="mi-legend">Highlighted = squad leader in
       <span class="mi-key g">goals/game</span>
       <span class="mi-key a">assists/game</span>
@@ -2134,6 +2265,8 @@ function wireMatchInfo() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMatchInfo(); });
   const body = document.getElementById("mi-body");
   if (body) body.addEventListener("click", (e) => {
+    const th = e.target.closest("th[data-sortable]");
+    if (th) { sortMiTable(th); return; }
     const t = e.target.closest(".mi-tab");
     if (!t) return;
     miActiveTab = t.dataset.tab;

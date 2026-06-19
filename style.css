@@ -2302,6 +2302,17 @@ body.mi-open { overflow: hidden; }
 .mi-stats td.mi-a.mi-top { background: rgba(47, 111, 237, 0.16); color: #2f6fed; }
 .mi-stats td.mi-f.mi-top { background: rgba(224, 160, 8, 0.18); color: #9a6e00; }
 
+/* Sortable column headings */
+.mi-stats th[data-sortable] { cursor: pointer; -webkit-user-select: none; user-select: none; }
+.mi-stats th[data-sortable]:hover { color: var(--ink); }
+.mi-stats th[data-dir] { color: var(--red); }
+.mi-sarr { display: inline-block; width: 0.7em; font-size: 0.62em; vertical-align: middle; }
+.mi-stats th[data-dir="desc"] .mi-sarr::after { content: "▼"; }
+.mi-stats th[data-dir="asc"] .mi-sarr::after { content: "▲"; }
+
+/* Goalkeepers sub-table */
+.mi-gk-head { font-family: var(--cond); font-size: 0.95rem; color: var(--muted); margin: 1rem 0 0.4rem; }
+
 @media (max-width: 620px) {
   .mi-xis { grid-template-columns: 1fr; }
   .mi-header { font-size: 1.1rem; }
