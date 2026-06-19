@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-19T12:18:01.600Z",
+  "updated": "2026-06-19T22:13:26.888Z",
   "results": {
     "A": [
       [
@@ -65,7 +65,10 @@
         2,
         0
       ],
-      null,
+      [
+        2,
+        0
+      ],
       null,
       null,
       null
@@ -397,8 +400,8 @@
       "s": "D",
       "h": "USA",
       "a": "Australia",
-      "hg": null,
-      "ag": null,
+      "hg": 2,
+      "ag": 0,
       "v": "Lumen Field (Seattle, USA)"
     },
     {
