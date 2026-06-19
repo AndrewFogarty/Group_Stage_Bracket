@@ -1377,6 +1377,9 @@ function renderSchedule() {
       const wx = !played && city
         ? `<span class="sch-wx" data-city="${escapeHtml(city)}" data-date="${m.d}" title="Live match-day forecast"></span>`
         : "";
+      const watch = !played
+        ? `<span class="sch-watch" data-home="${escapeHtml(m.h)}" data-away="${escapeHtml(m.a)}"></span>`
+        : "";
       const info = !played
         ? `<button class="sch-info" type="button" data-home="${escapeHtml(m.h)}" data-away="${escapeHtml(m.a)}" title="Lineups, head-to-head & squad stats" aria-label="Match info for ${escapeHtml(m.h)} versus ${escapeHtml(m.a)}">ⓘ</button>`
         : "";
@@ -1388,12 +1391,15 @@ function renderSchedule() {
           <span class="sch-team away">${flagFor(m.a)}<span class="sch-name">${escapeHtml(m.a)}</span></span>
         </div>
         ${wx}
+        ${watch}
       </div>`;
     })
     .join("");
 
   // Populate live weather (Open-Meteo) for the upcoming-match cards.
   if (window.WCWeather) WCWeather.fill(".schedule-strip .sch-wx");
+  // Mount the React "watch on" boxes (Peacock / Fox) for upcoming matches.
+  if (window.WCBroadcasts) WCBroadcasts.fill(".schedule-strip .sch-watch");
 }
 
 /* Re-render the results-driven UI after a live update. If the user is mid-typing
@@ -1442,6 +1448,32 @@ function espnLocate(t1, t2) {
   }
   return null;
 }
+/* Pull US national TV/streaming networks for a competition out of ESPN's
+   `geoBroadcasts` (falls back to the condensed `broadcasts`). For WC2026 the
+   English-language carrier is the FOX family (FOX / FS1 / FOX One) and the
+   Spanish-language carrier is Telemundo ("Tele"/Universo), whose coverage
+   streams on Peacock — so we surface a Fox box (with the exact channel) and a
+   Peacock box. Returns null when ESPN lists no usable network yet. */
+function espnBroadcasts(c) {
+  const names = [];
+  if (Array.isArray(c.geoBroadcasts)) {
+    c.geoBroadcasts.forEach((b) => {
+      const n = b && b.media && b.media.shortName;
+      if (n) names.push({ name: n, lang: (b.lang || "").toLowerCase() });
+    });
+  }
+  if (!names.length && Array.isArray(c.broadcasts)) {
+    c.broadcasts.forEach((b) => (b.names || []).forEach((n) => names.push({ name: n, lang: "" })));
+  }
+  if (!names.length) return null;
+  const fox = names.find((b) => /^fox|^fs\d/i.test(b.name));
+  const peacock = names.find((b) => b.lang === "es" || /tele|universo/i.test(b.name));
+  if (!fox && !peacock) return null;
+  return {
+    fox: fox ? { network: fox.name } : null,
+    peacock: peacock ? { network: peacock.name } : null,
+  };
+}
 let lastEspn = null;
 /* Overlay an ESPN scoreboard payload onto WC_LIVE.results (finished matches) and
    WC_FOOTBALL.live (in-play). Returns true if anything changed. */
@@ -1449,6 +1481,7 @@ function applyEspnOverlay(j) {
   if (!j || !Array.isArray(j.events)) return false;
   if (!window.WC_LIVE) window.WC_LIVE = { results: {}, schedule: [] };
   if (!window.WC_FOOTBALL) window.WC_FOOTBALL = { teams: {}, live: [] };
+  if (!window.WC_BROADCASTS) window.WC_BROADCASTS = {};
   const results = window.WC_LIVE.results || (window.WC_LIVE.results = {});
   GROUP_LETTERS.forEach((g) => { if (!Array.isArray(results[g])) results[g] = [null, null, null, null, null, null]; });
   const live = [];
@@ -1463,6 +1496,18 @@ function applyEspnOverlay(j) {
     const hs = parseInt(homeC.score, 10), as = parseInt(awayC.score, 10);
     const st = (e.status && e.status.type) || {};
     const loc = espnLocate(hn, an);
+    // Capture where to watch this game (Peacock / Fox). Key by the canonical
+    // group team names under both orientations so the schedule strip — which may
+    // orient home/away differently from FIXTURES — always finds it.
+    if (loc) {
+      const bc = espnBroadcasts(c);
+      if (bc) {
+        const gn = DEFAULT_GROUPS[loc.g].map((x) => x[0]);
+        const a = gn[loc.i1], b = gn[loc.i2];
+        window.WC_BROADCASTS[`${a}|${b}`] = bc;
+        window.WC_BROADCASTS[`${b}|${a}`] = bc;
+      }
+    }
     if (st.state === "post") {
       if (loc && Number.isFinite(hs) && Number.isFinite(as)) {
         const oriented = FIXTURES[loc.fi][0] === loc.i1 ? [hs, as] : [as, hs];

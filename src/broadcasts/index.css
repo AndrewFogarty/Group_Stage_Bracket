@@ -1,0 +1,50 @@
+/* "Watch on" boxes under each upcoming schedule card, sitting next to the
+   weather widget. The .sch-watch placeholder is emitted by renderSchedule();
+   React fills it with one <a> per available broadcaster. */
+.sch-watch {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+.sch-watch:empty { display: none; }
+
+.watch-box {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.28rem 0.4rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  text-decoration: none;
+  font-family: var(--cond, "Barlow Condensed", sans-serif);
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fff;
+  transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
+}
+.watch-box:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.watch-box__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Peacock purple, Fox blue — brand-evocative without leaning on logos. */
+.watch-box--peacock {
+  background: linear-gradient(135deg, #5b2a86, #8a2be2);
+  border-color: rgba(170, 120, 230, 0.55);
+}
+.watch-box--fox {
+  background: linear-gradient(135deg, #0b2a6b, #1565d8);
+  border-color: rgba(120, 165, 235, 0.55);
+}
