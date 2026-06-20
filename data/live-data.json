@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-19T22:13:26.888Z",
+  "updated": "2026-06-20T10:12:52.912Z",
   "results": {
     "A": [
       [
@@ -51,8 +51,14 @@
         0,
         1
       ],
-      null,
-      null,
+      [
+        3,
+        0
+      ],
+      [
+        1,
+        0
+      ],
       null,
       null
     ],
@@ -69,7 +75,10 @@
         2,
         0
       ],
-      null,
+      [
+        1,
+        0
+      ],
       null,
       null
     ],
@@ -340,8 +349,8 @@
       "s": "C",
       "h": "Scotland",
       "a": "Morocco",
-      "hg": null,
-      "ag": null,
+      "hg": 0,
+      "ag": 1,
       "v": "Gillette Stadium (Boston, USA)"
     },
     {
@@ -350,8 +359,8 @@
       "s": "C",
       "h": "Brazil",
       "a": "Haiti",
-      "hg": null,
-      "ag": null,
+      "hg": 3,
+      "ag": 0,
       "v": "Lincoln Financial Field (Philadelphia, USA)"
     },
     {
@@ -410,8 +419,8 @@
       "s": "D",
       "h": "Turkey",
       "a": "Paraguay",
-      "hg": null,
-      "ag": null,
+      "hg": 0,
+      "ag": 1,
       "v": "Levi's Stadium (San Francisco Bay Area, USA)"
     },
     {
