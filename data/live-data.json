@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-21T10:46:42.848Z",
+  "updated": "2026-06-21T22:00:36.976Z",
   "results": {
     "A": [
       [
@@ -131,7 +131,10 @@
         2,
         2
       ],
-      null,
+      [
+        0,
+        0
+      ],
       null,
       null,
       null
@@ -145,7 +148,10 @@
         1,
         1
       ],
-      null,
+      [
+        4,
+        0
+      ],
       null,
       null,
       null
@@ -601,8 +607,8 @@
       "s": "G",
       "h": "Belgium",
       "a": "IR Iran",
-      "hg": null,
-      "ag": null,
+      "hg": 0,
+      "ag": 0,
       "v": "SoFi Stadium (Los Angeles, USA)"
     },
     {
@@ -661,8 +667,8 @@
       "s": "H",
       "h": "Spain",
       "a": "Saudi Arabia",
-      "hg": null,
-      "ag": null,
+      "hg": 4,
+      "ag": 0,
       "v": "Mercedes-Benz Stadium (Atlanta, USA)"
     },
     {
