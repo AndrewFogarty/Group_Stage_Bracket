@@ -124,11 +124,11 @@ for (const [id, kids] of Object.entries(LATER)) {
 BRACKET[103] = { round: "TP", home: { loser: 101 }, away: { loser: 102 } };
 
 /* ---- Application state ---- */
-let state = { names: {}, scores: {}, bracket: {}, mode: "score" };
+let state = { names: {}, scores: {}, bracket: {}, bracket2: {}, mode: "score" };
 
 /* ================= Persistence ================= */
 function loadState() {
-  const fresh = { names: {}, scores: {}, bracket: {}, mode: "score" };
+  const fresh = { names: {}, scores: {}, bracket: {}, bracket2: {}, mode: "score" };
   for (const g of GROUP_LETTERS) {
     fresh.names[g] = DEFAULT_GROUPS[g].map((t) => t[0]);
     fresh.scores[g] = FIXTURES.map(() => [null, null]);
@@ -145,6 +145,7 @@ function loadState() {
         }
       }
       if (saved.bracket && typeof saved.bracket === "object") fresh.bracket = saved.bracket;
+      if (saved.bracket2 && typeof saved.bracket2 === "object") fresh.bracket2 = saved.bracket2;
       if (saved.mode === "score" || saved.mode === "result") fresh.mode = saved.mode;
     }
   } catch (e) {
@@ -466,25 +467,30 @@ function resolveR32(matchId, spec) {
   return { ...info, label: "3rd " + allow, known, provisional: !known && !!g && groupHasScore(g) };
 }
 
-function participant(matchId, side) {
+/* Resolve a participant. `picks` is the winner map driving the tree:
+   state.bracket (main), state.bracket2 (second-chance), or officialPicks()
+   (the real results). R32 seeds always come from real/predicted standings. */
+function participant(matchId, side, picks) {
+  picks = picks || state.bracket;
   const m = BRACKET[matchId];
   const spec = side === "home" ? m.home : m.away;
   if (typeof spec === "string") return resolveR32(matchId, spec);
   if (spec.loser !== undefined) {
     const child = spec.loser;
-    const w = state.bracket[child];
+    const w = picks[child];
     if (!w) return { name: null, code: "", label: "Loser " + ROUND_NAME[BRACKET[child].round], known: false };
-    return participant(child, w === "home" ? "away" : "home");
+    return participant(child, w === "home" ? "away" : "home", picks);
   }
   const child = spec.from;
-  const w = state.bracket[child];
+  const w = picks[child];
   if (!w) return { name: null, code: "", label: "Winner " + ROUND_NAME[BRACKET[child].round], known: false };
-  return participant(child, w);
+  return participant(child, w, picks);
 }
 
-function winnerOf(matchId) {
-  const w = state.bracket[matchId];
-  return w ? participant(matchId, w) : null;
+function winnerOf(matchId, picks) {
+  picks = picks || state.bracket;
+  const w = picks[matchId];
+  return w ? participant(matchId, w, picks) : null;
 }
 
 /* True once a knockout match has kicked off OR has an official result — its
@@ -498,7 +504,37 @@ function koMatchLocked(id) {
   return ko != null && Date.now() >= ko;
 }
 
-function rowHtml(id, side, p, selected, acc, locked) {
+/* The knockout round has "begun" once the real group stage is fully decided
+   (all 12 groups complete on actual results, so the official Round of 32 is
+   set). At that instant the whole main bracket freezes and the second-chance
+   round opens. allGroupsComplete() reads effScores, which prefers official
+   results, so this flips on real data — not on anyone's predictions. */
+function knockoutOpen() {
+  return allGroupsComplete();
+}
+
+/* The official winner map, derived from real results: for each knockout match
+   that has a final scoreline in WC_LIVE, which side won. Feeds the read-only
+   "official bracket" through the same participant()/winnerOf() engine. */
+function officialPicks() {
+  const picks = {};
+  const sched = (window.WC_LIVE && window.WC_LIVE.schedule) || [];
+  for (const m of sched) {
+    if (m.n == null || m.hg == null || m.ag == null) continue;
+    if (m.hg === m.ag) continue;            // no decisive side recorded (e.g. pre-PK)
+    picks[m.n] = m.hg > m.ag ? "home" : "away";
+  }
+  return picks;
+}
+
+/* ---- Bracket rendering ----
+   One engine renders all three trees in a two-sided West/East layout that
+   meets at the Final in the centre. A `ctx` selects the winner map and
+   behaviour:
+     • main   → state.bracket,  interactive, frozen once knockoutOpen()
+     • second → state.bracket2, interactive once knockoutOpen(), per-match lock
+     • official → officialPicks() from live results, read-only            */
+function bmRow(id, side, p, selected, acc, disabled) {
   const known = p.known && p.name;
   const prov = !known && p.provisional && p.name;     // seeded from partial standings
   const show = known || prov;
@@ -508,79 +544,153 @@ function rowHtml(id, side, p, selected, acc, locked) {
   const flag = show ? flagHtml(p.code) : "•";
   const mark = acc === "correct" ? '<span class="bm-mark ok">✓</span>'
     : acc === "wrong" ? '<span class="bm-mark no">✗</span>' : "";
-  return `<button class="bm-row ${selected ? "sel" : ""} ${acc || ""}" data-id="${id}" data-side="${side}" type="button"${locked ? " disabled" : ""}>
+  return `<button class="bm-row ${selected ? "sel" : ""} ${acc || ""}" data-id="${id}" data-side="${side}" type="button"${disabled ? " disabled" : ""}>
       <span class="flag">${flag}</span>${label}${mark}
     </button>`;
 }
 
-function matchCard(id, extraClass) {
-  const h = participant(id, "home");
-  const a = participant(id, "away");
-  const w = state.bracket[id];
-  const acc = w ? bracketAccuracy(id, w) : "";
+function bmCard(id, ctx, extraClass) {
+  const picks = ctx.picks;
+  const h = participant(id, "home", picks);
+  const a = participant(id, "away", picks);
+  const w = picks[id];
+  const acc = w ? bracketAccuracy(id, w, picks) : "";
   const v = VENUE.byNum[id];
-  const locked = koMatchLocked(id);
+  const locked = ctx.lockedFn ? ctx.lockedFn(id) : false;
+  const disabled = locked || !ctx.interactive;
   const lockBadge = locked
     ? '<span class="bm-lock" title="Locked — this match has kicked off; the pick can no longer be changed" aria-hidden="true">🔒</span>'
     : "";
   return `<div class="bm ${extraClass || ""}${locked ? " ko-locked" : ""}" data-id="${id}">
-      ${rowHtml(id, "home", h, w === "home", w === "home" ? acc : "", locked)}
-      ${rowHtml(id, "away", a, w === "away", w === "away" ? acc : "", locked)}
+      ${bmRow(id, "home", h, w === "home", w === "home" ? acc : "", disabled)}
+      ${bmRow(id, "away", a, w === "away", w === "away" ? acc : "", disabled)}
       ${lockBadge}
       ${v ? `<div class="bm-venue">${escapeHtml(v)}</div>` : ""}
     </div>`;
 }
 
-function renderBracket() {
+/* Split a round's display order into [West, East]. The first half of every
+   ROUND_ORDER entry feeds Semi-final 101 (West); the rest feeds SF 102 (East). */
+function halves(arr) {
+  const k = arr.length / 2;
+  return [arr.slice(0, k), arr.slice(k)];
+}
+
+function renderBracketInto(host, ctx) {
+  if (!host) return;
   thirdMap = thirdAssignments();
   const col = (title, ids, cls) =>
     `<div class="round ${cls || ""}"><h3 class="round-title">${title}</h3>
-      <div class="round-body">${ids.map((id) => matchCard(id)).join("")}</div></div>`;
+      <div class="round-body">${ids.map((id) => bmCard(id, ctx)).join("")}</div></div>`;
 
-  const champ = winnerOf(104);
+  const W = {}, E = {};
+  for (const r of ["R32", "R16", "QF", "SF"]) { const [w, e] = halves(ROUND_ORDER[r]); W[r] = w; E[r] = e; }
+
+  const champ = winnerOf(104, ctx.picks);
   const champHtml = champ && champ.known && champ.name
     ? `<div class="champion"><span class="trophy">🏆</span>
          <span class="champ-flag">${flagHtml(champ.code)}</span>
          <span class="champ-name">${escapeHtml(champ.name)}</span>
-         <span class="champ-label">Your champion</span></div>`
-    : `<div class="champion empty"><span class="trophy">🏆</span><span class="champ-label">Pick winners to crown a champion</span></div>`;
+         <span class="champ-label">${escapeHtml(ctx.champLabel || "Champion")}</span></div>`
+    : `<div class="champion empty"><span class="trophy">🏆</span><span class="champ-label">${escapeHtml(ctx.emptyLabel || "Pick winners to crown a champion")}</span></div>`;
 
-  const finalCol = `<div class="round final-col">
+  const centreCol = `<div class="round final-col">
       <h3 class="round-title">Final</h3>
       <div class="round-body">
-        ${matchCard(104, "is-final")}
+        ${bmCard(104, ctx, "is-final")}
         ${champHtml}
         <div class="tp-block">
           <h4>Third-place match</h4>
-          ${matchCard(103, "is-tp")}
+          ${bmCard(103, ctx, "is-tp")}
         </div>
       </div>
     </div>`;
 
-  const warnEl = document.getElementById("bracket-warning");
-  if (warnEl) {
-    const gaps = incompleteGroups(state.scores);
-    const totalMissing = gaps.reduce((n, x) => n + x.missing.length, 0);
-    warnEl.innerHTML = gaps.length
-      ? `<div class="bracket-warn" role="status">
-          <span class="bw-icon">⚠</span>
-          <div class="bw-text">
-            <strong>${totalMissing} unfilled match${totalMissing === 1 ? "" : "es"}</strong> —
-            affected slots show a <em>provisional</em> seed (<span class="bw-tilde">~</span>)
-            from current standings; fill these to lock them in:
-            <span class="bw-list">${gaps.map((x) =>
-              `<span class="bw-grp">Group ${x.group}: ${x.missing.map((i) => escapeHtml(matchLabel(x.group, i))).join(", ")}</span>`).join("")}</span>
-          </div>
-        </div>`
-      : "";
-  }
+  host.innerHTML =
+    col("Round of 32", W.R32) + col("Round of 16", W.R16) +
+    col("Quarter-finals", W.QF) + col("Semi-finals", W.SF) +
+    centreCol +
+    col("Semi-finals", E.SF, "east") + col("Quarter-finals", E.QF, "east") +
+    col("Round of 16", E.R16, "east") + col("Round of 32", E.R32, "east");
+}
 
-  bracketEl.innerHTML =
-    col("Round of 32", ROUND_ORDER.R32) +
-    col("Round of 16", ROUND_ORDER.R16) +
-    col("Quarter-finals", ROUND_ORDER.QF) +
-    col("Semi-finals", ROUND_ORDER.SF) +
-    finalCol;
+function mainBracketCtx() {
+  return {
+    picks: state.bracket,
+    interactive: true,
+    lockedFn: (id) => knockoutOpen() || koMatchLocked(id),
+    champLabel: "Your champion",
+    emptyLabel: "Pick winners to crown a champion",
+  };
+}
+
+function renderBracket() {
+  renderBracketInto(bracketEl, mainBracketCtx());
+
+  const warnEl = document.getElementById("bracket-warning");
+  if (!warnEl) return;
+  if (knockoutOpen()) {
+    warnEl.innerHTML =
+      `<div class="bracket-warn locked-note" role="status">
+        <span class="bw-icon">🔒</span>
+        <div class="bw-text">
+          <strong>Knockout round has begun</strong> — the group stage is decided, so your
+          bracket is locked and can no longer be changed. Head to the
+          <em>Second Chance</em> round to pick the knockouts from the real Round of 32.
+        </div>
+      </div>`;
+    return;
+  }
+  const gaps = incompleteGroups(state.scores);
+  const totalMissing = gaps.reduce((n, x) => n + x.missing.length, 0);
+  warnEl.innerHTML = gaps.length
+    ? `<div class="bracket-warn" role="status">
+        <span class="bw-icon">⚠</span>
+        <div class="bw-text">
+          <strong>${totalMissing} unfilled match${totalMissing === 1 ? "" : "es"}</strong> —
+          affected slots show a <em>provisional</em> seed (<span class="bw-tilde">~</span>)
+          from current standings; fill these to lock them in:
+          <span class="bw-list">${gaps.map((x) =>
+            `<span class="bw-grp">Group ${x.group}: ${x.missing.map((i) => escapeHtml(matchLabel(x.group, i))).join(", ")}</span>`).join("")}</span>
+        </div>
+      </div>`
+    : "";
+}
+
+/* Read-only official bracket, driven by real results. Provisional while the
+   group stage is live; locks to the real Round of 32 once it completes. */
+function renderOfficialBracket() {
+  const host = document.getElementById("official-bracket");
+  if (!host) return;
+  const open = knockoutOpen();
+  renderBracketInto(host, {
+    picks: officialPicks(),
+    interactive: false,
+    lockedFn: () => false,
+    champLabel: "Champion",
+    emptyLabel: open ? "To be decided" : "Group stage in progress",
+  });
+  const pill = document.getElementById("official-status");
+  if (pill) {
+    pill.textContent = open ? "🔒 Official — locked" : "⏳ Provisional";
+    pill.className = "official-pill " + (open ? "is-official" : "is-temp");
+  }
+}
+
+/* Second-chance knockout-only bracket. Seeds resolve from the real Round of 32
+   (groups are done by the time it opens); only fillable once knockoutOpen(),
+   then each pick freezes at its own match kickoff. */
+function renderSecondBracket() {
+  const host = document.getElementById("second-bracket");
+  if (!host) return;
+  const open = knockoutOpen();
+  renderBracketInto(host, {
+    picks: state.bracket2,
+    interactive: open,
+    lockedFn: (id) => koMatchLocked(id),
+    champLabel: "Your champion",
+    emptyLabel: open ? "Pick winners to crown a champion" : "Opens when the group stage ends",
+  });
 }
 
 /* ================= Result mode (Win/Draw/Loss) ================= */
@@ -607,6 +717,30 @@ function setMode(mode) {
   document.body.classList.toggle("mode-result", state.mode === "result");
   document.getElementById("mode-score").classList.toggle("active", state.mode === "score");
   document.getElementById("mode-result").classList.toggle("active", state.mode === "result");
+}
+
+/* Switch between the main predictor and the second-chance round. The
+   second-chance button stays disabled until the knockout round opens. */
+let currentView = "main";
+function setView(view) {
+  currentView = view === "second" ? "second" : "main";
+  document.body.classList.toggle("view-second", currentView === "second");
+  const vMain = document.getElementById("view-main");
+  const vSecond = document.getElementById("view-second");
+  if (vMain) vMain.classList.toggle("active", currentView === "main");
+  if (vSecond) vSecond.classList.toggle("active", currentView === "second");
+  if (currentView === "second") {
+    renderSecondBracket();
+    const sec = document.getElementById("second-section");
+    if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+function refreshViewControls() {
+  const vSecond = document.getElementById("view-second");
+  if (!vSecond) return;
+  const open = knockoutOpen();
+  vSecond.disabled = !open;
+  vSecond.title = open ? "Second-chance knockout round" : "Opens when the group stage is decided";
 }
 
 /* ================= Live (actual) results ================= */
@@ -847,6 +981,7 @@ function refreshBoard() {
 function resetEditor() {
   for (const g of GROUP_LETTERS) state.scores[g] = FIXTURES.map(() => [null, null]);
   state.bracket = {};
+  state.bracket2 = {};
   editorLockedSet = new Set();
   syncInputs();
   renderAll();
@@ -877,6 +1012,7 @@ function hydrateMyGuesses() {
       }
     }
     if (sub.bracket) state.bracket = JSON.parse(JSON.stringify(sub.bracket));
+    if (sub.bracket2) state.bracket2 = JSON.parse(JSON.stringify(sub.bracket2));
     hydratedFull = true;
     changed = true;
   } else {
@@ -1030,7 +1166,13 @@ function clearGroupParam() {
 
 /* ---- Pool UI: scope tabs, join panel, invite/leave actions ---- */
 function renderScopeTabs() {
-  const el = document.getElementById("board-tabs");
+  // Same pool tabs drive both the main and the second-chance leaderboards.
+  renderScopeTabsInto("board-tabs");
+  renderScopeTabsInto("second-board-tabs");
+  renderPoolActions();
+}
+function renderScopeTabsInto(elId) {
+  const el = document.getElementById(elId);
   if (!el) return;
   if (!SHARED) { el.style.display = "none"; return; }
   const globalCount = board.filter((s) => !HIDDEN_USERS.has(s.username)).length;
@@ -1042,7 +1184,6 @@ function renderScopeTabs() {
       `<button class="board-tab${t.code === boardScope ? " active" : ""}" data-code="${escapeHtml(t.code)}" role="tab" aria-selected="${t.code === boardScope}">${escapeHtml(t.label)} <span class="bt-count">${t.count}</span></button>`
     ).join("") +
     `<button class="board-tab join" data-code="__join__" type="button" title="Join or create a pool">＋ Pool</button>`;
-  renderPoolActions();
 }
 
 function renderPoolActions() {
@@ -1123,10 +1264,10 @@ const scoreMatch = GSB.scoreMatch;
 
 /* Teams a submission predicted to reach each knockout round (snapshotted
    at submit time from the bracket picks). */
-function predictedAdvancement() {
+function predictedAdvancementFrom(picks) {
   const names = (ids) =>
-    ids.map((id) => { const w = winnerOf(id); return w && w.known ? w.name : null; }).filter(Boolean);
-  const champ = winnerOf(104);
+    ids.map((id) => { const w = winnerOf(id, picks); return w && w.known ? w.name : null; }).filter(Boolean);
+  const champ = winnerOf(104, picks);
   return {
     R16: names(ROUND_ORDER.R32),
     QF: names(ROUND_ORDER.R16),
@@ -1135,6 +1276,7 @@ function predictedAdvancement() {
     champion: champ && champ.known ? champ.name : null,
   };
 }
+function predictedAdvancement() { return predictedAdvancementFrom(state.bracket); }
 
 /* Teams a submission predicted to reach each round. Uses the snapshot saved
    at submit time; falls back to recomputing from the stored picks for older
@@ -1235,25 +1377,38 @@ function markConfirmedMatches() {
   markBracketLocks();
 }
 
-/* Re-assert knockout pick locks on the existing bracket DOM (no re-render) so a
-   bracket left open freezes each match the instant it kicks off. */
-function markBracketLocks() {
-  if (typeof koMatchLocked !== "function") return;
-  document.querySelectorAll("#bracket .bm").forEach((card) => {
+/* Re-assert bracket locks on the existing DOM (no re-render, so scroll position
+   and hover survive) — lets a bracket left open freeze live at kickoff. */
+function applyLocks(sel, lockedFn, badge) {
+  document.querySelectorAll(sel + " .bm").forEach((card) => {
     const id = +card.dataset.id;
     if (!id) return;
-    const locked = koMatchLocked(id);
-    card.classList.toggle("ko-locked", locked);
+    const locked = lockedFn(id);
+    const showBadge = locked && badge;
+    card.classList.toggle("ko-locked", showBadge);
     card.querySelectorAll(".bm-row").forEach((b) => { b.disabled = locked; });
-    if (locked && !card.querySelector(".bm-lock")) {
+    const existing = card.querySelector(".bm-lock");
+    if (showBadge && !existing) {
       const span = document.createElement("span");
       span.className = "bm-lock";
-      span.title = "Locked — this match has kicked off; the pick can no longer be changed";
+      span.title = "Locked — this pick can no longer be changed";
       span.setAttribute("aria-hidden", "true");
       span.textContent = "🔒";
       card.appendChild(span);
+    } else if (!showBadge && existing) {
+      existing.remove();
     }
   });
+}
+
+function markBracketLocks() {
+  if (typeof knockoutOpen !== "function") return;
+  const koOpen = knockoutOpen();
+  // Main bracket: every pick freezes once the knockout round opens; before
+  // that, each match still freezes individually at its own kickoff.
+  applyLocks("#bracket", (id) => koOpen || koMatchLocked(id), true);
+  // Second-chance bracket: not editable until the round opens, then per-match.
+  applyLocks("#second-bracket", (id) => !koOpen || koMatchLocked(id), koOpen);
 }
 
 /* A match counts as "not your prediction" only if it was already finished when
@@ -1289,17 +1444,30 @@ function scoreSubmission(sub) {
   }
 
   // Knockout: +20 per team correctly predicted to reach a round, +100 champion.
+  const { koHits, champ } = koScore(sub.predicted);
+  total += koHits * 20 + champ;
+
+  return { total, exact, outcome: outc, miss, scored, locked, koHits, champ };
+}
+
+/* Knockout points for an advancement snapshot vs. the real results:
+   +20 per team correctly placed in R16/QF/SF/FINAL, +100 for the champion. */
+function koScore(pred) {
   const adv = (window.WC_LIVE && window.WC_LIVE.advanced) || {};
-  const pred = sub.predicted || {};
+  pred = pred || {};
   let koHits = 0, champ = 0;
   for (const r of ["R16", "QF", "SF", "FINAL"]) {
     const actual = new Set(adv[r] || []);
     for (const t of pred[r] || []) if (actual.has(t)) koHits++;
   }
   if (pred.champion && adv.champion && pred.champion === adv.champion) champ = 100;
-  total += koHits * 20 + champ;
+  return { koHits, champ, total: koHits * 20 + champ };
+}
 
-  return { total, exact, outcome: outc, miss, scored, locked, koHits, champ };
+/* Second-chance leaderboard score — knockout only, from the predicted2 snapshot. */
+function scoreSecondChance(sub) {
+  const { koHits, champ, total } = koScore(sub.predicted2);
+  return { total, koHits, champ };
 }
 
 async function submitPredictions() {
@@ -1316,6 +1484,8 @@ async function submitPredictions() {
     locked: (existing && Array.isArray(existing.locked)) ? existing.locked : confirmedKeysNow(),
     predicted: predictedAdvancement(), // teams sent to each knockout round
   };
+  // Don't clobber a second-chance bracket the player already submitted.
+  if (existing && existing.bracket2) { payload.bracket2 = existing.bracket2; payload.predicted2 = existing.predicted2; }
   if (SHARED) {
     if (!authUser) { signInWithGoogle(); return; } // one entry per person → must sign in
     const name = (input.value || "").trim() || googleName();
@@ -1370,6 +1540,76 @@ function setSubmitted() {
   btn.classList.add("submitted");
 }
 
+/* ---- Second-chance submit (knockout-only, separate leaderboard) ---- */
+function markSecondDirty() {
+  const btn = document.getElementById("submit-second");
+  if (btn) btn.classList.remove("submitted");
+  updateSecondSubmitLabel();
+}
+function updateSecondSubmitLabel() {
+  const btn = document.getElementById("submit-second");
+  if (btn && !btn.classList.contains("submitted")) btn.textContent = "🔒 Submit second-chance bracket";
+}
+function setSecondSubmitted() {
+  const btn = document.getElementById("submit-second");
+  if (!btn) return;
+  btn.textContent = "✓ Submitted";
+  btn.classList.add("submitted");
+}
+
+async function submitSecondChance() {
+  if (!knockoutOpen()) { alert("The second-chance round opens once the group stage is decided."); return; }
+  const existing = SHARED && authUser
+    ? board.find((s) => s.user_id === authUser.id)
+    : (getMine() ? board.find((s) => s.id === getMine().id) : null);
+  const bracket2 = JSON.parse(JSON.stringify(state.bracket2));
+  const predicted2 = predictedAdvancementFrom(state.bracket2);
+
+  if (SHARED) {
+    if (!authUser) { signInWithGoogle(); return; }
+    const name = (document.getElementById("username").value || "").trim() || googleName();
+    const btn = document.getElementById("submit-second");
+    if (btn) btn.disabled = true;
+    try {
+      // Merge into the player's existing row so the main bracket is preserved.
+      const payload = {
+        scores: (existing && existing.scores) || JSON.parse(JSON.stringify(state.scores)),
+        bracket: (existing && existing.bracket) || JSON.parse(JSON.stringify(state.bracket)),
+        locked: (existing && existing.locked) || confirmedKeysNow(),
+        predicted: (existing && existing.predicted) || predictedAdvancement(),
+        bracket2, predicted2,
+      };
+      const { error } = await SB.from("submissions").upsert(
+        { user_id: authUser.id, username: name, mode: (existing && existing.mode) || state.mode, payload },
+        { onConflict: "user_id" }
+      );
+      if (error) throw error;
+      await loadBoardRemote();
+    } catch (e) {
+      alert("Save failed: " + (e.message || e));
+      if (btn) btn.disabled = false;
+      return;
+    }
+    if (btn) btn.disabled = false;
+  } else {
+    const mine = getMine();
+    const i = mine && mine.id ? board.findIndex((s) => s.id === mine.id) : -1;
+    if (i >= 0) board[i] = { ...board[i], bracket2, predicted2 };
+    else {
+      const name = (document.getElementById("username").value || "").trim();
+      if (!name) { document.getElementById("username").focus(); return; }
+      const id = Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+      board.push({ id, username: name, createdAt: new Date().toISOString(), mode: state.mode, bracket2, predicted2 });
+      setMine({ id, editKey: Math.random().toString(36).slice(2), username: name });
+    }
+    saveBoard();
+    renderLeaderboard();
+  }
+  setSecondSubmitted();
+  const board2 = document.getElementById("second-leaderboard");
+  if (board2) board2.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function renderLeaderboard() {
   const tbody = document.querySelector("#leaderboard-table tbody");
   if (!tbody) return;
@@ -1402,6 +1642,42 @@ function renderLeaderboard() {
           <button class="lb-view" data-id="${e.sub.id}" type="button">View</button>
           ${(!SHARED || e.sub.id === mineId) ? `<button class="lb-del" data-id="${e.sub.id}" type="button" title="Delete my entry" aria-label="Delete">✕</button>` : ""}
         </td>
+      </tr>`)
+    .join("");
+
+  renderSecondLeaderboard();
+}
+
+/* Separate parallel leaderboard for the second-chance round (knockout points
+   only). Shares the same pool scope/tabs; lists only players who submitted a
+   second-chance bracket. */
+function renderSecondLeaderboard() {
+  const tbody = document.querySelector("#second-leaderboard-table tbody");
+  if (!tbody) return;
+  let pool = board.filter((s) => !HIDDEN_USERS.has(s.username) && s.predicted2);
+  const inPool = SHARED && boardScope !== "global";
+  if (inPool) {
+    const members = groupMembers[boardScope] || new Set();
+    pool = pool.filter((s) => members.has(s.user_id));
+  }
+  const rows = pool
+    .map((s) => ({ sub: s, sc: scoreSecondChance(s) }))
+    .sort((a, b) => b.sc.total - a.sc.total || a.sub.createdAt.localeCompare(b.sub.createdAt));
+  if (rows.length === 0) {
+    const msg = knockoutOpen()
+      ? "No second-chance brackets yet — fill yours above and submit."
+      : "Opens when the group stage is decided.";
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-row">${msg}</td></tr>`;
+    return;
+  }
+  const mineId = myId();
+  tbody.innerHTML = rows
+    .map((e, i) => `
+      <tr class="${i === 0 ? "leader" : ""} ${e.sub.id === mineId ? "mine" : ""}">
+        <td class="col-pos">${i + 1}</td>
+        <td class="col-team">${escapeHtml(e.sub.username)}${e.sub.id === mineId ? ' <span class="you">you</span>' : ""}</td>
+        <td class="pts">${e.sc.total}</td>
+        <td class="col-breakdown">${e.sc.koHits ? "KO " + e.sc.koHits + "×20" : "—"}${e.sc.champ ? " · 🏆100" : ""}</td>
       </tr>`)
     .join("");
 }
@@ -2809,7 +3085,7 @@ function markPredictionAccuracy() {
 }
 
 /* Was the winner picked in a bracket match the team that actually advanced? */
-function bracketAccuracy(id, side) {
+function bracketAccuracy(id, side, picks) {
   if (!side) return "";
   const adv = (window.WC_LIVE && window.WC_LIVE.advanced) || {};
   const round = BRACKET[id].round;
@@ -2817,7 +3093,7 @@ function bracketAccuracy(id, side) {
     round === "R32" ? adv.R16 : round === "R16" ? adv.QF : round === "QF" ? adv.SF :
     round === "SF" ? adv.FINAL : round === "F" ? (adv.champion ? [adv.champion] : []) : null;
   if (!set || !set.length) return "";
-  const p = participant(id, side);
+  const p = participant(id, side, picks);
   if (!p || !p.known || !p.name) return "";
   return set.includes(p.name) ? "correct" : "wrong";
 }
@@ -2830,6 +3106,9 @@ function renderAll() {
   fillActuals();
   renderThirds();
   renderBracket();
+  renderOfficialBracket();
+  renderSecondBracket();
+  refreshViewControls();  // enable Second Chance once the knockout round opens
   markConfirmedMatches(); // re-assert locks (kicked-off / confirmed) after any render
   markMissingEntries();   // flag blank/half-filled matches that block the bracket
 }
@@ -2936,10 +3215,18 @@ function wireEvents() {
     saveState();
   });
 
+  const vMain = document.getElementById("view-main");
+  const vSecond = document.getElementById("view-second");
+  if (vMain) vMain.addEventListener("click", () => setView("main"));
+  if (vSecond) vSecond.addEventListener("click", () => setView("second"));
+  const submitSecond = document.getElementById("submit-second");
+  if (submitSecond) submitSecond.addEventListener("click", submitSecondChance);
+
   bracketEl.addEventListener("click", (e) => {
     const row = e.target.closest(".bm-row");
     if (!row) return;
     const id = +row.dataset.id;
+    if (knockoutOpen()) return;    // group stage decided — whole bracket frozen
     if (koMatchLocked(id)) return; // game has kicked off — pick is frozen
     const side = row.dataset.side;
     state.bracket[id] = state.bracket[id] === side ? null : side;
@@ -2947,6 +3234,22 @@ function wireEvents() {
     saveState();
     markDirty();
     maybeCelebrateChampion();
+  });
+
+  // Second-chance bracket: only editable once the knockout round opens, then
+  // each pick freezes at its own match kickoff.
+  const secondBracketEl = document.getElementById("second-bracket");
+  if (secondBracketEl) secondBracketEl.addEventListener("click", (e) => {
+    const row = e.target.closest(".bm-row");
+    if (!row) return;
+    if (!knockoutOpen()) return;
+    const id = +row.dataset.id;
+    if (koMatchLocked(id)) return;
+    const side = row.dataset.side;
+    state.bracket2[id] = state.bracket2[id] === side ? null : side;
+    renderSecondBracket();
+    saveState();
+    markSecondDirty();
   });
 
   document.getElementById("randomize").addEventListener("click", () => {
@@ -3011,8 +3314,8 @@ function wireEvents() {
     document.getElementById("scorecard").innerHTML = "";
   });
   // Pool scope tabs + join panel + invite/leave actions (shared mode only).
-  const boardTabs = document.getElementById("board-tabs");
-  if (boardTabs) boardTabs.addEventListener("click", (e) => {
+  // The main and second-chance tab strips both drive the shared boardScope.
+  const onScopeTabClick = (e) => {
     const tab = e.target.closest(".board-tab");
     if (!tab) return;
     const code = tab.dataset.code;
@@ -3021,7 +3324,11 @@ function wireEvents() {
     closeJoinPanel();
     renderScopeTabs();
     renderLeaderboard();
-  });
+  };
+  const boardTabs = document.getElementById("board-tabs");
+  if (boardTabs) boardTabs.addEventListener("click", onScopeTabClick);
+  const secondTabs = document.getElementById("second-board-tabs");
+  if (secondTabs) secondTabs.addEventListener("click", onScopeTabClick);
   const addGroupBtn = document.getElementById("add-group-btn");
   if (addGroupBtn) addGroupBtn.addEventListener("click", () => openJoinPanel("create"));
   const joinPanel = document.getElementById("join-panel");

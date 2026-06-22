@@ -66,10 +66,15 @@
             <button id="mode-score" class="mode-opt" type="button">Scoreline</button>
             <button id="mode-result" class="mode-opt" type="button">Win / Draw / Loss</button>
           </div>
+          <div class="view-toggle" role="group" aria-label="Game round">
+            <button id="view-main" class="mode-opt active" type="button">🏟️ Main Game</button>
+            <button id="view-second" class="mode-opt" type="button" disabled title="Opens when the group stage is decided">🎯 Second Chance</button>
+          </div>
           <button id="randomize" class="btn" type="button" style="display:none">🎲 Randomize</button>
         </div>
       </div>
       <nav class="subnav">
+        <a href="#official-bracket-section">Official Bracket</a>
         <a href="#groups">Group Stage</a>
         <a href="#thirds-section">Best Thirds</a>
         <a href="#bracket-section">Knockout Bracket</a>
@@ -86,14 +91,20 @@
         />
       </figure>
 
-      <!-- All-time World Cup history leaderboards (filled by app.js) -->
-      <section id="wc-history" class="wc-history" aria-label="All-time World Cup records">
-        <div class="wch-overlay">
-          <div class="section-head wch-head">
-            <h2>All-Time World Cup Records</h2>
-            <p class="wch-note"><!-- filled by app.js --></p>
-          </div>
-          <div id="wch-grid" class="wch-grid"><!-- filled by app.js --></div>
+      <!-- Official tournament bracket — auto-tracks the real results -->
+      <section id="official-bracket-section" class="bracket-section official-section" aria-label="Official bracket">
+        <div class="section-head">
+          <h2>Official Bracket
+            <span id="official-status" class="official-pill is-temp">⏳ Provisional</span>
+          </h2>
+          <p>
+            The real Round of 32 to the Final, filled live from results. It's
+            <em>provisional</em> while the group stage is underway, then becomes
+            <strong>official and locks</strong> the moment the groups finish.
+          </p>
+        </div>
+        <div class="bracket-scroll">
+          <div id="official-bracket" class="bracket two-sided"><!-- filled by app.js --></div>
         </div>
       </section>
 
@@ -152,7 +163,18 @@
         </div>
         <div id="bracket-warning"><!-- missing-entry warning, filled by app.js --></div>
         <div class="bracket-scroll">
-          <div id="bracket" class="bracket"><!-- filled by app.js --></div>
+          <div id="bracket" class="bracket two-sided"><!-- filled by app.js --></div>
+        </div>
+      </section>
+
+      <!-- All-time World Cup history leaderboards (filled by app.js) -->
+      <section id="wc-history" class="wc-history" aria-label="All-time World Cup records">
+        <div class="wch-overlay">
+          <div class="section-head wch-head">
+            <h2>All-Time World Cup Records</h2>
+            <p class="wch-note"><!-- filled by app.js --></p>
+          </div>
+          <div id="wch-grid" class="wch-grid"><!-- filled by app.js --></div>
         </div>
       </section>
 
@@ -215,6 +237,47 @@
           </table>
         </div>
         <div id="scorecard" class="scorecard"><!-- filled by app.js on View --></div>
+      </section>
+
+      <!-- Second-chance round: knockout-only, opens once the group stage ends -->
+      <section id="second-section" class="second-section" aria-label="Second-chance round">
+        <div class="bracket-section">
+          <div class="section-head">
+            <h2>🎯 Second Chance — Knockout Bracket</h2>
+            <p>
+              A fresh start from the <strong>real Round of 32</strong>. Pick the
+              winners through to the Final &mdash; this scores on its own separate
+              leaderboard below. Each pick locks when that match kicks off.
+            </p>
+          </div>
+          <div class="bracket-scroll">
+            <div id="second-bracket" class="bracket two-sided"><!-- filled by app.js --></div>
+          </div>
+          <div class="submit-bar">
+            <button id="submit-second" class="btn" type="button">🔒 Submit second-chance bracket</button>
+          </div>
+        </div>
+
+        <div id="second-leaderboard" class="leaderboard">
+          <div class="section-head">
+            <h2>Second-Chance Leaderboard</h2>
+            <p>Knockout points only &mdash; a separate competition from the main bracket.</p>
+          </div>
+          <div id="second-board-tabs" class="board-tabs" role="tablist" aria-label="Second-chance leaderboard scope"></div>
+          <div class="table-wrap">
+            <table id="second-leaderboard-table">
+              <thead>
+                <tr>
+                  <th class="col-pos">#</th>
+                  <th class="col-team">Username</th>
+                  <th>Pts</th>
+                  <th class="col-breakdown">Breakdown</th>
+                </tr>
+              </thead>
+              <tbody><!-- filled by app.js --></tbody>
+            </table>
+          </div>
+        </div>
       </section>
     </main>
 
