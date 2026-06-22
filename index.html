@@ -91,6 +91,7 @@
         <a href="#thirds-section">Best Thirds</a>
         <a href="#bracket-section">Knockout Bracket</a>
         <a href="#wc-history">Records</a>
+        <a href="#news-section">News</a>
         <a href="#leaderboard-section">Leaderboard</a>
       </nav>
     </header>
@@ -194,6 +195,18 @@
           </div>
           <div id="wch-grid" class="wch-grid"><!-- filled by app.js --></div>
         </div>
+      </section>
+
+      <!-- News scanner — team/player/match headlines from ESPN -->
+      <section id="news-section" class="news-section" aria-label="Latest World Cup news">
+        <div class="section-head news-head">
+          <h2>Around the Tournament
+            <span id="news-updated" class="news-updated"><!-- filled by app.js --></span>
+          </h2>
+          <p>Injuries, off-the-field stories, celebrations and match build-up — scanned from ESPN and tagged by team. Refreshes automatically.</p>
+        </div>
+        <div id="news-filters" class="news-filters"><!-- filled by app.js --></div>
+        <div id="news-grid" class="news-grid"><!-- filled by app.js --></div>
       </section>
 
       <!-- Leaderboard (local to this device) -->
@@ -332,6 +345,8 @@
     <script src="live-data.js"></script>
     <!-- football-data.js (optional) provides WC_FOOTBALL lineups, H2H, player stats -->
     <script src="football-data.js"></script>
+    <!-- news-data.js (optional) provides WC_NEWS team/player/match headlines -->
+    <script src="news-data.js"></script>
     <!-- wc-history.js provides all-time World Cup leaderboards -->
     <script src="wc-history.js"></script>
     <!-- Supabase client + config for the shared leaderboard (optional) -->

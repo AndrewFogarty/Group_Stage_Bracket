@@ -29,11 +29,14 @@ jobs:
           APIFOOTBALL_KEY: ${{ secrets.APIFOOTBALL_KEY }}
         run: node scripts/fetch-football-stats.js
 
+      - name: Scan ESPN for team/player/match news (no API key)
+        run: node scripts/fetch-news.js
+
       - name: Commit & push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/live-data.json live-data.js football-data.js data/football-data.json data/football-cache.json
+          git add data/live-data.json live-data.js football-data.js data/football-data.json data/football-cache.json news-data.js data/news-data.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else

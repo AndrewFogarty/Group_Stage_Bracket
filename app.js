@@ -2450,7 +2450,28 @@ function espnSideRank(p) {
   if (/-R$|^R/.test(a)) return 1;
   return 0;
 }
-function espnAddGrid(startXI) {
+function espnAddGrid(startXI, formation) {
+  // Prefer the published formation string ("4-2-3-1"): ESPN tags every
+  // midfielder generically as "M", so position rank alone collapses the DM/AM
+  // bands into a single row. The formation gives us the true line sizes, so we
+  // carve the outfield (sorted defence→attack) into those lines instead.
+  const broad = (p) => { const r = espnRowRank(p); return r === 0 ? 0 : r === 1 ? 1 : r === 5 ? 3 : 2; };
+  const lines = /^\d+(?:-\d+)+$/.test((formation || "").trim())
+    ? formation.trim().split("-").map(Number) : null;
+  if (lines && lines.reduce((a, b) => a + b, 0) === startXI.length - 1) {
+    const gk = startXI.filter((p) => broad(p) === 0);
+    const out = startXI.filter((p) => broad(p) !== 0)
+      .sort((a, b) => broad(a) - broad(b) || a.order - b.order);
+    const rowsOut = [];
+    let idx = 0;
+    lines.forEach((n) => { rowsOut.push(out.slice(idx, idx + n)); idx += n; });
+    [gk, ...rowsOut].forEach((line, ri) => {
+      line.slice().sort((a, b) => espnSideRank(a) - espnSideRank(b) || a.order - b.order)
+        .forEach((p, ci) => { p.grid = `${ri + 1}:${ci + 1}`; });
+    });
+    return;
+  }
+  // Fallback when no usable formation string: bucket rows by position rank.
   const ranked = startXI.map((p) => ({ p, rr: espnRowRank(p), sr: espnSideRank(p) }));
   const rows = [...new Set(ranked.map((r) => r.rr))].sort((a, b) => a - b);
   rows.forEach((rv, ri) => {
@@ -2489,7 +2510,7 @@ function espnParseLineup(summary, kind) {
       };
     });
     const startXI = players.filter((p) => p.starter).sort((a, b) => a.order - b.order);
-    espnAddGrid(startXI); // lay the XI out on the pitch like the API-Football grid
+    espnAddGrid(startXI, side.formation || ""); // lay the XI out using the formation
     return { team: side.team && side.team.displayName, formation: side.formation || "", coach: null,
       startXI, subs: players.filter((p) => !p.starter) };
   };
@@ -2627,7 +2648,7 @@ function playerChip(p, posStyle, perf) {
         : perf.yellow ? `<span class="pp-ev card yellow" title="Yellow card"></span>` : "")
     : "";
   return `<div class="pp" ${posStyle ? `style="${posStyle}"` : ""}>
-      <div class="pp-shirt">${img}<span class="pp-fallnum">${escapeHtml(num)}</span>${rating}${ev}</div>
+      <div class="pp-shirt${img ? "" : " pp-noimg"}">${img}<span class="pp-fallnum">${escapeHtml(num)}</span>${rating}${ev}</div>
       <div class="pp-name">${numName}<span class="pp-nm">${escapeHtml(p.name || "—")}</span></div>
     </div>`;
 }
@@ -3919,6 +3940,122 @@ function tickCountdowns() {
   if (kEl) kEl.textContent = fmtCountdown(cdKnockoutAt != null ? cdKnockoutAt - now : null) || (knockoutOpen() ? "Locked" : "Underway");
   if (gEl) gEl.textContent = fmtCountdown(cdGroupsAt != null ? cdGroupsAt - now : null) || "Underway";
 }
+/* ------------------------------------------------------------------ */
+/* News — team/player/match headlines (window.WC_NEWS from ESPN)        */
+/* ------------------------------------------------------------------ */
+
+const NEWS_KIND_META = {
+  injury:      { label: "Injuries",       icon: "\u{1F915}" },
+  offfield:    { label: "Off the field",  icon: "\u{1F4F0}" },
+  celebration: { label: "Celebrations",   icon: "\u{1F389}" },
+  preview:     { label: "Match previews", icon: "\u{1F52E}" },
+  news:        { label: "Other",          icon: "\u{26BD}" },
+};
+
+let newsFilter = "all";      // kind chip
+let newsTeamFilter = "all";  // team dropdown
+
+function newsAgo(iso) {
+  const t = Date.parse(iso);
+  if (!iso || isNaN(t)) return "";
+  const mins = Math.round((Date.now() - t) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  return `${days}d ago`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function newsCard(a) {
+  const meta = NEWS_KIND_META[a.kind] || NEWS_KIND_META.news;
+  const teams = (a.teams || []).slice(0, 3).map((t) =>
+    `<span class="news-team">${flagFor(t)}${escHtml(t)}</span>`).join("");
+  const players = (a.players || []).slice(0, 3).map((p) =>
+    `<span class="news-player">${escHtml(p)}</span>`).join("");
+  const img = a.image
+    ? `<div class="news-thumb"><img src="${escHtml(a.image)}" alt="" loading="lazy" decoding="async" /></div>`
+    : "";
+  return `<a class="news-card kind-${a.kind}" href="${escHtml(a.url)}" target="_blank" rel="noopener noreferrer">
+    ${img}
+    <div class="news-body">
+      <div class="news-meta">
+        <span class="news-tag tag-${a.kind}">${meta.icon} ${escHtml(a.kindLabel || meta.label)}</span>
+        <span class="news-time">${escHtml(newsAgo(a.published))}</span>
+      </div>
+      <h3 class="news-headline">${escHtml(a.headline)}</h3>
+      ${a.description ? `<p class="news-desc">${escHtml(a.description)}</p>` : ""}
+      ${(teams || players) ? `<div class="news-tags-row">${teams}${players}</div>` : ""}
+    </div>
+  </a>`;
+}
+
+function renderNews() {
+  const grid = document.getElementById("news-grid");
+  const filters = document.getElementById("news-filters");
+  const data = window.WC_NEWS;
+  if (!grid) return;
+
+  const section = document.getElementById("news-section");
+  if (!data || !(data.items || []).length) {
+    if (section) section.style.display = "none";
+    return;
+  }
+  if (section) section.style.display = "";
+
+  const updEl = document.getElementById("news-updated");
+  if (updEl) updEl.textContent = data.updated ? `updated ${newsAgo(data.updated)}` : "";
+
+  // Teams that actually appear in the feed, alphabetical, with counts.
+  const teamCounts = {};
+  data.items.forEach((a) => (a.teams || []).forEach((t) => (teamCounts[t] = (teamCounts[t] || 0) + 1)));
+  const teamNames = Object.keys(teamCounts).sort((a, b) => a.localeCompare(b));
+  if (!teamNames.includes(newsTeamFilter)) newsTeamFilter = "all"; // reset if it vanished
+
+  // Apply the team filter first; kind chip counts reflect the current team.
+  const teamScoped = newsTeamFilter === "all"
+    ? data.items
+    : data.items.filter((a) => (a.teams || []).includes(newsTeamFilter));
+
+  // Filter chips: All + each kind present in the team-scoped set.
+  const counts = teamScoped.reduce((m, a) => ((m[a.kind] = (m[a.kind] || 0) + 1), m), {});
+  const order = ["injury", "offfield", "celebration", "preview", "news"];
+  if (!counts[newsFilter] && newsFilter !== "all") newsFilter = "all"; // reset stale chip
+
+  const teamOpts = [`<option value="all"${newsTeamFilter === "all" ? " selected" : ""}>All teams (${data.items.length})</option>`]
+    .concat(teamNames.map((t) =>
+      `<option value="${escHtml(t)}"${newsTeamFilter === t ? " selected" : ""}>${escHtml(t)} (${teamCounts[t]})</option>`))
+    .join("");
+  const teamSelect = `<label class="news-team-select"><span class="nts-label">Team</span><select id="news-team-filter">${teamOpts}</select></label>`;
+
+  const chips = [`<button class="news-chip${newsFilter === "all" ? " active" : ""}" data-kind="all" type="button">All <span class="chip-n">${teamScoped.length}</span></button>`];
+  for (const k of order) {
+    if (!counts[k]) continue;
+    const meta = NEWS_KIND_META[k];
+    chips.push(`<button class="news-chip${newsFilter === k ? " active" : ""}" data-kind="${k}" type="button">${meta.icon} ${meta.label} <span class="chip-n">${counts[k]}</span></button>`);
+  }
+
+  if (filters) {
+    filters.innerHTML = teamSelect + `<div class="news-chips">${chips.join("")}</div>`;
+    const sel = filters.querySelector("#news-team-filter");
+    if (sel) sel.addEventListener("change", () => { newsTeamFilter = sel.value; renderNews(); });
+    filters.querySelectorAll(".news-chip").forEach((btn) => {
+      btn.addEventListener("click", () => { newsFilter = btn.dataset.kind; renderNews(); });
+    });
+  }
+
+  const shown = newsFilter === "all"
+    ? teamScoped
+    : teamScoped.filter((a) => a.kind === newsFilter);
+  grid.innerHTML = shown.map(newsCard).join("") ||
+    `<p class="news-empty">Nothing matches these filters right now.</p>`;
+}
+
 function initCountdowns() {
   cdKnockoutAt = firstKnockoutKickoffMs();
   cdGroupsAt = groupStageEndsMs();
@@ -3929,6 +4066,7 @@ function initCountdowns() {
 renderAll();
 renderSchedule();
 renderHistory();
+renderNews();
 wireMatchInfo();
 fillGroupVenues();
 setupBoardUI();
