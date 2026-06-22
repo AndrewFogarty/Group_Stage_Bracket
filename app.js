@@ -621,6 +621,37 @@ function renderBracketInto(host, ctx) {
     col("Round of 16", E.R16, "east") + col("Round of 32", E.R32, "east");
 }
 
+/* Scale a bracket down to fit its container so the two-sided layout is fully
+   visible without a horizontal scrollbar — proportions/spacing are preserved
+   (CSS `zoom` shrinks the whole tree uniformly), so it still looks right. */
+function fitBracket(scroll) {
+  const inner = scroll.querySelector(".bracket");
+  if (!inner) return;
+  const avail = scroll.clientWidth;
+  if (!avail) return;                 // hidden / not laid out — leave existing zoom intact
+  inner.style.zoom = "";              // reset to measure the natural width
+  const natural = inner.scrollWidth;
+  if (!natural) return;
+  const z = Math.min(1, (avail - 2) / natural);
+  inner.style.zoom = z < 1 ? String(z) : "";
+}
+function fitBrackets() {
+  document.querySelectorAll(".bracket-scroll").forEach(fitBracket);
+}
+
+/* Auto-fit each bracket whenever its container gets (or changes) a size —
+   covers first paint, the title screen clearing, the second-chance view
+   becoming visible, and window resizes, without fragile timing. */
+let bracketRO = null;
+function observeBrackets() {
+  if (typeof ResizeObserver === "undefined") { fitBrackets(); return; }
+  if (bracketRO) bracketRO.disconnect();
+  bracketRO = new ResizeObserver((entries) => {
+    for (const e of entries) fitBracket(e.target);
+  });
+  document.querySelectorAll(".bracket-scroll").forEach((s) => bracketRO.observe(s));
+}
+
 function mainBracketCtx() {
   return {
     picks: state.bracket,
@@ -741,6 +772,7 @@ function setView(view) {
     const sec = document.getElementById("second-section");
     if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+  fitBrackets(); // size whichever brackets just became visible
 }
 function refreshViewControls() {
   const vSecond = document.getElementById("view-second");
@@ -879,6 +911,7 @@ function showApp() {
   const ts = document.getElementById("title-screen");
   if (ts) ts.classList.add("hidden");
   document.body.classList.remove("title-active");
+  fitBrackets(); // brackets are now measurable — size them
 }
 function showTitle() {
   const ts = document.getElementById("title-screen");
@@ -3118,6 +3151,7 @@ function renderAll() {
   refreshViewControls();  // enable Second Chance once the knockout round opens
   markConfirmedMatches(); // re-assert locks (kicked-off / confirmed) after any render
   markMissingEntries();   // flag blank/half-filled matches that block the bracket
+  fitBrackets();          // keep each bracket scaled to fit (no horizontal slider)
 }
 
 /* Outline any group match that is still missing a (complete) score and is
@@ -3472,6 +3506,7 @@ layoutGroups();
 initTitleScreen();
 initAuth();
 initCountdowns();
+observeBrackets(); // keep every bracket scaled to fit its container (no sliders)
 
 // Re-lock matches as their kickoff time passes while the page stays open.
 setInterval(markConfirmedMatches, 15000);
@@ -3488,7 +3523,7 @@ setInterval(pollLiveScores, 120000);
 let layoutTimer = null;
 window.addEventListener("resize", () => {
   clearTimeout(layoutTimer);
-  layoutTimer = setTimeout(layoutGroups, 150);
+  layoutTimer = setTimeout(() => { layoutGroups(); fitBrackets(); }, 150);
 });
 
 (function restoreIdentity() {
