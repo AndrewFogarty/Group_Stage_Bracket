@@ -778,7 +778,9 @@ body.view-second .stars-banner { display: none; }
 .bracket-warn.locked-note strong { color: #fff; }
 
 .second-section .bracket-section { margin-top: 0; }
-.second-section .submit-bar { margin-top: 1rem; }
+.second-section .submit-bar { margin-top: 1rem; align-items: center; }
+.seed-toggle { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.seed-label { font-size: 0.85rem; opacity: 0.75; margin-right: 0.1rem; }
 
 /* read-only / not-yet-open bracket rows shouldn't look clickable */
 .bm-row:disabled { cursor: default; }

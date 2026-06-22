@@ -898,13 +898,12 @@ function renderOfficialStandings() {
 function renderSecondBracket() {
   const host = document.getElementById("second-bracket");
   if (!host) return;
-  const open = knockoutOpen();
   renderBracketInto(host, {
     picks: state.bracket2,
-    interactive: open,
+    interactive: true,            // adjustable all tournament; per-match lock at kickoff
     lockedFn: (id) => koMatchLocked(id),
     champLabel: "Your champion",
-    emptyLabel: open ? "Pick winners to crown a champion" : "Opens when the group stage ends",
+    emptyLabel: "Pick winners to crown a champion",
   });
   renderSecondEliminated();
 }
@@ -971,16 +970,11 @@ function setView(view) {
   fitBrackets(); // size whichever brackets just became visible
 }
 function refreshViewControls() {
-  const open = knockoutOpen();
+  // Second Chance is adjustable all tournament now — controls stay enabled.
   const vSecond = document.getElementById("view-second");
   if (vSecond) {
-    vSecond.disabled = !open;
-    vSecond.title = open ? "Second-chance knockout round" : "Opens when the group stage is decided";
-  }
-  const copyMain = document.getElementById("copy-main-bracket");
-  if (copyMain) {
-    copyMain.disabled = !open;
-    copyMain.title = open ? "Copy your main bracket (eliminated teams left off)" : "Opens when the group stage is decided";
+    vSecond.disabled = false;
+    vSecond.title = "Second-chance knockout round";
   }
 }
 
@@ -1649,8 +1643,8 @@ function markBracketLocks() {
   // Main bracket: every pick freezes once the knockout round opens; before
   // that, each match still freezes individually at its own kickoff.
   applyLocks("#bracket", (id) => koOpen || koMatchLocked(id), true);
-  // Second-chance bracket: not editable until the round opens, then per-match.
-  applyLocks("#second-bracket", (id) => !koOpen || koMatchLocked(id), koOpen);
+  // Second-chance bracket: editable all tournament; each pick freezes per-match.
+  applyLocks("#second-bracket", (id) => koMatchLocked(id), true);
 }
 
 /* A match counts as "not your prediction" only if it was already finished when
@@ -1789,23 +1783,48 @@ function markSecondDirty() {
   updateSecondSubmitLabel();
 }
 
-/* Carry the main-predictor knockout picks into the Second-Chance bracket,
-   keeping only teams that actually qualified (a pick whose team isn't a real
-   participant of that match is simply skipped). */
+/* Matches whose pick is already frozen (their game has kicked off) — a re-seed
+   must never overwrite these, so we carry them forward unchanged. */
+function lockedSecondPicks() {
+  const keep = {};
+  for (const id of Object.keys(state.bracket2 || {})) {
+    if (koMatchLocked(+id) && state.bracket2[id]) keep[id] = state.bracket2[id];
+  }
+  return keep;
+}
+
+/* Seed source = "Projected bracket": carry the main-predictor knockout picks
+   into the Second-Chance bracket, resolved against the projected (or, once the
+   groups finish, real) Round of 32. A pick whose team isn't a participant of
+   that match — e.g. it didn't qualify — is simply skipped. Already-locked picks
+   are preserved. */
 function copyMainToSecond() {
-  if (!knockoutOpen()) { alert("The second-chance round opens once the group stage is decided."); return; }
   const hasPicks = Object.values(state.bracket2 || {}).some(Boolean);
-  if (hasPicks && !confirm("Replace your current second-chance picks with your main bracket (eliminated teams left blank)?")) return;
-  const next = {};
+  if (hasPicks && !confirm("Replace your second-chance picks with your main bracket (unqualified teams left blank)?")) return;
+  const next = lockedSecondPicks();
   const ids = [].concat(ROUND_ORDER.R32, ROUND_ORDER.R16, ROUND_ORDER.QF, ROUND_ORDER.SF, [104]);
   for (const id of ids) {
-    const w = winnerOf(id, state.bracket); // team I picked to win this match in the main bracket
-    if (!w || !w.known || !w.name) continue;
+    if (next[id]) continue;                 // keep a frozen pick as-is
+    const w = winnerOf(id, state.bracket);  // team I picked to win this match in the main bracket
+    if (!w || !w.name || !(w.known || w.provisional)) continue;
     for (const side of ["home", "away"]) {
-      const p = participant(id, side, next); // real participant given picks so far
+      const p = participant(id, side, next); // projected participant given picks so far
       if (p && p.name === w.name) { next[id] = side; break; }
     }
   }
+  applySecondSeed(next);
+}
+
+/* Seed source = "Group stage": start fresh from the current standings' Round of
+   32 — clear every unlocked pick so the player chooses each winner themselves.
+   Already-locked picks are preserved. */
+function seedSecondFromGroupStage() {
+  const hasPicks = Object.values(state.bracket2 || {}).some(Boolean);
+  if (hasPicks && !confirm("Clear your second-chance picks and start fresh from the current group standings?")) return;
+  applySecondSeed(lockedSecondPicks());
+}
+
+function applySecondSeed(next) {
   state.bracket2 = next;
   saveState();
   renderSecondBracket();
@@ -1824,7 +1843,6 @@ function setSecondSubmitted() {
 }
 
 async function submitSecondChance() {
-  if (!knockoutOpen()) { alert("The second-chance round opens once the group stage is decided."); return; }
   const existing = SHARED && authUser
     ? board.find((s) => s.user_id === authUser.id)
     : (getMine() ? board.find((s) => s.id === getMine().id) : null);
@@ -1930,10 +1948,7 @@ function renderSecondLeaderboard() {
     .map((s) => ({ sub: s, sc: scoreSecondChance(s) }))
     .sort((a, b) => b.sc.total - a.sc.total || a.sub.createdAt.localeCompare(b.sub.createdAt));
   if (rows.length === 0) {
-    const msg = knockoutOpen()
-      ? "No second-chance brackets yet — fill yours above and submit."
-      : "Opens when the group stage is decided.";
-    tbody.innerHTML = `<tr><td colspan="4" class="empty-row">${msg}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-row">No second-chance brackets yet — fill yours above and submit.</td></tr>`;
     return;
   }
   const mineId = myId();
@@ -3619,8 +3634,10 @@ function wireEvents() {
   if (vSecond) vSecond.addEventListener("click", () => setView("second"));
   const submitSecond = document.getElementById("submit-second");
   if (submitSecond) submitSecond.addEventListener("click", submitSecondChance);
-  const copyMain = document.getElementById("copy-main-bracket");
-  if (copyMain) copyMain.addEventListener("click", copyMainToSecond);
+  const seedProjected = document.getElementById("seed-from-projected");
+  if (seedProjected) seedProjected.addEventListener("click", copyMainToSecond);
+  const seedGroups = document.getElementById("seed-from-groups");
+  if (seedGroups) seedGroups.addEventListener("click", seedSecondFromGroupStage);
 
   bracketEl.addEventListener("click", (e) => {
     const row = e.target.closest(".bm-row");
@@ -3636,15 +3653,14 @@ function wireEvents() {
     maybeCelebrateChampion();
   });
 
-  // Second-chance bracket: only editable once the knockout round opens, then
-  // each pick freezes at its own match kickoff.
+  // Second-chance bracket: editable all tournament, seeded from the projected
+  // (then real) Round of 32. Each pick freezes at its own match kickoff.
   const secondBracketEl = document.getElementById("second-bracket");
   if (secondBracketEl) secondBracketEl.addEventListener("click", (e) => {
     const row = e.target.closest(".bm-row");
     if (!row) return;
-    if (!knockoutOpen()) return;
     const id = +row.dataset.id;
-    if (koMatchLocked(id)) return;
+    if (koMatchLocked(id)) return; // game has kicked off — pick is frozen
     const side = row.dataset.side;
     state.bracket2[id] = state.bracket2[id] === side ? null : side;
     renderSecondBracket();
@@ -3843,8 +3859,8 @@ function tickCountdowns() {
   const now = Date.now();
   const kEl = document.getElementById("cd-knockout-time");
   const gEl = document.getElementById("cd-groups-time");
-  if (kEl) kEl.textContent = fmtCountdown(cdKnockoutAt != null ? cdKnockoutAt - now : null) || "Underway";
-  if (gEl) gEl.textContent = fmtCountdown(cdGroupsAt != null ? cdGroupsAt - now : null) || (knockoutOpen() ? "Open now!" : "Underway");
+  if (kEl) kEl.textContent = fmtCountdown(cdKnockoutAt != null ? cdKnockoutAt - now : null) || (knockoutOpen() ? "Locked" : "Underway");
+  if (gEl) gEl.textContent = fmtCountdown(cdGroupsAt != null ? cdGroupsAt - now : null) || "Underway";
 }
 function initCountdowns() {
   cdKnockoutAt = firstKnockoutKickoffMs();

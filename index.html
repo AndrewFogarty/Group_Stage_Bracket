@@ -69,18 +69,18 @@
             </div>
             <div class="view-toggle" role="group" aria-label="Game round">
               <button id="view-main" class="mode-opt active" type="button">🏟️ Main Game</button>
-              <button id="view-second" class="mode-opt" type="button" disabled title="Opens when the group stage is decided">🎯 Second Chance</button>
+              <button id="view-second" class="mode-opt" type="button" title="Second-chance knockout round">🎯 Second Chance</button>
             </div>
             <button id="randomize" class="btn" type="button" style="display:none">🎲 Randomize</button>
           </div>
           <div id="countdowns" class="countdowns">
             <div class="cd cd-lead">
-              <span class="cd-label">⏳ Group stage ends · 2nd Chance opens in</span>
-              <span id="cd-groups-time" class="cd-time">—</span>
+              <span class="cd-label">🔒 Second Chance locks · Knockout begins in</span>
+              <span id="cd-knockout-time" class="cd-time">—</span>
             </div>
             <div class="cd cd-sub">
-              <span class="cd-label">⚽ Knockout begins in</span>
-              <span id="cd-knockout-time" class="cd-time">—</span>
+              <span class="cd-label">⏳ Group stage ends in</span>
+              <span id="cd-groups-time" class="cd-time">—</span>
             </div>
           </div>
         </div>
@@ -257,15 +257,17 @@
         <div id="scorecard" class="scorecard"><!-- filled by app.js on View --></div>
       </section>
 
-      <!-- Second-chance round: knockout-only, opens once the group stage ends -->
+      <!-- Second-chance round: a knockout bracket you adjust all tournament -->
       <section id="second-section" class="second-section" aria-label="Second-chance round">
         <div class="bracket-section">
           <div class="section-head">
             <h2>🎯 Second Chance — Knockout Bracket</h2>
             <p>
-              A fresh start from the <strong>real Round of 32</strong>. Pick the
-              winners through to the Final &mdash; this scores on its own separate
-              leaderboard below. Each pick locks when that match kicks off.
+              A second knockout bracket you can <strong>adjust right through the
+              tournament</strong> &mdash; start from your projected bracket or fresh
+              from the current group standings, then fine-tune as the table firms up.
+              Each pick <strong>locks when its match kicks off</strong>, so deeper
+              rounds stay open longer. Scores on its own separate leaderboard below.
             </p>
           </div>
           <div class="bracket-scroll">
@@ -273,7 +275,11 @@
           </div>
           <div id="second-eliminated" class="second-eliminated"><!-- filled by app.js --></div>
           <div class="submit-bar">
-            <button id="copy-main-bracket" class="btn ghost" type="button">⤵ Copy my main bracket</button>
+            <div class="seed-toggle" role="group" aria-label="Seed the second-chance bracket">
+              <span class="seed-label">Start from:</span>
+              <button id="seed-from-projected" class="btn ghost" type="button" title="Prefill from your main-bracket picks, advanced onto the projected Round of 32">⤵ Projected bracket</button>
+              <button id="seed-from-groups" class="btn ghost" type="button" title="Start blank from the current group standings — pick every winner yourself">🔄 Group stage</button>
+            </div>
             <button id="submit-second" class="btn" type="button">🔒 Submit second-chance bracket</button>
           </div>
         </div>
