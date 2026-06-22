@@ -3235,7 +3235,8 @@ function tournamentGARows(scorers) {
         const official = p.wcGoals || 0;
         const g = bumped2026Goals(p.name, official, liveGoalsForName(p.name, scorers || []));
         const a = p.wcAssists || 0;
-        if (g + a > 0) rows.push({ name: p.name, code, displayValue: g + a, g, a, sub: `${g} G · ${a} A`, prov: g - official });
+        const inPlay = liveGoalsForName(p.name, scorers || []); // clears at full-time
+        if (g + a > 0) rows.push({ name: p.name, code, displayValue: g + a, g, a, sub: `${g} G · ${a} A`, prov: inPlay });
       }
     }
   }
@@ -3253,10 +3254,12 @@ function tournamentStatRows(metric, scorers) {
       const code = NAME_CODE[team] || "";
       for (const p of t.players || []) {
         const official = p[metric] || 0;
+        const inPlay = metric === "wcGoals" ? liveGoalsForName(p.name, scorers || []) : 0;
         const v = metric === "wcGoals"
-          ? bumped2026Goals(p.name, official, liveGoalsForName(p.name, scorers || []))
+          ? bumped2026Goals(p.name, official, inPlay)
           : official;
-        if (v > 0) rows.push({ name: p.name, code, displayValue: v, sub: team, prov: v - official });
+        // Red live dot reflects only in-play goals, so it clears once the match ends.
+        if (v > 0) rows.push({ name: p.name, code, displayValue: v, sub: team, prov: inPlay });
       }
     }
   }
@@ -3320,15 +3323,20 @@ function renderHistory() {
         let value, sub = r.sub, add = 0, prov = 0;   // add = official badge, prov = live badge
         if (p.key === "ga") {
           const og = L ? L.goals : 0, oa = L ? L.assists : 0;
-          const total = bumped2026Goals(r.name, og, liveGoalsForName(r.name, scorers));
+          const inPlay = liveGoalsForName(r.name, scorers); // goals in a match in progress
+          const total = bumped2026Goals(r.name, og, inPlay);
           const g = (r.g || 0) + total, a = (r.a || 0) + oa;
           value = g + a; sub = `${g} G · ${a} A`;
-          add = og + oa; prov = total - og;
+          // Red live dot = in-play goals only (clears at full-time); everything
+          // settled — incl. a just-finished match ESPN has counted — folds into
+          // the gold 2026 badge so the total never moves backwards.
+          prov = inPlay; add = (total - inPlay) + oa;
         } else if (p.key === "goals") {
           const og = L ? L.goals : 0;
-          const total = bumped2026Goals(r.name, og, liveGoalsForName(r.name, scorers));
+          const inPlay = liveGoalsForName(r.name, scorers); // goals in a match in progress
+          const total = bumped2026Goals(r.name, og, inPlay);
           value = (r.value || 0) + total;
-          add = og; prov = total - og;
+          prov = inPlay; add = total - inPlay;
         } else if (p.key === "active_wins") {
           // Stage-weighted: title +6, Final 8, Semi 5, Quarter 3, R16 2.
           value = (r.t || 0) * 6 + (r.f || 0) * 8 + (r.sf || 0) * 5 + (r.qf || 0) * 3 + (r.r16 || 0) * 2;
