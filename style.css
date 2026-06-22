@@ -787,8 +787,10 @@ body.view-second .stars-banner { display: none; }
 .bm {
   position: relative;
 }
+/* locked = a subtle frosted highlight on the dark glass (never white) */
 .bm.ko-locked {
-  background: #eef2f9;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 .bm.ko-locked .bm-row {
   cursor: default;
@@ -798,7 +800,7 @@ body.view-second .stars-banner { display: none; }
 }
 .bm.ko-locked .bm-row.sel,
 .bm.ko-locked .bm-row.sel:hover {
-  background: rgba(24, 160, 90, 0.16);
+  background: rgba(24, 160, 90, 0.26);
 }
 .bm-lock {
   position: absolute;

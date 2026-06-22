@@ -505,12 +505,19 @@ function koMatchLocked(id) {
 }
 
 /* The knockout round has "begun" once the real group stage is fully decided
-   (all 12 groups complete on actual results, so the official Round of 32 is
-   set). At that instant the whole main bracket freezes and the second-chance
-   round opens. allGroupsComplete() reads effScores, which prefers official
-   results, so this flips on real data — not on anyone's predictions. */
+   (every group match has an OFFICIAL result, so the real Round of 32 is set).
+   At that instant the main bracket freezes, the official bracket locks, and the
+   second-chance round opens.
+
+   NB: must key off real results only — NOT allGroupsComplete()/effScores, which
+   falls back to the user's own predictions for unplayed games and would falsely
+   "open" the knockout the moment someone fills in their group picks. */
 function knockoutOpen() {
-  return allGroupsComplete();
+  const live = (window.WC_LIVE && window.WC_LIVE.results) || {};
+  return GROUP_LETTERS.every((g) => {
+    const arr = live[g] || [];
+    return arr.length >= 6 && arr.every((m) => m && m[0] != null && m[1] != null);
+  });
 }
 
 /* The official winner map, derived from real results: for each knockout match
