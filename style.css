@@ -3118,11 +3118,24 @@ body.mi-open { overflow: hidden; }
 /* ===================================================================
    News — team/player/match headlines scanned from ESPN
    =================================================================== */
-.news-section { margin-top: 28px; }
+.news-section {
+  margin-top: 28px;
+  padding: 22px 24px 26px;
+  border-radius: 16px;
+  color: #eaf0fb;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(180deg, rgba(12, 18, 44, 0.74), rgba(18, 14, 36, 0.76));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.30);
+}
+.news-section .section-head h2 { color: #fff; }
+.news-section .section-head p { color: rgba(255, 255, 255, 0.78); }
 .news-head h2 { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .news-updated {
   font: 600 0.72rem/1 var(--sans);
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -3261,3 +3274,57 @@ body.mi-open { overflow: hidden; }
 }
 .news-player::before { content: "\1F464"; font-size: 0.78em; }
 .news-empty { color: var(--muted); padding: 12px 2px; }
+
+/* ---- Dark-panel theme: translucent blue cards/controls, light text ---- */
+.news-search {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.20);
+  color: #eaf0fb;
+}
+.news-search::placeholder { color: rgba(255, 255, 255, 0.55); }
+.news-search-ic { color: rgba(255, 255, 255, 0.55); }
+.news-search:focus { border-color: #ff8095; box-shadow: 0 0 0 3px rgba(255, 128, 149, 0.18); }
+.news-sel { color: #eaf0fb; }
+.news-sel .nts-label { color: rgba(255, 255, 255, 0.6); }
+.news-sel select {
+  color: #eaf0fb;
+  border-color: rgba(255, 255, 255, 0.20);
+  background-color: rgba(255, 255, 255, 0.08);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23aab4cc' stroke-width='1.6'/%3E%3C/svg%3E");
+}
+.news-sel select option { color: #16223b; } /* native menu stays light */
+.news-sel select:hover { border-color: #ff8095; }
+
+.news-count { color: rgba(255, 255, 255, 0.62); }
+.news-link { color: #ff8095; }
+
+.news-card {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.10);
+  border-left-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+}
+.news-card:hover { box-shadow: 0 14px 30px rgba(0, 0, 0, 0.40); }
+.news-thumb { background: rgba(255, 255, 255, 0.05); }
+.news-headline { color: #f4f7ff; }
+.news-desc { color: rgba(255, 255, 255, 0.66); }
+.news-time { color: rgba(255, 255, 255, 0.5); }
+
+.news-tag { background: rgba(255, 255, 255, 0.09); color: rgba(255, 255, 255, 0.7); }
+.tag-injury      { background: rgba(255, 90, 110, 0.20); color: #ffb3bf; }
+.tag-offfield    { background: rgba(150, 110, 255, 0.22); color: #d9c8ff; }
+.tag-celebration { background: rgba(40, 200, 120, 0.20); color: #9be9bf; }
+.tag-preview     { background: rgba(240, 185, 60, 0.22); color: #ffd98a; }
+
+.news-team {
+  color: #eaf0fb;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.news-player {
+  color: #c7ccff;
+  background: rgba(120, 130, 255, 0.18);
+  border-color: rgba(120, 130, 255, 0.32);
+}
+.news-empty { color: rgba(255, 255, 255, 0.6); }
