@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-23T22:06:05.516Z",
+  "updated": "2026-06-24T10:29:11.098Z",
   "results": {
     "A": [
       [
@@ -215,7 +215,10 @@
         5,
         0
       ],
-      null,
+      [
+        0,
+        1
+      ],
       null,
       null
     ],
@@ -232,7 +235,10 @@
         0,
         0
       ],
-      null,
+      [
+        1,
+        0
+      ],
       null,
       null
     ]
@@ -881,8 +887,8 @@
       "s": "K",
       "h": "Colombia",
       "a": "DR Congo",
-      "hg": null,
-      "ag": null,
+      "hg": 1,
+      "ag": 0,
       "v": "Estadio Akron (Guadalajara, MEX)"
     },
     {
@@ -941,8 +947,8 @@
       "s": "L",
       "h": "Panama",
       "a": "Croatia",
-      "hg": null,
-      "ag": null,
+      "hg": 0,
+      "ag": 1,
       "v": "BMO Field (Toronto, CAN)"
     },
     {
