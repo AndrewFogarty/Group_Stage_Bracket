@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-24T22:02:57.506Z",
+  "updated": "2026-06-25T10:20:50.190Z",
   "results": {
     "A": [
       [
@@ -19,8 +19,14 @@
         1,
         1
       ],
-      null,
-      null
+      [
+        3,
+        0
+      ],
+      [
+        1,
+        0
+      ]
     ],
     "B": [
       [
@@ -65,8 +71,14 @@
         1,
         0
       ],
-      null,
-      null
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        2
+      ]
     ],
     "D": [
       [
@@ -303,8 +315,8 @@
       "s": "A",
       "h": "Czechia",
       "a": "Mexico",
-      "hg": null,
-      "ag": null,
+      "hg": 0,
+      "ag": 3,
       "v": "Estadio Azteca (Mexico City, MEX)"
     },
     {
@@ -313,8 +325,8 @@
       "s": "A",
       "h": "South Africa",
       "a": "Korea Republic",
-      "hg": null,
-      "ag": null,
+      "hg": 1,
+      "ag": 0,
       "v": "Estadio BBVA (Monterrey, MEX)"
     },
     {
@@ -423,8 +435,8 @@
       "s": "C",
       "h": "Scotland",
       "a": "Brazil",
-      "hg": null,
-      "ag": null,
+      "hg": 0,
+      "ag": 3,
       "v": "Hard Rock Stadium (Miami, USA)"
     },
     {
@@ -433,8 +445,8 @@
       "s": "C",
       "h": "Morocco",
       "a": "Haiti",
-      "hg": null,
-      "ag": null,
+      "hg": 4,
+      "ag": 2,
       "v": "Mercedes-Benz Stadium (Atlanta, USA)"
     },
     {
