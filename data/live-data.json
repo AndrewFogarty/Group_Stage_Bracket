@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-25T23:00:30.092Z",
+  "updated": "2026-06-26T10:37:52.232Z",
   "results": {
     "A": [
       [
@@ -97,8 +97,14 @@
         1,
         0
       ],
-      null,
-      null
+      [
+        2,
+        3
+      ],
+      [
+        0,
+        0
+      ]
     ],
     "E": [
       [
@@ -143,8 +149,14 @@
         4,
         0
       ],
-      null,
-      null
+      [
+        3,
+        1
+      ],
+      [
+        1,
+        1
+      ]
     ],
     "G": [
       [
@@ -501,8 +513,8 @@
       "s": "D",
       "h": "Turkey",
       "a": "USA",
-      "hg": null,
-      "ag": null,
+      "hg": 3,
+      "ag": 2,
       "v": "SoFi Stadium (Los Angeles, USA)"
     },
     {
@@ -511,8 +523,8 @@
       "s": "D",
       "h": "Paraguay",
       "a": "Australia",
-      "hg": null,
-      "ag": null,
+      "hg": 0,
+      "ag": 0,
       "v": "Levi's Stadium (San Francisco Bay Area, USA)"
     },
     {
@@ -621,8 +633,8 @@
       "s": "F",
       "h": "Japan",
       "a": "Sweden",
-      "hg": null,
-      "ag": null,
+      "hg": 1,
+      "ag": 1,
       "v": "AT&T Stadium (Dallas, USA)"
     },
     {
@@ -631,8 +643,8 @@
       "s": "F",
       "h": "Tunisia",
       "a": "Netherlands",
-      "hg": null,
-      "ag": null,
+      "hg": 1,
+      "ag": 3,
       "v": "Arrowhead Stadium (Kansas City, USA)"
     },
     {
