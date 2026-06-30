@@ -1,6 +1,6 @@
 {
   "source": "openfootball/worldcup.json (2026)",
-  "updated": "2026-06-29T21:08:42.042Z",
+  "updated": "2026-06-30T08:47:52.018Z",
   "results": {
     "A": [
       [
@@ -318,6 +318,8 @@
   "advanced": {
     "R16": [
       "Canada",
+      "Paraguay",
+      "Morocco",
       "Brazil"
     ],
     "QF": [],
@@ -1064,8 +1066,8 @@
       "s": "R32",
       "h": "Germany",
       "a": "Paraguay",
-      "hg": null,
-      "ag": null,
+      "hg": 1,
+      "ag": 1,
       "v": "Gillette Stadium (Boston, USA)"
     },
     {
@@ -1075,8 +1077,8 @@
       "s": "R32",
       "h": "Netherlands",
       "a": "Morocco",
-      "hg": null,
-      "ag": null,
+      "hg": 1,
+      "ag": 1,
       "v": "Estadio BBVA (Monterrey, MEX)"
     },
     {
